@@ -6,7 +6,7 @@
 
 ## 后端计划进度安排
 
-![image-20250603143914797](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250603143914797.png)
+![image](image.png)
 
 ## 后端开发进度与开发详情
 
