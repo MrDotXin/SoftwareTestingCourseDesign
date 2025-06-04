@@ -18,6 +18,7 @@ import com.mrdotxin.propsmart.model.entity.RepairOrder;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.enums.RepairOrderStatusEnum;
 import com.mrdotxin.propsmart.model.vo.RepairOrderVO;
+import com.mrdotxin.propsmart.service.NotificationService;
 import com.mrdotxin.propsmart.service.PropertyService;
 import com.mrdotxin.propsmart.service.RepairOrderService;
 import com.mrdotxin.propsmart.service.UserService;
@@ -45,6 +46,9 @@ public class RepairOrderController {
 
     @Resource
     private PropertyService propertyService;
+    
+    @Resource
+    private NotificationService notificationService;
 
     @PostMapping("/submit")
     @AuthCheck(mustOwner = true)
@@ -68,6 +72,9 @@ public class RepairOrderController {
         repairOrderService.validateRepairOrder(repairOrder);
         boolean result = repairOrderService.save(repairOrder);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "提交失败");
+        
+        // 发送WebSocket通知给管理员
+        notificationService.handleRepairOrderNotification(repairOrder, true);
 
         return ResultUtils.success(repairOrder.getId());
     }
@@ -95,6 +102,9 @@ public class RepairOrderController {
 
         boolean result = repairOrderService.updateById(repairOrder);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "更新失败");
+        
+        // 发送WebSocket通知给用户
+        notificationService.handleRepairOrderNotification(repairOrder, false);
 
         return ResultUtils.success(true);
     }

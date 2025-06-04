@@ -16,6 +16,7 @@ import com.mrdotxin.propsmart.model.dto.notice.NoticeUpdateRequest;
 import com.mrdotxin.propsmart.model.entity.Notice;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.service.NoticeService;
+import com.mrdotxin.propsmart.service.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,6 +37,9 @@ public class NoticeController {
 
     @Resource
     private UserService userService;
+    
+    @Resource
+    private NotificationService notificationService;
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/add")
@@ -52,6 +56,9 @@ public class NoticeController {
         noticeService.validateNotice(notice);
         boolean result = noticeService.save(notice);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "添加失败");
+        
+        // 发送WebSocket通知
+        notificationService.handleNoticeNotification(notice);
 
         return ResultUtils.success(notice.getId());
     }

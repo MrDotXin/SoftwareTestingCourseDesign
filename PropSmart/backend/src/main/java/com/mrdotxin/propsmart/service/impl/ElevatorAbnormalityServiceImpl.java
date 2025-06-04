@@ -33,10 +33,10 @@ public class ElevatorAbnormalityServiceImpl extends ServiceImpl<ElevatorAbnormal
 
     @Resource
     private ElevatorMapper elevatorMapper;
-    
+
     @Resource
     private UserService userService;
-    
+
     @Resource
     private ElevatorService elevatorService;
 
@@ -67,7 +67,7 @@ public class ElevatorAbnormalityServiceImpl extends ServiceImpl<ElevatorAbnormal
         }
         abnormality.setCreateTime(new Date());
         abnormality.setUpdateTime(new Date());
-        
+
         save(abnormality);
         return abnormality.getId();
     }
@@ -79,16 +79,16 @@ public class ElevatorAbnormalityServiceImpl extends ServiceImpl<ElevatorAbnormal
         if (abnormality == null) {
             return false;
         }
-        
+
         abnormality.setHandlerId(handlerId);
         abnormality.setStatus(status);
         abnormality.setHandlingNotes(handlingNotes);
         abnormality.setUpdateTime(new Date());
-        
+
         // 如果状态是已解决，设置恢复时间
         if (status.equals(AbnormalityStatusEnum.RESOLVED.getStatus())) {
             abnormality.setRecoveryTime(new Date());
-            
+
             // 更新电梯状态为正常
             Elevator elevator = elevatorMapper.selectById(abnormality.getElevatorId());
             if (elevator != null) {
@@ -96,7 +96,7 @@ public class ElevatorAbnormalityServiceImpl extends ServiceImpl<ElevatorAbnormal
                 elevatorMapper.updateById(elevator);
             }
         }
-        
+
         return updateById(abnormality);
     }
 
@@ -105,7 +105,7 @@ public class ElevatorAbnormalityServiceImpl extends ServiceImpl<ElevatorAbnormal
     public boolean closeAbnormality(Long abnormalityId, Long handlerId) {
         return handleAbnormality(abnormalityId, handlerId, AbnormalityStatusEnum.CLOSED.getStatus(), "异常已关闭");
     }
-    
+
     /**
      * 将异常实体列表转换为DTO列表
      */
@@ -113,55 +113,51 @@ public class ElevatorAbnormalityServiceImpl extends ServiceImpl<ElevatorAbnormal
         if (abnormalities == null || abnormalities.isEmpty()) {
             return new ArrayList<>();
         }
-        
+
         // 获取所有相关的电梯信息
         List<Long> elevatorIds = abnormalities.stream()
                 .map(ElevatorAbnormality::getElevatorId)
                 .distinct()
                 .collect(Collectors.toList());
-        
+
         List<Elevator> elevators = elevatorMapper.selectBatchIds(elevatorIds);
         Map<Long, Elevator> elevatorMap = elevators.stream()
                 .collect(Collectors.toMap(Elevator::getId, Function.identity()));
-        
+
         // 获取所有处理人信息
         List<Long> handlerIds = abnormalities.stream()
                 .map(ElevatorAbnormality::getHandlerId)
                 .filter(id -> id != null)
                 .distinct()
                 .collect(Collectors.toList());
-        
+
         Map<Long, String> handlerNameMap = new java.util.HashMap<>();
         if (!handlerIds.isEmpty()) {
             List<User> handlers = userService.listByIds(handlerIds);
             handlerNameMap = handlers.stream()
                     .collect(Collectors.toMap(User::getId, User::getUserRealName));
         }
-        
+
         // 转换为DTO
         List<ElevatorAbnormalityDTO> dtoList = new ArrayList<>();
         for (ElevatorAbnormality abnormality : abnormalities) {
             ElevatorAbnormalityDTO dto = new ElevatorAbnormalityDTO();
             BeanUtils.copyProperties(abnormality, dto);
-            
+
             // 设置电梯编号
             Elevator elevator = elevatorMap.get(abnormality.getElevatorId());
             if (elevator != null) {
                 dto.setElevatorNumber(elevator.getElevatorNumber());
             }
-            
+
             // 设置处理人姓名
             if (abnormality.getHandlerId() != null) {
                 dto.setHandlerName(handlerNameMap.get(abnormality.getHandlerId()));
             }
-            
+
             dtoList.add(dto);
         }
-        
+
         return dtoList;
     }
 }
-
-
-
-

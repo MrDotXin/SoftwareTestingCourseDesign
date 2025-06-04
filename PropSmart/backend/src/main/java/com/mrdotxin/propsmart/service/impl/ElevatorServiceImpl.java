@@ -18,6 +18,7 @@ import com.mrdotxin.propsmart.model.enums.ElevatorStatusEnum;
 import com.mrdotxin.propsmart.service.ElevatorAbnormalityService;
 import com.mrdotxin.propsmart.service.ElevatorConfigService;
 import com.mrdotxin.propsmart.service.ElevatorService;
+import com.mrdotxin.propsmart.service.NotificationService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +49,9 @@ public class ElevatorServiceImpl extends ServiceImpl<ElevatorMapper, Elevator> i
     
     @Resource
     private ElevatorAbnormalityService elevatorAbnormalityService;
+    
+    @Resource
+    private NotificationService notificationService;
     
     // 电梯数据模拟器
     private ScheduledExecutorService simulator;
@@ -118,12 +122,25 @@ public class ElevatorServiceImpl extends ServiceImpl<ElevatorMapper, Elevator> i
             return false;
         }
         
+        // 记录旧状态
+        String oldStatus = elevator.getCurrentStatus();
+        
         elevator.setCurrentStatus(status);
         boolean result = updateById(elevator);
         
         // 更新缓存
         if (result && elevatorCache.containsKey(elevatorId)) {
             elevatorCache.put(elevatorId, elevator);
+            
+            // 检查状态是否变为异常，如果是则发送通知
+            boolean isAbnormal = status.equals(ElevatorStatusEnum.WARNING.getStatus()) || 
+                                status.equals(ElevatorStatusEnum.FAULT.getStatus());
+            
+            // 如果状态发生变化且变为异常状态，或者从异常状态恢复，则发送通知
+            if (!status.equals(oldStatus) && (isAbnormal || oldStatus.equals(ElevatorStatusEnum.WARNING.getStatus()) || 
+                oldStatus.equals(ElevatorStatusEnum.FAULT.getStatus()))) {
+                notificationService.handleElevatorStatusNotification(elevator, isAbnormal);
+            }
         }
         
         return result;
@@ -422,8 +439,14 @@ public class ElevatorServiceImpl extends ServiceImpl<ElevatorMapper, Elevator> i
                         elevator.setDoorStatus("半开"); // 模拟门卡住的状态
                     }
                 }
+                
+                // 发送电梯故障通知
+                notificationService.handleElevatorStatusNotification(elevator, true);
             } else {
                 elevator.setCurrentStatus(ElevatorStatusEnum.WARNING.getStatus());
+                
+                // 发送电梯预警通知
+                notificationService.handleElevatorStatusNotification(elevator, true);
             }
             
             // 记录异常

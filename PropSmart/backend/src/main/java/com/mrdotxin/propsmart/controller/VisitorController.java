@@ -15,6 +15,7 @@ import com.mrdotxin.propsmart.model.dto.visitor.VisitorQueryRequest;
 import com.mrdotxin.propsmart.model.dto.visitor.VisitorUpdateRequest;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.entity.Visitor;
+import com.mrdotxin.propsmart.service.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
 import com.mrdotxin.propsmart.service.VisitorService;
 import com.mrdotxin.propsmart.utils.FormatUtils;
@@ -41,6 +42,9 @@ public class VisitorController {
 
     @Resource
     private UserService userService;
+    
+    @Resource
+    private NotificationService notificationService;
 
     /**
      * 创建访客申请
@@ -62,8 +66,14 @@ public class VisitorController {
 
         BeanUtils.copyProperties(visitorAddRequest, visitor);
 
-
         long result = visitorService.addVisitor(visitor, loginUser.getId());
+        
+        // 获取创建的访客申请并发送通知
+        Visitor savedVisitor = visitorService.getById(result);
+        if (savedVisitor != null) {
+            notificationService.handleVisitorNotification(savedVisitor, true);
+        }
+        
         return ResultUtils.success(result);
     }
 
@@ -122,6 +132,15 @@ public class VisitorController {
         BeanUtils.copyProperties(visitorUpdateRequest, visitor);
 
         boolean result = visitorService.reviewVisitor(visitor, loginUser.getId());
+        
+        // 获取更新后的访客申请并发送通知
+        if (result) {
+            Visitor updatedVisitor = visitorService.getById(visitorUpdateRequest.getId());
+            if (updatedVisitor != null) {
+                notificationService.handleVisitorNotification(updatedVisitor, false);
+            }
+        }
+        
         return ResultUtils.success(result);
     }
 
