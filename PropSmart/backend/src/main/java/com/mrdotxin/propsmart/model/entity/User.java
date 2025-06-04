@@ -7,43 +7,27 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 用户
- *
+ * 用户实体类
  */
-@TableName(value = "user")
 @Data
+@TableName("user")
 public class User implements Serializable {
 
     /**
-     * id
+     * 用户ID
      */
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
-     * 用户账号
+     * 账号
      */
     private String userAccount;
 
     /**
-     * 用户密码
+     * 密码
      */
     private String userPassword;
-
-    /**
-     * 手机号
-     */
-    private String userPhoneNumber;
-
-    /**
-     * 用户实际姓名
-     */
-    private String userRealName;
-
-    /**
-     * 用户身份证
-     */
-    private String userIdCardNumber;
 
     /**
      * 用户昵称
@@ -61,9 +45,29 @@ public class User implements Serializable {
     private String userProfile;
 
     /**
-     * 用户角色：user/admin/ban
+     * 联系电话
+     */
+    private String userPhoneNumber;
+
+    /**
+     * 身份证
+     */
+    private String userIdCardNumber;
+
+    /**
+     * 用户真实姓名
+     */
+    private String userRealName;
+
+    /**
+     * 用户角色：ROLE_USER/ROLE_ADMIN/ROLE_BAN
      */
     private String userRole;
+
+    /**
+     * 是否是业主
+     */
+    private Boolean isOwner;
 
     /**
      * 创建时间
@@ -74,12 +78,6 @@ public class User implements Serializable {
      * 更新时间
      */
     private Date updateTime;
-
-    /**
-     * 是不是业主
-     */
-    private Boolean isOwner;
-
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

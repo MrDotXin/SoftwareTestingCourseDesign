@@ -33,4 +33,11 @@ public enum ErrorCode {
         this.message = message;
     }
 
+    public int getCode() {
+        return code;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 }

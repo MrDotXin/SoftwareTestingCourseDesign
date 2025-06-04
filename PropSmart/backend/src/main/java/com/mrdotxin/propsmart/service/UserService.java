@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
- * 用户服务
+ * 用户服务接口
  */
 public interface UserService extends IService<User> {
 
