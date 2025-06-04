@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mrdotxin.propsmart.mapper.ElevatorAbnormalityMapper">
+
+    <resultMap id="BaseResultMap" type="com.mrdotxin.propsmart.model.entity.ElevatorAbnormality">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="elevatorId" column="elevatorId" jdbcType="BIGINT"/>
+            <result property="abnormalityType" column="abnormalityType" jdbcType="OTHER"/>
+            <result property="abnormalityLevel" column="abnormalityLevel" jdbcType="OTHER"/>
+            <result property="occurrenceTime" column="occurrenceTime" jdbcType="TIMESTAMP"/>
+            <result property="recoveryTime" column="recoveryTime" jdbcType="TIMESTAMP"/>
+            <result property="status" column="status" jdbcType="OTHER"/>
+            <result property="handlerId" column="handlerId" jdbcType="BIGINT"/>
+            <result property="description" column="description" jdbcType="VARCHAR"/>
+            <result property="handlingNotes" column="handlingNotes" jdbcType="VARCHAR"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,elevatorId,abnormalityType,abnormalityLevel,occurrenceTime,recoveryTime,
+        status,handlerId,description,handlingNotes,createTime,
+        updateTime
+    </sql>
+</mapper>

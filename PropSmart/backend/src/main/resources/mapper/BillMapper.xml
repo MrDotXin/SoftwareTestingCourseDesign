@@ -6,14 +6,14 @@
 
     <resultMap id="BaseResultMap" type="com.mrdotxin.propsmart.model.entity.Bill">
             <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="propertyid" column="propertyId" jdbcType="BIGINT"/>
+            <result property="propertyId" column="propertyId" jdbcType="BIGINT"/>
             <result property="type" column="type" jdbcType="OTHER"/>
             <result property="amount" column="amount" jdbcType="DECIMAL"/>
             <result property="deadline" column="deadline" jdbcType="DATE"/>
             <result property="status" column="status" jdbcType="OTHER"/>
-            <result property="createtime" column="createTime" jdbcType="TIMESTAMP"/>
-            <result property="updatetime" column="updateTime" jdbcType="TIMESTAMP"/>
-            <result property="paidtime" column="paidTime" jdbcType="TIMESTAMP"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="paidTime" column="paidTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">

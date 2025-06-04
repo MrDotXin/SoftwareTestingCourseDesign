@@ -1,15 +1,14 @@
 package com.mrdotxin.propsmart.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.mrdotxin.propsmart.model.entity.User;
+import com.mrdotxin.propsmart.model.entity.Elevator;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 用户数据访问层
+ * 电梯数据访问层
  */
 @Mapper
-public interface UserMapper extends BaseMapper<User> {
-
+public interface ElevatorMapper extends BaseMapper<Elevator> {
 }
 
 
