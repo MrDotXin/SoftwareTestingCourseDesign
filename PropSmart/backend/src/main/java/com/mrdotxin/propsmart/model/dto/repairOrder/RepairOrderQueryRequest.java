@@ -1,5 +1,6 @@
 package com.mrdotxin.propsmart.model.dto.repairOrder;
 
+import com.mrdotxin.propsmart.constant.CommonConstant;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

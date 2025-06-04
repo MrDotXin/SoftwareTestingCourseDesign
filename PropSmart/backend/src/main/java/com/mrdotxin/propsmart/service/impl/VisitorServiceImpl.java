@@ -1,17 +1,21 @@
 package com.mrdotxin.propsmart.service.impl;
 
+import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mrdotxin.propsmart.common.ErrorCode;
 import com.mrdotxin.propsmart.constant.CommonConstant;
 import com.mrdotxin.propsmart.exception.BusinessException;
+import com.mrdotxin.propsmart.exception.ThrowUtils;
 import com.mrdotxin.propsmart.mapper.VisitorMapper;
 import com.mrdotxin.propsmart.model.dto.visitor.VisitorQueryRequest;
+import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.entity.Visitor;
 import com.mrdotxin.propsmart.model.enums.VisitorReviewStatusEnum;
 import com.mrdotxin.propsmart.service.VisitorService;
 import com.mrdotxin.propsmart.utils.SqlUtils;
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -104,18 +108,26 @@ public class VisitorServiceImpl extends ServiceImpl<VisitorMapper, Visitor> impl
 
     @Override
     public String generatePassCode(String idCardNumber, Date visitTime, Integer duration) {
-        // 计算当前时间和过期时间
         long expirationTime = visitTime.getTime() + duration * 1000 * 3600;
 
-        // 创建payload
         Map<String, Object> payload = new HashMap<>();
         payload.put("idCardNumber", idCardNumber);
-        payload.put("iat", visitTime);  // 签发时间(issued at)
-        payload.put("exp", expirationTime); // 过期时间
+        payload.put("iat", visitTime);
+        payload.put("exp", expirationTime);
 
         // 生成JWT
         return JWTUtil.createToken(payload, jwtSecret.getBytes());
     }
+
+
+    @Override
+    public String validatePassCode(String token, User loginUser) {
+        ThrowUtils.throwIf(JWTUtil.verify(token, jwtSecret.getBytes()), ErrorCode.PARAMS_ERROR, "当前不在允许访问的时间内, token无效");
+
+        JWT jwt = JWTUtil.parseToken(token);
+        return (String) jwt.getPayload("idCardNumber");
+    }
+
 
     @Override
     public QueryWrapper<Visitor> getQueryWrapper(VisitorQueryRequest visitorQueryRequest) {

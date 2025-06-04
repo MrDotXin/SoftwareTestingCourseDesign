@@ -3,6 +3,7 @@ package com.mrdotxin.propsmart.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mrdotxin.propsmart.model.dto.visitor.VisitorQueryRequest;
+import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.entity.Visitor;
 
 import java.util.Date;
@@ -43,4 +44,9 @@ public interface VisitorService extends IService<Visitor> {
      * @return
      */
     QueryWrapper<Visitor> getQueryWrapper(VisitorQueryRequest visitorQueryRequest);
+
+    /**
+     * 验证身份并提取信息
+     */
+    String validatePassCode(String token, User loginUser);
 } 
