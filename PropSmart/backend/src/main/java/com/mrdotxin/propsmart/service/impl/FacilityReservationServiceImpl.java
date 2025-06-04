@@ -2,8 +2,10 @@ package com.mrdotxin.propsmart.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mrdotxin.propsmart.annotation.AuthCheck;
 import com.mrdotxin.propsmart.common.ErrorCode;
 import com.mrdotxin.propsmart.constant.CommonConstant;
+import com.mrdotxin.propsmart.constant.UserConstant;
 import com.mrdotxin.propsmart.exception.BusinessException;
 import com.mrdotxin.propsmart.model.dto.facility.reservation.FacilityReservationQueryRequest;
 import com.mrdotxin.propsmart.model.entity.Facility;
@@ -55,6 +57,7 @@ public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservat
     }
 
     @Override
+    @AuthCheck(mustOwner=true)
     public long addReservation(FacilityReservation facilityReservation, Long userId) {
         if (facilityReservation == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -103,6 +106,7 @@ public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservat
     }
 
     @Override
+    @AuthCheck(mustRole= UserConstant.ADMIN_ROLE)
     public boolean reviewReservation(FacilityReservation facilityReservation, Long reviewerId) {
         if (facilityReservation == null || facilityReservation.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
