@@ -3,6 +3,7 @@ package com.mrdotxin.propsmart.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mrdotxin.propsmart.common.ErrorCode;
+import com.mrdotxin.propsmart.constant.CommonConstant;
 import com.mrdotxin.propsmart.exception.BusinessException;
 import com.mrdotxin.propsmart.model.dto.facility.reservation.FacilityReservationQueryRequest;
 import com.mrdotxin.propsmart.model.entity.Facility;
@@ -10,6 +11,7 @@ import com.mrdotxin.propsmart.model.entity.FacilityReservation;
 import com.mrdotxin.propsmart.mapper.FacilityReservationMapper;
 import com.mrdotxin.propsmart.service.FacilityReservationService;
 import com.mrdotxin.propsmart.service.FacilityService;
+import com.mrdotxin.propsmart.utils.SqlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -206,25 +208,16 @@ public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservat
         Long userId = facilityReservationQueryRequest.getUserId();
         String status = facilityReservationQueryRequest.getStatus();
         Date reservationTime = facilityReservationQueryRequest.getReservationTime();
+        String sortField = facilityReservationQueryRequest.getSortField();
+        String sortOrder = facilityReservationQueryRequest.getSortOrder();
 
         // 拼接查询条件
-        if (facilityId != null) {
-            queryWrapper.eq("facilityId", facilityId);
-        }
-
-        if (userId != null) {
-            queryWrapper.eq("userId", userId);
-        }
-
-        if (StringUtils.isNotBlank(status)) {
-            queryWrapper.eq("status", status);
-        }
-
-        if (reservationTime != null) {
-            queryWrapper.ge("reservationTime", reservationTime);
-        }
-
-        queryWrapper.orderByDesc("createTime");
+        queryWrapper.eq(facilityId != null,"facilityId", facilityId);
+        queryWrapper.eq(userId != null,"userId", userId);
+        queryWrapper.eq(StringUtils.isNotBlank(status),"status", status);
+        queryWrapper.ge(reservationTime != null,"reservationTime", reservationTime);
+        queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
+                sortField);
 
         return queryWrapper;
     }

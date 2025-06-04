@@ -3,11 +3,13 @@ package com.mrdotxin.propsmart.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mrdotxin.propsmart.common.ErrorCode;
+import com.mrdotxin.propsmart.constant.CommonConstant;
 import com.mrdotxin.propsmart.exception.BusinessException;
 import com.mrdotxin.propsmart.model.dto.complaint.ComplaintSuggestionQueryRequest;
 import com.mrdotxin.propsmart.model.entity.ComplaintSuggestion;
 import com.mrdotxin.propsmart.service.ComplaintSuggestionService;
 import com.mrdotxin.propsmart.mapper.ComplaintSuggestionMapper;
+import com.mrdotxin.propsmart.utils.SqlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -96,29 +98,18 @@ public class ComplaintSuggestionServiceImpl extends ServiceImpl<ComplaintSuggest
         String status = complaintQueryRequest.getStatus();
         Long userId = complaintQueryRequest.getUserId();
         Long reviewerId = complaintQueryRequest.getReviewerId();
+        String sortField = complaintQueryRequest.getSortField();
+        String sortOrder = complaintQueryRequest.getSortOrder();
 
         // 拼接查询条件
-        if (StringUtils.isNotBlank(content)) {
-            queryWrapper.like("content", content);
-        }
+        queryWrapper.like(StringUtils.isNotBlank(content),"content", content);
+        queryWrapper.eq(StringUtils.isNotBlank(type),"type", type);
+        queryWrapper.eq(StringUtils.isNotBlank(status),"status", status);
+        queryWrapper.eq(userId != null,"userId", userId);
+        queryWrapper.eq(reviewerId != null,"reviewerId", reviewerId);
 
-        if (StringUtils.isNotBlank(type)) {
-            queryWrapper.eq("type", type);
-        }
-
-        if (StringUtils.isNotBlank(status)) {
-            queryWrapper.eq("status", status);
-        }
-
-        if (userId != null) {
-            queryWrapper.eq("userId", userId);
-        }
-
-        if (reviewerId != null) {
-            queryWrapper.eq("reviewerId", reviewerId);
-        }
-
-        queryWrapper.orderByDesc("createTime");
+        queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
+                sortField);
 
         return queryWrapper;
     }
