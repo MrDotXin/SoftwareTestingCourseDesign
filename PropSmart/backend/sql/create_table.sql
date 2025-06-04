@@ -156,3 +156,71 @@ CREATE TABLE IF NOT EXISTS facilityReservation (
     FOREIGN KEY (facilityId) REFERENCES facility(id),
     FOREIGN KEY (reviewerId) REFERENCES user(id)
     ) DEFAULT CHARSET=utf8mb4 COMMENT='设施预订';
+
+-- 电梯基本信息及实时运行参数表
+CREATE TABLE IF NOT EXISTS elevator (
+                                        id                  BIGINT AUTO_INCREMENT COMMENT '电梯ID',
+                                        buildingId          BIGINT          NOT NULL COMMENT '所属楼栋ID（关联building表）',
+                                        elevatorNumber      VARCHAR(50)     NOT NULL COMMENT '电梯编号（如A栋1号电梯）',
+                                        installationDate    DATE            NULL COMMENT '安装日期',
+                                        lastMaintenanceDate DATE            NULL COMMENT '上次维护日期',
+                                        currentStatus       ENUM('正常', '预警', '故障', '维护中') DEFAULT '正常' COMMENT '当前运行状态',
+                                        currentFloor        INT             NULL COMMENT '当前所在楼层',
+                                        runningDirection    ENUM('上行', '下行', '静止') NULL COMMENT '运行方向',
+                                        loadPercentage      INT             DEFAULT 0 COMMENT '负载百分比（0-100）',
+                                        doorStatus          ENUM('开启', '关闭') DEFAULT '关闭' COMMENT '电梯门状态',
+
+    -- 温度参数
+                                        cabinTemperature    DECIMAL(5,2)    NULL COMMENT '轿厢温度（单位：℃）',
+                                        motorTemperature    DECIMAL(5,2)    NULL COMMENT '电机温度（单位：℃）',
+
+    -- 速度参数
+                                        runningSpeed        DECIMAL(5,2)    NULL COMMENT '运行速度（单位：m/s）',
+                                        ratedSpeed          DECIMAL(5,2)    NULL COMMENT '额定速度（单位：m/s，出厂设定值）',
+
+    -- 加速度参数（高速电梯专用）
+                                        acceleration        DECIMAL(5,3)    NULL COMMENT '加速度/减速度（单位：m/s²，保留3位小数）',
+
+    -- 能耗参数
+                                        powerConsumption    DECIMAL(10,2)   NULL COMMENT '实时功耗（单位：kW）',
+
+                                        createTime          DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                        updateTime          DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '状态更新时间',
+                                        PRIMARY KEY (id),
+                                        FOREIGN KEY (buildingId) REFERENCES building(id)
+) DEFAULT CHARSET=utf8mb4 COMMENT='电梯基本信息及实时运行参数表';
+
+-- 电梯异常事件记录表
+CREATE TABLE IF NOT EXISTS elevatorAbnormality (
+                                                    id                  BIGINT AUTO_INCREMENT COMMENT '异常记录ID',
+                                                    elevatorId          BIGINT          NOT NULL COMMENT '关联的电梯ID（关联elevator表）',
+                                                    abnormalityType     ENUM('门故障', '超载', '温度异常', '速度异常', '加速度异常', '停电', '传感器异常', '其他') NOT NULL COMMENT '异常类型',
+                                                    abnormalityLevel    ENUM('轻微', '中等', '严重') NOT NULL COMMENT '异常级别',
+                                                    occurrenceTime      DATETIME        NOT NULL COMMENT '异常发生时间',
+                                                    recoveryTime        DATETIME            NULL COMMENT '异常恢复时间',
+                                                    status              ENUM('待处理', '处理中', '已解决', '已关闭') DEFAULT '待处理' COMMENT '处理状态',
+                                                    handlerId           BIGINT              NULL COMMENT '处理人ID（关联user表，管理员或维修人员）',
+                                                    description         TEXT            NULL COMMENT '异常详细描述',
+                                                    handlingNotes       TEXT            NULL COMMENT '处理过程记录',
+                                                    createTime          DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '记录创建时间',
+                                                    updateTime          DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '记录更新时间',
+                                                    PRIMARY KEY (id),
+                                                    FOREIGN KEY (elevatorId) REFERENCES elevator(id),
+                                                    FOREIGN KEY (handlerId) REFERENCES user(id)
+) DEFAULT CHARSET=utf8mb4 COMMENT='电梯异常事件记录表';
+
+-- 电梯运行参数配置表（独立管理预警阈值）
+CREATE TABLE IF NOT EXISTS elevatorConfig (
+                                               elevatorId          BIGINT          PRIMARY KEY COMMENT '电梯ID（关联elevator表）',
+    -- 温度预警阈值
+                                               cabinTempAlertThr   DECIMAL(5,2)    DEFAULT 35.0 COMMENT '轿厢温度预警阈值（默认35℃）',
+                                               motorTempAlertThr   DECIMAL(5,2)    DEFAULT 60.0 COMMENT '电机温度预警阈值（默认60℃）',
+    -- 速度异常阈值（按额定速度百分比计算）
+                                               speedAlertPercent   DECIMAL(5,2)    DEFAULT 10.0 COMMENT '速度异常百分比阈值（默认±10%）',
+    -- 加速度异常阈值
+                                               accelAlertThr       DECIMAL(5,3)    DEFAULT 1.500 COMMENT '加速度异常阈值（默认1.5m/s²）',
+    -- 配置生效时间
+                                               effectiveTime       DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '配置生效时间',
+                                               updateTime          DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '配置更新时间',
+                                               FOREIGN KEY (elevatorId) REFERENCES elevator(id)
+) DEFAULT CHARSET=utf8mb4 COMMENT='电梯运行参数配置表';
