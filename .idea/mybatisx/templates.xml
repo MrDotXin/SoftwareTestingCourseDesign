@@ -71,8 +71,8 @@
             <option name="tableUIInfoList">
               <list>
                 <TableUIInfo>
-                  <option name="className" value="Bill" />
-                  <option name="tableName" value="bill" />
+                  <option name="className" value="Visitor" />
+                  <option name="tableName" value="visitor" />
                 </TableUIInfo>
               </list>
             </option>
