@@ -1,5 +1,6 @@
 package com.mrdotxin.propsmart.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mrdotxin.propsmart.annotation.AuthCheck;
 import com.mrdotxin.propsmart.common.BaseResponse;
@@ -16,6 +17,9 @@ import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.entity.Visitor;
 import com.mrdotxin.propsmart.service.UserService;
 import com.mrdotxin.propsmart.service.VisitorService;
+import com.mrdotxin.propsmart.utils.FormatUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +30,10 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * 访客管理接口
  */
+@Slf4j
+@Api(tags = "访客记录功能")
 @RestController
 @RequestMapping("/visitor")
-@Slf4j
 public class VisitorController {
 
     @Resource
@@ -40,12 +45,10 @@ public class VisitorController {
     /**
      * 创建访客申请
      *
-     * @param visitorAddRequest
-     * @param request
-     * @return
      */
-    @PostMapping("/add")
-    public BaseResponse<Long> addVisitor(@RequestBody VisitorAddRequest visitorAddRequest,
+    @PostMapping("/submit")
+    @ApiOperation(value = "提交访问申请")
+    public BaseResponse<Long> submitVisitRequest(@RequestBody VisitorAddRequest visitorAddRequest,
                                          HttpServletRequest request) {
         if (visitorAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -53,7 +56,12 @@ public class VisitorController {
 
         User loginUser = userService.getLoginUser(request);
         Visitor visitor = new Visitor();
+        if (!FormatUtils.isValidNameAndIdCard(visitor.getVisitorName(), visitor.getIdNumber())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "身份证和姓名验证失败!");
+        }
+
         BeanUtils.copyProperties(visitorAddRequest, visitor);
+
 
         long result = visitorService.addVisitor(visitor, loginUser.getId());
         return ResultUtils.success(result);
@@ -62,11 +70,10 @@ public class VisitorController {
     /**
      * 删除访客申请
      *
-     * @param deleteRequest
-     * @param request
-     * @return
      */
     @PostMapping("/delete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @ApiOperation(value = "删除访问申请")
     public BaseResponse<Boolean> deleteVisitor(@RequestBody DeleteRequest deleteRequest,
                                                HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
@@ -97,8 +104,9 @@ public class VisitorController {
      * @return
      */
     @PostMapping("/update")
+    @ApiOperation(value = "管理员审核访问申请")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> updateVisitor(@RequestBody VisitorUpdateRequest visitorUpdateRequest,
+    public BaseResponse<Boolean> reviewVisitor(@RequestBody VisitorUpdateRequest visitorUpdateRequest,
                                                HttpServletRequest request) {
         if (visitorUpdateRequest == null || visitorUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -125,6 +133,8 @@ public class VisitorController {
      * @return
      */
     @GetMapping("/get")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @ApiOperation(value = "获取申请详情")
     public BaseResponse<Visitor> getVisitorById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -153,6 +163,7 @@ public class VisitorController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @ApiOperation(value = "分页获取申请")
     public BaseResponse<Page<Visitor>> listVisitorByPage(@RequestBody VisitorQueryRequest visitorQueryRequest,
                                                          HttpServletRequest request) {
         long current = visitorQueryRequest.getCurrent();
@@ -167,11 +178,9 @@ public class VisitorController {
     /**
      * 分页获取当前用户的访客申请列表
      *
-     * @param visitorQueryRequest
-     * @param request
-     * @return
      */
     @PostMapping("/my/list/page")
+    @ApiOperation(value = "分页获取用户自身的申请")
     public BaseResponse<Page<Visitor>> listMyVisitorByPage(@RequestBody VisitorQueryRequest visitorQueryRequest,
                                                            HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
@@ -185,41 +194,14 @@ public class VisitorController {
 
         return ResultUtils.success(visitorPage);
     }
+    
+    @PostMapping("/validate")
+    @ApiOperation(value = "验证申请码是否有效")
+    public BaseResponse<String> validateAssignedToken(@RequestParam String token, HttpServletRequest httpServletRequest) {
+        ThrowUtils.throwIf(StrUtil.isBlank(token), ErrorCode.PARAMS_ERROR);
 
-    /**
-     * 获取电子通行证
-     *
-     * @param id
-     * @param request
-     * @return
-     */
-    @GetMapping("/passCode")
-    public BaseResponse<String> getPassCode(long id, HttpServletRequest request) {
-        if (id <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+        User user = userService.getLoginUser(httpServletRequest);
 
-        Visitor visitor = visitorService.getById(id);
-        if (visitor == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
-        }
-
-        User loginUser = userService.getLoginUser(request);
-        // 仅本人或管理员可查看通行证
-        if (!visitor.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-        }
-
-        // 检查是否已审批通过
-        if (!"approved".equals(visitor.getReviewStatus())) {
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "访客申请未审批通过");
-        }
-
-        String passCode = visitor.getPassCode();
-        if (passCode == null) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "通行证生成失败");
-        }
-
-        return ResultUtils.success(passCode);
+        return ResultUtils.success(visitorService.validatePassCode(token, user));
     }
 } 
