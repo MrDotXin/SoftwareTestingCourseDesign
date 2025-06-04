@@ -18,7 +18,9 @@ import com.mrdotxin.propsmart.utils.SqlUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Administrator
@@ -105,6 +107,26 @@ public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property>
         queryWrapper.eq(fieldName, value);
 
         return this.baseMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public List<Long> getPropertyIdsByOwnerId(Long ownerId) {
+        if (ownerId == null || ownerId <= 0) {
+            return new ArrayList<>();
+        }
+        
+        // 根据业主ID查询房产
+        // 注意：根据数据库结构，Property表中可能没有直接关联业主ID的字段
+        // 这里假设使用ownerIdentity字段关联，实际应用中需要根据数据库结构调整
+        QueryWrapper<Property> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("ownerIdentity", ownerId);
+        
+        List<Property> properties = this.list(queryWrapper);
+        
+        // 提取房产ID列表
+        return properties.stream()
+                .map(Property::getId)
+                .collect(Collectors.toList());
     }
 }
 

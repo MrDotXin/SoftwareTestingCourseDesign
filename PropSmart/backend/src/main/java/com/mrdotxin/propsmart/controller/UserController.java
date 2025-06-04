@@ -96,6 +96,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/logout")
+    @ApiOperation(value = "用户注销")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -152,6 +153,7 @@ public class UserController {
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @ApiOperation(value = "删除用户")
     public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -169,6 +171,7 @@ public class UserController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @ApiOperation(value = "更新用户")
     public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
             HttpServletRequest request) {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
@@ -190,6 +193,7 @@ public class UserController {
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @ApiOperation(value = "根据 id 获取用户（仅管理员）")
     public BaseResponse<User> getUserById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -207,6 +211,7 @@ public class UserController {
      * @return
      */
     @GetMapping("/get/vo")
+    @ApiOperation(value = "根据 id 获取用户VO")
     public BaseResponse<UserVO> getUserVOById(long id, HttpServletRequest request) {
         BaseResponse<User> response = getUserById(id, request);
         User user = response.getData();
@@ -222,6 +227,7 @@ public class UserController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @ApiOperation(value = "分页获取用户列表")
     public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
             HttpServletRequest request) {
         long current = userQueryRequest.getCurrent();
@@ -239,6 +245,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/list/page/vo")
+    @ApiOperation(value = "分页获取用户VO列表")
     public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest,
             HttpServletRequest request) {
         if (userQueryRequest == null) {

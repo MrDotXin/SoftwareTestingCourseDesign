@@ -49,4 +49,12 @@ public interface PropertyService extends IService<Property> {
     Property getByFiled(String fieldName, Object value);
 
     List<Property> listByFiled(String fieldName, Object value);
+    
+    /**
+     * 根据业主ID获取房产ID列表
+     *
+     * @param ownerId 业主ID
+     * @return 房产ID列表
+     */
+    List<Long> getPropertyIdsByOwnerId(Long ownerId);
 }

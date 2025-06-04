@@ -28,9 +28,6 @@ import javax.annotation.Resource;
 public class FacilityServiceImpl extends ServiceImpl<FacilityMapper, Facility>
         implements FacilityService {
 
-    @Resource
-    private FacilityReservationService facilityReservationService;
-
     @Override
     public void validateFacility(Facility facility) {
         ThrowUtils.throwIf(ObjectUtil.isNull(facility), ErrorCode.PARAMS_ERROR);
