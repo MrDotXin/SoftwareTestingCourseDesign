@@ -16,6 +16,7 @@ import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.entity.Visitor;
 import com.mrdotxin.propsmart.service.UserService;
 import com.mrdotxin.propsmart.service.VisitorService;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +46,7 @@ public class VisitorController {
      * @return
      */
     @PostMapping("/add")
+    @ApiOperation(value = "创建访客申请")
     public BaseResponse<Long> addVisitor(@RequestBody VisitorAddRequest visitorAddRequest,
                                          HttpServletRequest request) {
         if (visitorAddRequest == null) {
@@ -67,6 +69,7 @@ public class VisitorController {
      * @return
      */
     @PostMapping("/delete")
+    @ApiOperation(value = "删除访客申请")
     public BaseResponse<Boolean> deleteVisitor(@RequestBody DeleteRequest deleteRequest,
                                                HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
@@ -98,6 +101,7 @@ public class VisitorController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @ApiOperation(value = "更新访客申请（管理员审批）")
     public BaseResponse<Boolean> updateVisitor(@RequestBody VisitorUpdateRequest visitorUpdateRequest,
                                                HttpServletRequest request) {
         if (visitorUpdateRequest == null || visitorUpdateRequest.getId() == null) {
@@ -125,6 +129,7 @@ public class VisitorController {
      * @return
      */
     @GetMapping("/get")
+    @ApiOperation(value = "根据 id 获取访客申请")
     public BaseResponse<Visitor> getVisitorById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -153,6 +158,7 @@ public class VisitorController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @ApiOperation(value = "分页获取访客申请列表（仅管理员）")
     public BaseResponse<Page<Visitor>> listVisitorByPage(@RequestBody VisitorQueryRequest visitorQueryRequest,
                                                          HttpServletRequest request) {
         long current = visitorQueryRequest.getCurrent();
@@ -172,6 +178,7 @@ public class VisitorController {
      * @return
      */
     @PostMapping("/my/list/page")
+    @ApiOperation(value = "分页获取当前用户的访客申请列表")
     public BaseResponse<Page<Visitor>> listMyVisitorByPage(@RequestBody VisitorQueryRequest visitorQueryRequest,
                                                            HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
@@ -194,6 +201,7 @@ public class VisitorController {
      * @return
      */
     @GetMapping("/passCode")
+    @ApiOperation(value = "获取电子通行证")
     public BaseResponse<String> getPassCode(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
