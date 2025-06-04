@@ -1,5 +1,6 @@
 package com.mrdotxin.propsmart.aop;
 
+import cn.hutool.core.util.StrUtil;
 import com.mrdotxin.propsmart.annotation.AuthCheck;
 import com.mrdotxin.propsmart.common.ErrorCode;
 import com.mrdotxin.propsmart.exception.BusinessException;
@@ -39,6 +40,11 @@ public class AuthInterceptor {
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
         // 当前登录用户
         User loginUser = userService.getLoginUser(request);
+        boolean mustOwner = authCheck.mustOwner();
+        if (mustOwner && !loginUser.getIsOwner() && !loginUser.getUserRole().equals(UserRoleEnum.ADMIN.getValue())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "仅业主或者管理员可以使用该功能");
+        }
+
         UserRoleEnum mustRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
         // 不需要权限，放行
         if (mustRoleEnum == null) {

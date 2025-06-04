@@ -38,3 +38,5 @@ mybatis-plus:
 # 一定要加, 不然swagger 功能会被默认ban掉
 knife4j:
   enable: true
+
+jwt-secret: MZJLZYZZZFYPYC

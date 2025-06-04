@@ -74,7 +74,7 @@ public class PropertyController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/add")
-    @ApiOperation(value = "根据ID获取房产信息", notes = "如果传入的房产本身是带身份证的, 那么如果用户存在, 就会自动关联身份")
+    @ApiOperation(value = "添加房产信息", notes = "如果传入的房产本身是带身份证的, 那么如果用户存在, 就会自动关联身份")
     BaseResponse<Boolean> addProperty(@RequestBody PropertyAddRequest propertyAddRequest, HttpServletRequest httpServletRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(propertyAddRequest), ErrorCode.PARAMS_ERROR);
         Property property = new Property();
