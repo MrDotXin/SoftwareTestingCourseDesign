@@ -15,8 +15,8 @@ public class Swagger2Config {
     public Docket defaultApi2() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(new ApiInfoBuilder()
-                        .title("iCloudCanvas接口文档")
-                        .description("mi-icloud-canvas")
+                        .title("智能物业系统接口文档")
+                        .description("propSmart")
                         .version("β1.0")
                         .build())
                 .select()

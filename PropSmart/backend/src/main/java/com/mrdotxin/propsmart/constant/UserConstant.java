@@ -25,6 +25,11 @@ public interface UserConstant {
     String ADMIN_ROLE = "ROLE_ADMIN";
 
     /**
+     * 业主
+     */
+    String OWNER_ROLE = "ROLE_OWNER";
+
+    /**
      * 被封号
      */
     String BAN_ROLE = "ROLE_BAN";

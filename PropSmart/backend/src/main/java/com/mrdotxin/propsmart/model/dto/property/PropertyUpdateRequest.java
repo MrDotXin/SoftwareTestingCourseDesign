@@ -5,7 +5,13 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class PropertyAddRequest implements Serializable {
+public class PropertyUpdateRequest implements Serializable {
+
+    /**
+     * ID
+     */
+    private Long id;
+
     /**
      * 实际拥有者的身份证号
      */
@@ -33,6 +39,5 @@ public class PropertyAddRequest implements Serializable {
 
 
     private static final long serialVersionUID = 1L;
-
 }
 

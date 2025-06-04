@@ -31,14 +31,19 @@ public class User implements Serializable {
     private String userPassword;
 
     /**
-     * 开放平台id
+     * 手机号
      */
-    private String unionId;
+    private String userPhoneNumber;
 
     /**
-     * 公众号openId
+     * 用户实际姓名
      */
-    private String mpOpenId;
+    private String userRealName;
+
+    /**
+     * 用户身份证
+     */
+    private String userIdCardNumber;
 
     /**
      * 用户昵称
@@ -71,10 +76,10 @@ public class User implements Serializable {
     private Date updateTime;
 
     /**
-     * 是否删除
+     * 是不是业主
      */
-    @TableLogic
-    private Integer isDelete;
+    private Boolean isOwner;
+
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

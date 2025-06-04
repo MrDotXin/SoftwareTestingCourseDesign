@@ -3,6 +3,7 @@ package com.mrdotxin.propsmart.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mrdotxin.propsmart.model.dto.user.UserQueryRequest;
+import com.mrdotxin.propsmart.model.dto.user.UserRealInfoBindRequest;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.vo.LoginUserVO;
 import com.mrdotxin.propsmart.model.vo.UserVO;
@@ -99,6 +100,18 @@ public interface UserService extends IService<User> {
     List<UserVO> getUserVO(List<User> userList);
 
     /**
+     * @param idCardNumber
+     * @return
+     */
+    User getByIdCardNumber(String idCardNumber);
+
+    /**
+     * @param idCardNumber
+     * @param isOwner
+     */
+    void updateUserOwnerStatus(String idCardNumber, Boolean isOwner);
+
+    /**
      * 获取查询条件
      *
      * @param userQueryRequest
@@ -106,4 +119,25 @@ public interface UserService extends IService<User> {
      */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
+
+    /**
+     * 绑定身份证信息
+     */
+    User bindUserRealInfo(UserRealInfoBindRequest userRealInfoBindRequest, User user);
+
+    /**
+     *
+     * @param fieldName
+     * @param value
+     * @return
+     */
+    Boolean existsWithField(String fieldName, Object value);
+
+    /**
+     *
+     * @param fieldName
+     * @param value
+     * @return
+     */
+    User getByFiled(String fieldName, Object value);
 }

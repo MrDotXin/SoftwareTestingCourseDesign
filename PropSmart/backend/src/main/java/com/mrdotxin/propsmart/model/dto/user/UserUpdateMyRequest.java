@@ -28,5 +28,6 @@ public class UserUpdateMyRequest implements Serializable {
      */
     private String userProfile;
 
+
     private static final long serialVersionUID = 1L;
 }

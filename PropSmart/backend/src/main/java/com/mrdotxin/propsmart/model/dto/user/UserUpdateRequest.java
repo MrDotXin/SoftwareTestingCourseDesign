@@ -37,5 +37,7 @@ public class UserUpdateRequest implements Serializable {
      */
     private String userRole;
 
+
+
     private static final long serialVersionUID = 1L;
 }

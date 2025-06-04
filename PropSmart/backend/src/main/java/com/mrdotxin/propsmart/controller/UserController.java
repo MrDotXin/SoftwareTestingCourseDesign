@@ -1,5 +1,6 @@
 package com.mrdotxin.propsmart.controller;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mrdotxin.propsmart.annotation.AuthCheck;
 import com.mrdotxin.propsmart.common.BaseResponse;
@@ -13,12 +14,13 @@ import com.mrdotxin.propsmart.model.dto.user.*;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.vo.LoginUserVO;
 import com.mrdotxin.propsmart.model.vo.UserVO;
+import com.mrdotxin.propsmart.service.PropertyService;
 import com.mrdotxin.propsmart.service.UserService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,25 +36,24 @@ import static com.mrdotxin.propsmart.service.impl.UserServiceImpl.SALT;
  * 用户接口
  *
  */
+@Slf4j
 @RestController
 @RequestMapping("/user")
-@Slf4j
+@Api(tags = "用户基础")
 public class UserController {
 
     @Resource
     private UserService userService;
 
-
-
-    // region 登录相关
+    @Resource
+    private PropertyService propertyService;
 
     /**
      * 用户注册
      *
-     * @param userRegisterRequest
-     * @return
      */
     @PostMapping("/register")
+    @ApiOperation(value = "用户注册", notes = "仅使用账号密码来注册, 默认用户名为userAccount, 默认为普通用户")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         if (userRegisterRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -69,12 +70,12 @@ public class UserController {
 
     /**
      * 用户登录
-     *
      * @param userLoginRequest
      * @param request
      * @return
      */
     @PostMapping("/login")
+    @ApiOperation(value = "用户登录接口")
     public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -110,6 +111,7 @@ public class UserController {
      * @return
      */
     @GetMapping("/get/login")
+    @ApiOperation(value = "获取当前登录用户信息", notes = "这个函数用来获取登录的用户信息")
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
         User user = userService.getLoginUser(request);
         return ResultUtils.success(userService.getLoginUserVO(user));
@@ -128,6 +130,7 @@ public class UserController {
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @ApiOperation(value = "添加用户", notes = "管理员可以使用这个操作来添加账号")
     public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
         if (userAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -258,11 +261,9 @@ public class UserController {
     /**
      * 更新个人信息
      *
-     * @param userUpdateMyRequest
-     * @param request
-     * @return
      */
     @PostMapping("/update/my")
+    @ApiOperation(value = "用户手动更新信息", notes = "用户可以利用这个来更新自己的个人信息")
     public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
             HttpServletRequest request) {
         if (userUpdateMyRequest == null) {
@@ -274,6 +275,57 @@ public class UserController {
         user.setId(loginUser.getId());
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    @PostMapping("/bind/identity")
+    @ApiOperation(value = "绑定身份证信息", notes = "用户通过绑定唯一的身份证信息, 如果小区任意房产与身份证信息绑定, 则用户自动晋升为业主, 同时这个函数也可以用来绑定账号唯一的电话号码")
+    public BaseResponse<Boolean> bindUserRealInfo(@RequestBody UserRealInfoBindRequest userRealInfoBindRequest, HttpServletRequest httpServletRequest) {
+        ThrowUtils.throwIf(ObjectUtil.isNull(userRealInfoBindRequest), ErrorCode.PARAMS_ERROR);
+
+        User user = userService.getLoginUser(httpServletRequest);
+        if (!user.getId().equals(userRealInfoBindRequest.getId()) && !userService.isAdmin(user)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+
+        User targetUser = userService.getById(userRealInfoBindRequest.getId());
+        ThrowUtils.throwIf(ObjectUtil.isNull(targetUser), ErrorCode.PARAMS_ERROR, "用户不存在");
+
+        targetUser = userService.bindUserRealInfo(userRealInfoBindRequest, targetUser);
+        if (ObjectUtil.isNotNull(userRealInfoBindRequest.getUserIdCardNumber())) {
+            if (propertyService.existsWithField("ownerIdentity", userRealInfoBindRequest.getUserIdCardNumber())) {
+                targetUser.setIsOwner(true);
+            }
+        }
+
+        boolean result = userService.updateById(targetUser);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+
+        return ResultUtils.success(true);
+    }
+
+    @PostMapping("/unbind/userId")
+    @ApiOperation(value = "解绑身份证信息", notes = "用户只有先解绑信息, 才能重新绑定身份证信息")
+    public BaseResponse<Boolean> unBindUserRealInfo(@RequestParam Long userId, HttpServletRequest httpServletRequest) {
+
+        User user = userService.getLoginUser(httpServletRequest);
+        if (!user.getId().equals(userId) && !userService.isAdmin(user)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+
+        User targetUser = userService.getById(userId);
+        ThrowUtils.throwIf(ObjectUtil.isNull(targetUser), ErrorCode.PARAMS_ERROR, "用户不存在");
+
+        String userIdCardNumber = targetUser.getUserIdCardNumber();
+        ThrowUtils.throwIf(ObjectUtil.isNull(userIdCardNumber), ErrorCode.PARAMS_ERROR, "当前用户不存在绑定信息");
+
+        if (propertyService.existsWithField("ownerIdentity", userIdCardNumber)) {
+            targetUser.setIsOwner(false);
+        }
+
+        boolean result = userService.updateById(targetUser);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+
         return ResultUtils.success(true);
     }
 }

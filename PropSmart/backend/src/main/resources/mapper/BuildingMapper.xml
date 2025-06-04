@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mrdotxin.propsmart.mapper.BuildingMapper">
+
+    <resultMap id="BaseResultMap" type="com.mrdotxin.propsmart.model.entity.Building">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="buildingName" column="buildingName" jdbcType="VARCHAR"/>
+            <result property="address" column="address" jdbcType="VARCHAR"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,buildingName,address,createTime,updateTime
+    </sql>
+</mapper>

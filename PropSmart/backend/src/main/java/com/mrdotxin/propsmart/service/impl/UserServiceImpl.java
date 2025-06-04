@@ -1,20 +1,25 @@
 package com.mrdotxin.propsmart.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mrdotxin.propsmart.common.ErrorCode;
 import com.mrdotxin.propsmart.constant.CommonConstant;
 import com.mrdotxin.propsmart.exception.BusinessException;
+import com.mrdotxin.propsmart.exception.ThrowUtils;
 import com.mrdotxin.propsmart.mapper.UserMapper;
 import com.mrdotxin.propsmart.model.dto.user.UserQueryRequest;
+import com.mrdotxin.propsmart.model.dto.user.UserRealInfoBindRequest;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.enums.UserRoleEnum;
 import com.mrdotxin.propsmart.model.vo.LoginUserVO;
 import com.mrdotxin.propsmart.model.vo.UserVO;
 import com.mrdotxin.propsmart.service.UserService;
+import com.mrdotxin.propsmart.utils.FormatUtils;
 import com.mrdotxin.propsmart.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -67,11 +72,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (count > 0) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
             }
+
             // 2. 加密
             String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
             // 3. 插入数据
             User user = new User();
             user.setUserAccount(userAccount);
+            user.setUserName(userAccount);
             user.setUserPassword(encryptPassword);
             boolean saveResult = this.save(user);
             if (!saveResult) {
@@ -215,29 +222,89 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    public User getByIdCardNumber(String idCardNumber) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userIdCardNumber", idCardNumber);
+
+        return this.baseMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public void updateUserOwnerStatus(String idCardNumber, Boolean isOwner) {
+        if (ObjectUtil.isNull(idCardNumber)) {
+            return;
+        }
+        // 删除房产，清除对应的用户认证信息
+        User user = this.getByIdCardNumber(idCardNumber);
+        if (ObjectUtil.isNotNull(user)) {
+            user.setIsOwner(false);
+            this.updateById(user);
+        }
+    }
+
+    @Override
     public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
         if (userQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
         }
         Long id = userQueryRequest.getId();
-        String unionId = userQueryRequest.getUnionId();
-        String mpOpenId = userQueryRequest.getMpOpenId();
         String userName = userQueryRequest.getUserName();
         String userProfile = userQueryRequest.getUserProfile();
         String userRole = userQueryRequest.getUserRole();
+        String userPhoneNumber = userQueryRequest.getUserPhoneNumber();
+        String userRealName = userQueryRequest.getUserRealName();
+        String userIdCardNumber = userQueryRequest.getUserIdCardNumber();
         String sortField = userQueryRequest.getSortField();
         String sortOrder = userQueryRequest.getSortOrder();
 
-
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(id != null, "id", id);
-        queryWrapper.eq(StringUtils.isNotBlank(unionId), "unionId", unionId);
-        queryWrapper.eq(StringUtils.isNotBlank(mpOpenId), "mpOpenId", mpOpenId);
         queryWrapper.eq(StringUtils.isNotBlank(userRole), "userRole", userRole);
+        queryWrapper.like(StringUtils.isNotBlank(userPhoneNumber), "userPhoneNumber", userPhoneNumber);
+        queryWrapper.like(StringUtils.isNotBlank(userRealName), "userRealName", userRealName);
+        queryWrapper.like(StringUtils.isNotBlank(userIdCardNumber), "userIdCardNumber", userIdCardNumber);
         queryWrapper.like(StringUtils.isNotBlank(userProfile), "userProfile", userProfile);
         queryWrapper.like(StringUtils.isNotBlank(userName), "userName", userName);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;
+    }
+
+    @Override
+    public User bindUserRealInfo(UserRealInfoBindRequest userRealInfoBindRequest, User user) {
+        ThrowUtils.throwIf(ObjectUtil.isNotNull(user.getUserIdCardNumber()), ErrorCode.PARAMS_ERROR, "当前用户已存在绑定信息");
+
+        String identity = userRealInfoBindRequest.getUserIdCardNumber();
+        String realName = userRealInfoBindRequest.getUserRealName();
+        if (ObjectUtil.isAllNotEmpty(identity, realName)) {
+            ThrowUtils.throwIf(FormatUtils.isValidNameAndIdCard(realName, identity), ErrorCode.PARAMS_ERROR, "用户身份证或者姓名格式不合法!");
+            ThrowUtils.throwIf(existsWithField("userIdCardNumber", identity), ErrorCode.PARAMS_ERROR, "这个身份证已经被绑定了!");
+
+            user.setUserRealName(realName);
+            user.setUserIdCardNumber(identity);
+        }
+
+        String userPhoneNumber = userRealInfoBindRequest.getUserPhoneNumber();
+        if (ObjectUtil.isNotNull(userPhoneNumber)) {
+            ThrowUtils.throwIf(FormatUtils.isValidPhone(userPhoneNumber), ErrorCode.PARAMS_ERROR, "电话格式不合法!");
+            ThrowUtils.throwIf(existsWithField("userPhoneNumber", userPhoneNumber), ErrorCode.PARAMS_ERROR, "这个电话号码已经被绑定了!");
+            user.setUserPhoneNumber(userPhoneNumber);
+        }
+
+        return user;
+    }
+
+    @Override
+    public Boolean existsWithField(String fieldName, Object value) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq(fieldName, value);
+        return this.baseMapper.exists(queryWrapper);
+    }
+
+    @Override
+    public User getByFiled(String fieldName, Object value) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq(fieldName, value);
+        return this.baseMapper.selectOne(queryWrapper);
     }
 }
