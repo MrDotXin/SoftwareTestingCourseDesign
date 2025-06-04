@@ -17,6 +17,7 @@ import com.mrdotxin.propsmart.model.entity.FacilityReservation;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.service.FacilityReservationService;
 import com.mrdotxin.propsmart.service.FacilityService;
+import com.mrdotxin.propsmart.service.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -47,6 +48,9 @@ public class FacilityReservationController {
 
     @Resource
     private UserService userService;
+    
+    @Resource
+    private NotificationService notificationService;
 
     /**
      * 提交设施预约申请
@@ -71,6 +75,13 @@ public class FacilityReservationController {
         BeanUtils.copyProperties(reservationAddRequest, facilityReservation);
 
         long result = facilityReservationService.addReservation(facilityReservation, loginUser.getId());
+        
+        // 获取创建的预约并发送通知
+        FacilityReservation savedReservation = facilityReservationService.getById(result);
+        if (savedReservation != null) {
+            notificationService.handleFacilityReservationNotification(savedReservation, true);
+        }
+        
         return ResultUtils.success(result);
     }
 
@@ -98,6 +109,15 @@ public class FacilityReservationController {
         BeanUtils.copyProperties(reservationUpdateRequest, facilityReservation);
         
         boolean result = facilityReservationService.reviewReservation(facilityReservation, loginUser.getId());
+        
+        // 获取更新后的预约并发送通知
+        if (result) {
+            FacilityReservation updatedReservation = facilityReservationService.getById(reservationUpdateRequest.getId());
+            if (updatedReservation != null) {
+                notificationService.handleFacilityReservationNotification(updatedReservation, false);
+            }
+        }
+        
         return ResultUtils.success(result);
     }
 

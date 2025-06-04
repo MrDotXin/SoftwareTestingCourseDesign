@@ -12,12 +12,14 @@ import com.mrdotxin.propsmart.model.dto.bill.BillAddRequest;
 import com.mrdotxin.propsmart.model.dto.bill.BillPayRequest;
 import com.mrdotxin.propsmart.model.dto.bill.BillQueryRequest;
 import com.mrdotxin.propsmart.model.dto.bill.BillUpdateRequest;
+import com.mrdotxin.propsmart.model.entity.Bill;
 import com.mrdotxin.propsmart.model.entity.Property;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.enums.BillStatusEnum;
 import com.mrdotxin.propsmart.model.enums.BillTypeEnum;
 import com.mrdotxin.propsmart.model.vo.BillVO;
 import com.mrdotxin.propsmart.service.BillService;
+import com.mrdotxin.propsmart.service.NotificationService;
 import com.mrdotxin.propsmart.service.PropertyService;
 import com.mrdotxin.propsmart.service.UserService;
 import io.swagger.annotations.Api;
@@ -50,6 +52,9 @@ public class BillController {
     @Resource
     private PropertyService propertyService;
     
+    @Resource
+    private NotificationService notificationService;
+    
     /**
      * 创建账单
      *
@@ -65,6 +70,13 @@ public class BillController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         long billId = billService.addBill(billAddRequest, request);
+        
+        // 获取创建的账单并发送通知
+        Bill bill = billService.getById(billId);
+        if (bill != null) {
+            notificationService.handleBillNotification(bill, true);
+        }
+        
         return ResultUtils.success(billId);
     }
     
@@ -174,6 +186,15 @@ public class BillController {
         }
         
         boolean result = billService.payBill(billPayRequest, request);
+        
+        // 支付成功后，获取更新后的账单并发送通知
+        if (result) {
+            Bill bill = billService.getById(billPayRequest.getId());
+            if (bill != null) {
+                notificationService.handleBillNotification(bill, false);
+            }
+        }
+        
         return ResultUtils.success(result);
     }
     

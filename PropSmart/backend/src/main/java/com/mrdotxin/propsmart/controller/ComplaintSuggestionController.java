@@ -15,6 +15,7 @@ import com.mrdotxin.propsmart.model.dto.complaint.ComplaintSuggestionUpdateReque
 import com.mrdotxin.propsmart.model.entity.ComplaintSuggestion;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.service.ComplaintSuggestionService;
+import com.mrdotxin.propsmart.service.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,6 +40,9 @@ public class ComplaintSuggestionController {
 
     @Resource
     private UserService userService;
+    
+    @Resource
+    private NotificationService notificationService;
 
     /**
      * 创建投诉建议
@@ -60,6 +64,13 @@ public class ComplaintSuggestionController {
         BeanUtils.copyProperties(complaintSuggestionAddRequest, complaintSuggestion);
         
         long result = complaintService.addComplaint(complaintSuggestion, loginUser.getId());
+        
+        // 获取创建的投诉建议并发送通知
+        ComplaintSuggestion savedComplaint = complaintService.getById(result);
+        if (savedComplaint != null) {
+            notificationService.handleComplaintNotification(savedComplaint, true);
+        }
+        
         return ResultUtils.success(result);
     }
 
@@ -121,6 +132,15 @@ public class ComplaintSuggestionController {
         BeanUtils.copyProperties(complaintUpdateRequest, complaintSuggestion);
         
         boolean result = complaintService.reviewComplaint(complaintSuggestion, loginUser.getId());
+        
+        // 获取更新后的投诉建议并发送通知
+        if (result) {
+            ComplaintSuggestion updatedComplaint = complaintService.getById(complaintUpdateRequest.getId());
+            if (updatedComplaint != null) {
+                notificationService.handleComplaintNotification(updatedComplaint, false);
+            }
+        }
+        
         return ResultUtils.success(result);
     }
 
