@@ -46,15 +46,15 @@ public class VisitorController {
      */
     @PostMapping("/add")
     public BaseResponse<Long> addVisitor(@RequestBody VisitorAddRequest visitorAddRequest,
-                                        HttpServletRequest request) {
+                                         HttpServletRequest request) {
         if (visitorAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        
+
         User loginUser = userService.getLoginUser(request);
         Visitor visitor = new Visitor();
         BeanUtils.copyProperties(visitorAddRequest, visitor);
-        
+
         long result = visitorService.addVisitor(visitor, loginUser.getId());
         return ResultUtils.success(result);
     }
@@ -68,23 +68,23 @@ public class VisitorController {
      */
     @PostMapping("/delete")
     public BaseResponse<Boolean> deleteVisitor(@RequestBody DeleteRequest deleteRequest,
-                                             HttpServletRequest request) {
+                                               HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        
+
         User loginUser = userService.getLoginUser(request);
         long id = deleteRequest.getId();
-        
+
         // 校验是否存在
         Visitor oldVisitor = visitorService.getById(id);
         ThrowUtils.throwIf(oldVisitor == null, ErrorCode.NOT_FOUND_ERROR);
-        
+
         // 仅本人或管理员可删除
         if (!oldVisitor.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
-        
+
         boolean result = visitorService.removeById(id);
         return ResultUtils.success(result);
     }
@@ -99,11 +99,11 @@ public class VisitorController {
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateVisitor(@RequestBody VisitorUpdateRequest visitorUpdateRequest,
-                                            HttpServletRequest request) {
+                                               HttpServletRequest request) {
         if (visitorUpdateRequest == null || visitorUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        
+
         User loginUser = userService.getLoginUser(request);
         // 仅管理员可审批
         if (!userService.isAdmin(loginUser)) {
@@ -112,7 +112,7 @@ public class VisitorController {
 
         Visitor visitor = new Visitor();
         BeanUtils.copyProperties(visitorUpdateRequest, visitor);
-        
+
         boolean result = visitorService.reviewVisitor(visitor, loginUser.getId());
         return ResultUtils.success(result);
     }
@@ -129,18 +129,18 @@ public class VisitorController {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        
+
         Visitor visitor = visitorService.getById(id);
         if (visitor == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        
+
         User loginUser = userService.getLoginUser(request);
         // 仅本人或管理员可查看详情
         if (!visitor.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
-        
+
         return ResultUtils.success(visitor);
     }
 
@@ -154,13 +154,13 @@ public class VisitorController {
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<Visitor>> listVisitorByPage(@RequestBody VisitorQueryRequest visitorQueryRequest,
-                                                       HttpServletRequest request) {
+                                                         HttpServletRequest request) {
         long current = visitorQueryRequest.getCurrent();
         long size = visitorQueryRequest.getPageSize();
-        
+
         Page<Visitor> visitorPage = visitorService.page(new Page<>(current, size),
                 visitorService.getQueryWrapper(visitorQueryRequest));
-        
+
         return ResultUtils.success(visitorPage);
     }
 
@@ -173,19 +173,19 @@ public class VisitorController {
      */
     @PostMapping("/my/list/page")
     public BaseResponse<Page<Visitor>> listMyVisitorByPage(@RequestBody VisitorQueryRequest visitorQueryRequest,
-                                                         HttpServletRequest request) {
+                                                           HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         visitorQueryRequest.setUserId(loginUser.getId());
-        
+
         long current = visitorQueryRequest.getCurrent();
         long size = visitorQueryRequest.getPageSize();
-        
+
         Page<Visitor> visitorPage = visitorService.page(new Page<>(current, size),
                 visitorService.getQueryWrapper(visitorQueryRequest));
-        
+
         return ResultUtils.success(visitorPage);
     }
-    
+
     /**
      * 获取电子通行证
      *
@@ -198,28 +198,28 @@ public class VisitorController {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        
+
         Visitor visitor = visitorService.getById(id);
         if (visitor == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        
+
         User loginUser = userService.getLoginUser(request);
         // 仅本人或管理员可查看通行证
         if (!visitor.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
-        
+
         // 检查是否已审批通过
         if (!"approved".equals(visitor.getReviewStatus())) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "访客申请未审批通过");
         }
-        
+
         String passCode = visitor.getPassCode();
         if (passCode == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "通行证生成失败");
         }
-        
+
         return ResultUtils.success(passCode);
     }
 } 
