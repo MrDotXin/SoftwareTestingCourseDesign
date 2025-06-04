@@ -20,6 +20,7 @@ import com.mrdotxin.propsmart.model.vo.BillVO;
 import com.mrdotxin.propsmart.service.BillService;
 import com.mrdotxin.propsmart.service.PropertyService;
 import com.mrdotxin.propsmart.service.UserService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/bill")
+@Api(tags = "账单接口")
 @Slf4j
 public class BillController {
     
