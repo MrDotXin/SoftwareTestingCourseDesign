@@ -11,9 +11,12 @@ import com.mrdotxin.propsmart.exception.ThrowUtils;
 import com.mrdotxin.propsmart.mapper.BuildingMapper;
 import com.mrdotxin.propsmart.model.dto.building.BuildingQueryRequest;
 import com.mrdotxin.propsmart.model.entity.Building;
+import com.mrdotxin.propsmart.model.geo.GeoPoint;
 import com.mrdotxin.propsmart.service.BuildingService;
 import com.mrdotxin.propsmart.utils.SqlUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
 * @author Administrator
@@ -46,6 +49,10 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building>
         ThrowUtils.throwIf(ObjectUtil.isNull(building), ErrorCode.PARAMS_ERROR);
         String buildingName = building.getBuildingName();
         ThrowUtils.throwIf(StrUtil.isBlank(buildingName), ErrorCode.PARAMS_ERROR, "楼栋名称不能为空");
+        
+        // 验证地理位置
+        ThrowUtils.throwIf(ObjectUtil.isNull(building.getLocation()), 
+                ErrorCode.PARAMS_ERROR, "楼栋地理位置不能为空");
 
         // 检查楼栋名称是否重复
         QueryWrapper<Building> queryWrapper = new QueryWrapper<>();
@@ -64,13 +71,15 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building>
         }
 
         String buildingName = buildingQueryRequest.getBuildingName();
-        String address = buildingQueryRequest.getAddress();
+        Integer totalFloors = buildingQueryRequest.getTotalFloors();
         String sortField = buildingQueryRequest.getSortField();
         String sortOrder = buildingQueryRequest.getSortOrder();
-
+        
+        // 空间查询不在这里处理，而是在专门的方法中处理
+        
         QueryWrapper<Building> queryWrapper = new QueryWrapper<>();
         queryWrapper.like(StrUtil.isNotBlank(buildingName), "buildingName", buildingName);
-        queryWrapper.like(StrUtil.isNotBlank(address), "address", address);
+        queryWrapper.eq(ObjectUtil.isNotNull(totalFloors), "totalLevels", totalFloors);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField),
                           sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                           sortField);
@@ -89,6 +98,28 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building>
         QueryWrapper<Building> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(fieldName, value);
         return this.baseMapper.selectOne(queryWrapper);
+    }
+    
+    @Override
+    public List<Building> findBuildingsWithinDistance(GeoPoint centerPoint, double distanceInMeters) {
+        if (centerPoint == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "中心点不能为空");
+        }
+        if (distanceInMeters <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "搜索距离必须大于0");
+        }
+        
+        return this.baseMapper.findBuildingsWithinDistance(centerPoint.toWkt(), distanceInMeters);
+    }
+    
+    @Override
+    public List<Building> findBuildingsInPolygon(List<GeoPoint> points) {
+        if (points == null || points.size() < 3) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "多边形至少需要3个点");
+        }
+        
+        String polygonWkt = GeoPoint.createPolygonWkt(points);
+        return this.baseMapper.findBuildingsInPolygon(polygonWkt);
     }
 }
 

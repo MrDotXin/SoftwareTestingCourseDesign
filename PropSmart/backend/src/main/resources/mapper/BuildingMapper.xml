@@ -8,12 +8,14 @@
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="buildingName" column="buildingName" jdbcType="VARCHAR"/>
             <result property="totalLevels" column="totalLevels" jdbcType="INTEGER"/>
-            <result property="address" column="address" jdbcType="VARCHAR"/>
+            <result property="location" column="location" typeHandler="com.mrdotxin.propsmart.config.typehandler.MysqlGeoTypeHandler"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,buildingName,address,createTime,updateTime
+        id,buildingName,totalLevels,
+        ST_AsText(location) as location,
+        createTime,updateTime
     </sql>
 </mapper>

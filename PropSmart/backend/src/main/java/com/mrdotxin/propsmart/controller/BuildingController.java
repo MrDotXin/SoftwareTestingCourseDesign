@@ -1,5 +1,6 @@
 package com.mrdotxin.propsmart.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -15,6 +16,7 @@ import com.mrdotxin.propsmart.model.dto.building.BuildingAddRequest;
 import com.mrdotxin.propsmart.model.dto.building.BuildingQueryRequest;
 import com.mrdotxin.propsmart.model.dto.building.BuildingUpdateRequest;
 import com.mrdotxin.propsmart.model.entity.Building;
+import com.mrdotxin.propsmart.model.geo.GeoPoint;
 import com.mrdotxin.propsmart.service.BuildingService;
 import com.mrdotxin.propsmart.service.PropertyService;
 import com.mrdotxin.propsmart.service.UserService;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping("/building")
@@ -45,6 +48,7 @@ public class BuildingController {
     @ApiOperation(value = "添加楼栋")
     public BaseResponse<Boolean> addBuilding(@RequestBody BuildingAddRequest buildingAddRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(ObjectUtil.isNull(buildingAddRequest), ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(ObjectUtil.isNull(buildingAddRequest.getLocation()), ErrorCode.PARAMS_ERROR, "楼栋地理位置不能为空");
 
         Building building = new Building();
         BeanUtils.copyProperties(buildingAddRequest, building);
@@ -61,6 +65,7 @@ public class BuildingController {
     @ApiOperation(value = "更新楼栋信息")
     public BaseResponse<Boolean> updateBuilding(@RequestBody BuildingUpdateRequest buildingUpdateRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(ObjectUtil.isNull(buildingUpdateRequest), ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(buildingUpdateRequest.getId() == null, ErrorCode.PARAMS_ERROR, "楼栋ID不能为空");
 
         Building building = new Building();
         BeanUtils.copyProperties(buildingUpdateRequest, building);
@@ -109,7 +114,6 @@ public class BuildingController {
         return ResultUtils.success(building);
     }
 
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/list/page")
     @ApiOperation(value = "分页获取楼栋列表")
     public BaseResponse<Page<Building>> listBuildingByPage(@RequestBody BuildingQueryRequest buildingQueryRequest, HttpServletRequest request) {
@@ -118,5 +122,33 @@ public class BuildingController {
         Page<Building> buildingPage = buildingService.page(new Page<>(current, size),
                 buildingService.getQueryWrapper(buildingQueryRequest));
         return ResultUtils.success(buildingPage);
+    }
+    
+    @PostMapping("/nearby")
+    @ApiOperation(value = "获取附近楼栋")
+    public BaseResponse<List<Building>> findNearbyBuildings(@RequestBody BuildingQueryRequest buildingQueryRequest, 
+                                                            HttpServletRequest request) {
+        GeoPoint centerPoint = buildingQueryRequest.getCenterPoint();
+        Double searchRadius = buildingQueryRequest.getSearchRadius();
+        
+        ThrowUtils.throwIf(centerPoint == null, ErrorCode.PARAMS_ERROR, "搜索中心点不能为空");
+        ThrowUtils.throwIf(searchRadius == null || searchRadius <= 0, 
+                ErrorCode.PARAMS_ERROR, "搜索半径必须大于0");
+        
+        List<Building> buildings = buildingService.findBuildingsWithinDistance(centerPoint, searchRadius);
+        
+        return ResultUtils.success(buildings);
+    }
+    
+    @PostMapping("/polygon")
+    @ApiOperation(value = "获取多边形区域内的楼栋")
+    public BaseResponse<List<Building>> findBuildingsInPolygon(@RequestBody List<GeoPoint> polygonPoints, 
+                                                               HttpServletRequest request) {
+        ThrowUtils.throwIf(CollUtil.isEmpty(polygonPoints) || polygonPoints.size() < 3, 
+                ErrorCode.PARAMS_ERROR, "多边形至少需要3个点");
+        
+        List<Building> buildings = buildingService.findBuildingsInPolygon(polygonPoints);
+        
+        return ResultUtils.success(buildings);
     }
 }

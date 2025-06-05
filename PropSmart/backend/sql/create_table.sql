@@ -26,17 +26,18 @@ CREATE TABLE IF NOT EXISTS `user` (
 
 
 -- ---------------------------
--- 楼栋表
+-- 楼栋表（支持几何图形位置）
 -- ---------------------------
 CREATE TABLE IF NOT EXISTS `building` (
                                           id              BIGINT AUTO_INCREMENT,
                                           buildingName    VARCHAR(50)     UNIQUE NOT NULL COMMENT '楼栋名称/编号',
                                           totalLevels     INT             NOT NULL DEFAULT 1 COMMENT '楼栋总层数',
-                                          address         VARCHAR(100)    NULL COMMENT '地理位置',
-                                          createTime      DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                          updateTime      DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-                                          PRIMARY KEY (id)
-) DEFAULT CHARSET=utf8mb4 COMMENT '楼栋信息';
+                                          location        GEOMETRY        NOT NULL COMMENT '地理位置几何图形',
+                                          createTime      DATETIME        DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                          updateTime      DATETIME        DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                                          PRIMARY KEY (id),
+                                          SPATIAL INDEX idx_building_location (location)
+) DEFAULT CHARSET=utf8mb4 COMMENT='楼栋信息';
 
 
 -- ---------------------------

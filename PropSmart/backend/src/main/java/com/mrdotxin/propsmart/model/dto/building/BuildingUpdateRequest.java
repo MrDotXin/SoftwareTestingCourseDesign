@@ -1,6 +1,7 @@
 package com.mrdotxin.propsmart.model.dto.building;
 
 import com.mrdotxin.propsmart.common.PageRequest;
+import com.mrdotxin.propsmart.model.geo.GeoPoint;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -28,10 +29,10 @@ public class BuildingUpdateRequest implements Serializable {
     private Integer totalFloors;
 
     /**
-     * 地理位置
+     * 地理位置几何图形
      */
-    @ApiModelProperty(value = "地理位置")
-    private String address;
+    @ApiModelProperty(value = "地理位置几何图形")
+    private GeoPoint location;
 
     /**
      * 创建时间
