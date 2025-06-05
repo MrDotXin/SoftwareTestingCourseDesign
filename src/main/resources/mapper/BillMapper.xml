@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mrdotxin.propsmart.mapper.BillMapper">
+
+    <resultMap id="BaseResultMap" type="com.mrdotxin.propsmart.model.entity.Bill">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="propertyId" column="propertyId" jdbcType="BIGINT"/>
+            <result property="type" column="type" jdbcType="OTHER"/>
+            <result property="amount" column="amount" jdbcType="DECIMAL"/>
+            <result property="deadline" column="deadline" jdbcType="DATE"/>
+            <result property="status" column="status" jdbcType="OTHER"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="paidTime" column="paidTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,propertyId,type,amount,deadline,status,
+        createTime,updateTime,paidTime
+    </sql>
+</mapper>

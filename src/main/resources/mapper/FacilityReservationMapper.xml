@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mrdotxin.propsmart.mapper.FacilityReservationMapper">
+
+    <resultMap id="BaseResultMap" type="com.mrdotxin.propsmart.model.entity.FacilityReservation">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userId" column="userId" jdbcType="BIGINT"/>
+            <result property="facilityId" column="facilityId" jdbcType="INTEGER"/>
+            <result property="reservationTime" column="ReservationTime" jdbcType="TIMESTAMP"/>
+            <result property="duration" column="duration" jdbcType="INTEGER"/>
+            <result property="status" column="status" jdbcType="OTHER"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="reviewerId" column="reviewerId" jdbcType="BIGINT"/>
+            <result property="reviewMessage" column="reviewMessage" jdbcType="VARCHAR"/>
+            <result property="reviewTime" column="reviewTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,userId,facilityId,ReservationTime,duration,status,
+        createTime,reviewerId,reviewMessage,reviewTime
+    </sql>
+</mapper>
