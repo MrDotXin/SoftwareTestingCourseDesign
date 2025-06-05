@@ -235,3 +235,4 @@ CREATE TABLE IF NOT EXISTS elevatorConfig (
                                                updateTime          DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '配置更新时间',
                                                FOREIGN KEY (elevatorId) REFERENCES elevator(id)
 ) DEFAULT CHARSET=utf8mb4 COMMENT='电梯运行参数配置表';
+
