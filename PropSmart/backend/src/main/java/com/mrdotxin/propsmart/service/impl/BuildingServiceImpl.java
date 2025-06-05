@@ -16,7 +16,10 @@ import com.mrdotxin.propsmart.service.BuildingService;
 import com.mrdotxin.propsmart.utils.SqlUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
 * @author Administrator
@@ -120,6 +123,82 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building>
         
         String polygonWkt = GeoPoint.createPolygonWkt(points);
         return this.baseMapper.findBuildingsInPolygon(polygonWkt);
+    }
+    
+    @Override
+    public Boolean isPointInBuilding(GeoPoint point, Long buildingId) {
+        if (point == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "点不能为空");
+        }
+        if (buildingId == null || buildingId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "楼栋ID不能为空");
+        }
+        
+        // 方法一：使用MySQL空间函数ST_Contains直接在数据库中判断
+        Integer result = this.baseMapper.isPointInBuilding(point.toWkt(), buildingId);
+        if (result != null) {
+            return result == 1;
+        }
+        
+        // 方法二：如果数据库查询失败，则使用Java代码进行判断
+        List<GeoPoint> polygonPoints = getBuildingPolygonPoints(buildingId);
+        if (polygonPoints == null || polygonPoints.isEmpty()) {
+            return false;
+        }
+        
+        return GeoPoint.isPointInPolygon(point, polygonPoints);
+    }
+    
+    @Override
+    public List<GeoPoint> getBuildingPolygonPoints(Long buildingId) {
+        if (buildingId == null || buildingId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "楼栋ID不能为空");
+        }
+        
+        String polygonWkt = this.baseMapper.getBuildingPolygonWkt(buildingId);
+        if (polygonWkt == null || polygonWkt.isEmpty()) {
+            return null;
+        }
+        
+        // 解析WKT格式的多边形坐标
+        return parsePolygonWktToPoints(polygonWkt);
+    }
+    
+    /**
+     * 解析WKT格式的多边形坐标为点列表
+     * 
+     * @param polygonWkt 多边形的WKT表示（如 "POLYGON((x1 y1, x2 y2, ...))"）
+     * @return 点列表
+     */
+    private List<GeoPoint> parsePolygonWktToPoints(String polygonWkt) {
+        List<GeoPoint> points = new ArrayList<>();
+        
+        // 使用正则表达式来提取坐标
+        Pattern pattern = Pattern.compile("\\((.*?)\\)");
+        Matcher matcher = pattern.matcher(polygonWkt.trim().toUpperCase());
+        
+        if (matcher.find() && matcher.groupCount() >= 1) {
+            String coordinates = matcher.group(1);
+            if (matcher.find() && matcher.groupCount() >= 1) {
+                coordinates = matcher.group(1);
+            }
+            
+            String[] pointPairs = coordinates.split(",");
+            for (String pointPair : pointPairs) {
+                String[] xy = pointPair.trim().split("\\s+");
+                if (xy.length >= 2) {
+                    try {
+                        double x = Double.parseDouble(xy[0]);
+                        double y = Double.parseDouble(xy[1]);
+                        points.add(new GeoPoint(x, y));
+                    } catch (NumberFormatException e) {
+                        // 忽略无效的坐标
+                    }
+                }
+            }
+        }
+        
+        return points;
     }
 }
 

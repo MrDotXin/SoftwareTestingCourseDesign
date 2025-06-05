@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
  * MyBatis Plus 配置
  */
 @Configuration
-@MapperScan("com.mrdotxin.icloudcanvas.mapper")
+@MapperScan("com.mrdotxin.propsmart.mapper")
 public class MyBatisPlusConfig {
 
     /**
