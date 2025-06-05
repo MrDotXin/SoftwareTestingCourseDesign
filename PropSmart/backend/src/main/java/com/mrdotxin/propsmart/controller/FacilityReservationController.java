@@ -17,7 +17,7 @@ import com.mrdotxin.propsmart.model.entity.FacilityReservation;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.service.FacilityReservationService;
 import com.mrdotxin.propsmart.service.FacilityService;
-import com.mrdotxin.propsmart.service.NotificationService;
+import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

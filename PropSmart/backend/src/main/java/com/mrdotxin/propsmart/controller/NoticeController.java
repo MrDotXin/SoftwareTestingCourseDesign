@@ -16,7 +16,7 @@ import com.mrdotxin.propsmart.model.dto.notice.NoticeUpdateRequest;
 import com.mrdotxin.propsmart.model.entity.Notice;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.service.NoticeService;
-import com.mrdotxin.propsmart.service.NotificationService;
+import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

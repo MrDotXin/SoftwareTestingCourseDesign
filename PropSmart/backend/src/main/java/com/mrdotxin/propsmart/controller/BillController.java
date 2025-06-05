@@ -19,7 +19,7 @@ import com.mrdotxin.propsmart.model.enums.BillStatusEnum;
 import com.mrdotxin.propsmart.model.enums.BillTypeEnum;
 import com.mrdotxin.propsmart.model.vo.BillVO;
 import com.mrdotxin.propsmart.service.BillService;
-import com.mrdotxin.propsmart.service.NotificationService;
+import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.PropertyService;
 import com.mrdotxin.propsmart.service.UserService;
 import io.swagger.annotations.Api;
@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -1,7 +1,6 @@
 package com.mrdotxin.propsmart.model.dto.facility.reservation;
 
 import com.mrdotxin.propsmart.common.PageRequest;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -18,25 +17,21 @@ public class FacilityReservationQueryRequest extends PageRequest implements Seri
     /**
      * 设施ID
      */
-    @ApiModelProperty(value = "设施ID")
     private Integer facilityId;
     
     /**
      * 用户ID
      */
-    @ApiModelProperty(value = "用户ID")
     private Long userId;
     
     /**
      * 预订时间
      */
-    @ApiModelProperty(value = "预订时间")
     private Date reservationTime;
     
     /**
      * 状态（pending/success/rejected）
      */
-    @ApiModelProperty(value = "状态（pending/success/rejected）")
     private String status;
     
     private static final long serialVersionUID = 1L;

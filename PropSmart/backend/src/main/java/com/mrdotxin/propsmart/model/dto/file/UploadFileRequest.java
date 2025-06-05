@@ -1,7 +1,5 @@
 package com.mrdotxin.propsmart.model.dto.file;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,13 +11,11 @@ import java.io.Serializable;
  * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
 @Data
-@ApiModel(value = "文件上传请求")
 public class UploadFileRequest implements Serializable {
 
     /**
      * 业务
      */
-    @ApiModelProperty(value = "业务")
     private String biz;
 
     private static final long serialVersionUID = 1L;

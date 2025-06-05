@@ -18,7 +18,7 @@ import com.mrdotxin.propsmart.model.entity.RepairOrder;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.enums.RepairOrderStatusEnum;
 import com.mrdotxin.propsmart.model.vo.RepairOrderVO;
-import com.mrdotxin.propsmart.service.NotificationService;
+import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.PropertyService;
 import com.mrdotxin.propsmart.service.RepairOrderService;
 import com.mrdotxin.propsmart.service.UserService;

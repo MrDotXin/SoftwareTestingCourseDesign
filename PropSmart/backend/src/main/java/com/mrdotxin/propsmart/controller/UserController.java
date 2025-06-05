@@ -102,6 +102,7 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         boolean result = userService.userLogout(request);
+
         return ResultUtils.success(result);
     }
 

@@ -100,6 +100,19 @@ public interface UserService extends IService<User> {
     List<UserVO> getUserVO(List<User> userList);
 
     /**
+     *
+     * @param buildingId
+     * @return
+     */
+    List<Long> listUserIdByBuildingId(Long buildingId);
+
+    /**
+     *
+     * @return
+     */
+    List<Long> listAdminId();
+
+    /**
      * @param idCardNumber
      * @return
      */

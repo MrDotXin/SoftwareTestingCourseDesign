@@ -85,6 +85,17 @@ CREATE TABLE IF NOT EXISTS bill (
     FOREIGN KEY (propertyId) REFERENCES property(id)
     ) DEFAULT CHARSET=utf8mb4 COMMENT='费用账单';
 
+    -- 能耗流水
+CREATE TABLE IF NOT EXISTS energyConsumption (
+                                                 id  BIGINT PRIMARY KEY AUTO_INCREMENT ,
+                                                 propertyId BIGINT  NOT NULL COMMENT '房产ID',
+                                                 energyType ENUM('electricity', 'water') NOT NULL COMMENT '能耗类型',
+                                                 consumption   DOUBLE NOT NULL COMMENT '花费值',
+                                                 price         DOUBLE NOT NULL COMMENT '价格',
+                                                 measureTime    DATETIME NOT NULL COMMENT '测量时间',
+                                                 createTime      DATETIME NOT NULL COMMENT '创建时间'
+) DEFAULT CHARSET=utf8mb4 COMMENT='账单流水';
+
 -- 报修申请表
 CREATE TABLE IF NOT EXISTS repairOrder (
                                            id              BIGINT AUTO_INCREMENT,
@@ -224,21 +235,3 @@ CREATE TABLE IF NOT EXISTS elevatorConfig (
                                                updateTime          DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '配置更新时间',
                                                FOREIGN KEY (elevatorId) REFERENCES elevator(id)
 ) DEFAULT CHARSET=utf8mb4 COMMENT='电梯运行参数配置表';
-
--- 消防设备表（整合设施与巡检信息）
-CREATE TABLE IF NOT EXISTS fireEquipment (
-                                             id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                             buildingId          BIGINT          NOT NULL COMMENT '所属楼栋ID（关联building表，根据楼栋确定位置）',
-                                             currentStatus       ENUM('normal', 'needs_inspection', 'faulty') DEFAULT 'normal' COMMENT '当前状态',
-                                             lastInspectorId     BIGINT          NULL COMMENT '上次巡检人ID',
-                                             lastInspectionTime  DATETIME        NULL COMMENT '上次巡检时间',
-                                             nextInspectionDue   DATETIME        NULL COMMENT '下次巡检截止时间',
-                                             inspectionRemarks   TEXT            NULL COMMENT '巡检备注',
-                                             createTime          DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                             updateTime          DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-                                             FOREIGN KEY (lastInspectorId) REFERENCES user(id),
-                                             FOREIGN KEY (buildingId) REFERENCES building(id),
-                                             INDEX idx_status (currentStatus),
-                                             INDEX idx_next_due (nextInspectionDue)
-) DEFAULT CHARSET=utf8mb4 COMMENT='消防设备综合管理表';
-

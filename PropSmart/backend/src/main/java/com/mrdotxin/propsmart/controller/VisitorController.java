@@ -15,7 +15,7 @@ import com.mrdotxin.propsmart.model.dto.visitor.VisitorQueryRequest;
 import com.mrdotxin.propsmart.model.dto.visitor.VisitorUpdateRequest;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.entity.Visitor;
-import com.mrdotxin.propsmart.service.NotificationService;
+import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
 import com.mrdotxin.propsmart.service.VisitorService;
 import com.mrdotxin.propsmart.utils.FormatUtils;

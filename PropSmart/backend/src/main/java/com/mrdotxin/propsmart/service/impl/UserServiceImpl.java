@@ -18,6 +18,7 @@ import com.mrdotxin.propsmart.model.vo.UserVO;
 import com.mrdotxin.propsmart.service.UserService;
 import com.mrdotxin.propsmart.utils.FormatUtils;
 import com.mrdotxin.propsmart.utils.SqlUtils;
+import com.mrdotxin.propsmart.websocket.WebSocketConnection;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.implementation.bytecode.Throw;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 盐值，混淆密码
      */
     public static final String SALT = "mrdotxin";
+    private final WebSocketConnection webSocketService;
+
+    public UserServiceImpl(WebSocketConnection webSocketService) {
+        this.webSocketService = webSocketService;
+    }
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -113,6 +119,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
         // 3. 记录用户的登录态
+        ThrowUtils.throwIf(WebSocketConnection.existsUser(user.getId()), ErrorCode.OPERATION_ERROR, "用户已经在其它地方登录了!");
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
         return this.getLoginUserVO(user);
     }
@@ -189,7 +196,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
         }
         // 移除登录态
+        User user = (User) getLoginUser(request);
+
+        WebSocketConnection.closeConnection(user.getId());
+
         request.getSession().removeAttribute(USER_LOGIN_STATE);
+
         return true;
     }
 
@@ -292,6 +304,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         return user;
+    }
+
+    public List<Long> listUserIdByBuildingId(Long buildingId) {
+        return this.baseMapper.selectUserByBuildingId(buildingId);
+    }
+
+    @Override
+    public List<Long> listAdminId() {
+        return this.baseMapper.selectAllAdminId();
     }
 
     @Override
