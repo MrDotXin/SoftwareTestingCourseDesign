@@ -6,6 +6,7 @@ import com.mrdotxin.propsmart.service.PropertyService;
 import com.mrdotxin.propsmart.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import cn.hutool.core.date.DateUtil;
 
 import javax.annotation.Resource;
 
@@ -273,5 +274,59 @@ public class NotificationService {
                 .build();
         
         webSocketService.sendMessageToBuildingUsers(elevator.getBuildingId(), userMessage, false);
+    }
+
+    /**
+     * 处理消防设备巡检通知
+     * @param equipment 消防设备信息
+     * @param isOverdue 是否已过期需要巡检
+     */
+    public void handleFireEquipmentInspectionNotification(FireEquipment equipment, boolean isOverdue) {
+        WebSocketMessage message = WebSocketMessage.builder()
+                .type("FIRE_EQUIPMENT")
+                .title(isOverdue ? "消防设备巡检过期提醒" : "消防设备即将到期提醒")
+                .content(createFireEquipmentNotificationContent(equipment, isOverdue))
+                .businessId(equipment.getId())
+                .urgent(isOverdue) // 过期设备为紧急通知
+                .build();
+        
+        webSocketService.sendMessageToAllAdmins(message, true);
+        
+        // 如果是过期设备，还需要发送短信或其他紧急通知
+        if (isOverdue) {
+            // TODO: 实现短信通知逻辑
+            log.info("发送消防设备巡检过期短信通知: 设备ID {}, 楼栋ID {}", 
+                    equipment.getId(), equipment.getBuildingId());
+        }
+        
+        log.info("发送消防设备巡检{}通知: 设备ID {}, 楼栋ID {}", 
+                isOverdue ? "过期" : "即将到期", equipment.getId(), equipment.getBuildingId());
+    }
+    
+    /**
+     * 创建消防设备通知内容
+     */
+    private String createFireEquipmentNotificationContent(FireEquipment equipment, boolean isOverdue) {
+        StringBuilder content = new StringBuilder();
+        
+        if (isOverdue) {
+            content.append(String.format("楼栋 %d 的消防设备已过期，需要立即安排巡检！", equipment.getBuildingId()));
+            content.append(String.format("\n所在楼层: %s", equipment.getSpecificLevel()));
+            content.append(String.format("\n上次巡检时间: %s", 
+                    equipment.getLastInspectionTime() != null ? 
+                            DateUtil.formatDateTime(equipment.getLastInspectionTime()) : "从未巡检"));
+            content.append(String.format("\n过期时间: %s", 
+                    equipment.getNextInspectionDue() != null ? 
+                            DateUtil.formatDateTime(equipment.getNextInspectionDue()) : "未设置"));
+            content.append("\n请尽快安排巡检人员进行检查！");
+        } else {
+            content.append(String.format("楼栋 %d 的消防设备即将到期，请安排巡检。", equipment.getBuildingId()));
+            content.append(String.format("\n所在楼层: %s", equipment.getSpecificLevel()));
+            content.append(String.format("\n到期时间: %s", 
+                    equipment.getNextInspectionDue() != null ? 
+                            DateUtil.formatDateTime(equipment.getNextInspectionDue()) : "未设置"));
+        }
+        
+        return content.toString();
     }
 } 

@@ -7,6 +7,7 @@
     <resultMap id="BaseResultMap" type="com.mrdotxin.propsmart.model.entity.Building">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="buildingName" column="buildingName" jdbcType="VARCHAR"/>
+            <result property="totalLevels" column="totalLevels" jdbcType="INTEGER"/>
             <result property="address" column="address" jdbcType="VARCHAR"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>

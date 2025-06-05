@@ -24,6 +24,12 @@ public class BuildingQueryRequest extends PageRequest implements Serializable {
     private String buildingName;
 
     /**
+     * 楼栋总层数
+     */
+    @ApiModelProperty(value = "楼栋总层数")
+    private Integer totalFloors;
+
+    /**
      * 地理位置
      */
     @ApiModelProperty(value = "地理位置")

@@ -30,6 +30,12 @@ public class Building implements Serializable {
     private String buildingName;
 
     /**
+     * 楼栋总层数
+     */
+    @TableField(value = "totalLevels")
+    private Integer totalLevels;
+
+    /**
      * 地理位置
      */
     @TableField(value = "address")

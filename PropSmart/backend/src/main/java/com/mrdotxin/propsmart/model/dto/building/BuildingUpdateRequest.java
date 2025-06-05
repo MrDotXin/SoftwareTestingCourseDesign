@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 public class BuildingUpdateRequest implements Serializable {
@@ -21,11 +22,22 @@ public class BuildingUpdateRequest implements Serializable {
     private String buildingName;
 
     /**
+     * 楼栋总层数
+     */
+    @ApiModelProperty(value = "楼栋总层数")
+    private Integer totalFloors;
+
+    /**
      * 地理位置
      */
     @ApiModelProperty(value = "地理位置")
     private String address;
 
+    /**
+     * 创建时间
+     */
+    @ApiModelProperty(value = "创建时间")
+    private Date createTime;
 
     private static final long serialVersionUID = 1L;
 }
