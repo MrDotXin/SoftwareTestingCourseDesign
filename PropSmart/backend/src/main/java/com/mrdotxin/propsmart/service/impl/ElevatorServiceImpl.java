@@ -1,6 +1,5 @@
 package com.mrdotxin.propsmart.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mrdotxin.propsmart.job.ElevatorDataSimulatorJob;
 import com.mrdotxin.propsmart.mapper.ElevatorMapper;
@@ -8,9 +7,8 @@ import com.mrdotxin.propsmart.model.dto.elevator.ElevatorBasicInfoDTO;
 import com.mrdotxin.propsmart.model.dto.elevator.ElevatorDetailDTO;
 import com.mrdotxin.propsmart.model.entity.Elevator;
 import com.mrdotxin.propsmart.model.entity.ElevatorAbnormality;
-import com.mrdotxin.propsmart.model.enums.AbnormalityStatusEnum;
 import com.mrdotxin.propsmart.model.enums.ElevatorStatusEnum;
-import com.mrdotxin.propsmart.service.ElevatorAbnormalityService;
+import com.mrdotxin.propsmart.service.ElevatorAbnormalityResolverService;
 import com.mrdotxin.propsmart.service.ElevatorNotificationService;
 import com.mrdotxin.propsmart.service.ElevatorService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +32,7 @@ public class ElevatorServiceImpl extends ServiceImpl<ElevatorMapper, Elevator> i
     private ElevatorDataSimulatorJob elevatorDataSimulatorJob;
 
     @Resource
-    private ElevatorAbnormalityService elevatorAbnormalityService;
+    private ElevatorAbnormalityResolverService elevatorAbnormalityResolverService;
     
     @Resource
     private ElevatorNotificationService elevatorNotificationService;
@@ -140,23 +138,11 @@ public class ElevatorServiceImpl extends ServiceImpl<ElevatorMapper, Elevator> i
                         elevator, prevStatus, elevator.getCurrentStatus());
             }
             
-            // 自动将该电梯的所有未解决异常标记为已解决
-            LambdaQueryWrapper<ElevatorAbnormality> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(ElevatorAbnormality::getElevatorId, elevatorId)
-                    .eq(ElevatorAbnormality::getStatus, AbnormalityStatusEnum.PENDING.getStatus())
-                    .or()
-                    .eq(ElevatorAbnormality::getElevatorId, elevatorId)
-                    .eq(ElevatorAbnormality::getStatus, AbnormalityStatusEnum.PROCESSING.getStatus());
-                    
-            List<ElevatorAbnormality> abnormalityList = elevatorAbnormalityService.list(queryWrapper);
-            for (ElevatorAbnormality abnormality : abnormalityList) {
-                abnormality.setStatus(AbnormalityStatusEnum.RESOLVED.getStatus());
-                abnormality.setRecoveryTime(new Date());
-                abnormality.setHandlingNotes((abnormality.getHandlingNotes() == null ? "" : abnormality.getHandlingNotes() + "\n") + "通过维护解决");
-            }
+            // 自动解决该电梯的所有未解决异常
+            List<ElevatorAbnormality> abnormalityList = elevatorAbnormalityResolverService.resolveElevatorAbnormalities(elevatorId);
             
             if (!abnormalityList.isEmpty()) {
-                elevatorAbnormalityService.updateBatchById(abnormalityList);
+                elevatorAbnormalityResolverService.updateBatchAbnormalities(abnormalityList);
             }
             
             // 发送维护完成通知
