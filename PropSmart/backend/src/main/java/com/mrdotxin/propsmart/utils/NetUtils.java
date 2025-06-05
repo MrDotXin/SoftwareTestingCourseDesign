@@ -2,6 +2,7 @@ package com.mrdotxin.propsmart.utils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * 网络工具类
@@ -32,7 +33,7 @@ public class NetUtils {
                 InetAddress inet = null;
                 try {
                     inet = InetAddress.getLocalHost();
-                } catch (Exception e) {
+                } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }
                 if (inet != null) {

@@ -1,6 +1,5 @@
 package com.mrdotxin.propsmart.model.dto.building;
 
-import com.mrdotxin.propsmart.common.PageRequest;
 import com.mrdotxin.propsmart.model.geo.GeoPoint;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

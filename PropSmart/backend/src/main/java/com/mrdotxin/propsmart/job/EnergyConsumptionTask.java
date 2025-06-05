@@ -9,7 +9,6 @@ import com.mrdotxin.propsmart.service.EnergyConsumptionService;
 import com.mrdotxin.propsmart.service.PropertyService;
 import com.mrdotxin.propsmart.service.UserService;
 import com.mrdotxin.propsmart.websocket.NotificationService;
-import com.mrdotxin.propsmart.websocket.WebSocketService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,9 +31,6 @@ public class EnergyConsumptionTask {
 
     @Resource
     private PropertyService propertyService;
-
-    @Resource
-    private WebSocketService webSocketService;
 
     @Resource
     private UserService userService;
@@ -108,7 +104,7 @@ public class EnergyConsumptionTask {
 
     private void notifyAbnormalConsumption(Property property, String energyType,
                                          double current, double average) {
-        User user = userService.getByFiled("userIdCardNumber", property.getOwnerIdentity());
+        User user = userService.getByField("userIdCardNumber", property.getOwnerIdentity());
         Long ownerId = user.getId();
 
         String energyName = energyType.equals("electricity") ? "电力" : "水";
@@ -116,10 +112,10 @@ public class EnergyConsumptionTask {
             "您的房产(%s)检测到异常%s消耗！当前值: %.2f，过去24小时平均值: %.2f",
             property.getRoomNumber(), energyName, current, average);
 
-            try {
-                notificationService.handleAbnormalEnergyConsumptionNotification(user, property, message);
-            } catch (Exception e) {
-                log.error("发送异常能耗通知失败，用户ID: {}", ownerId, e);
-            }
+        try {
+            notificationService.handleAbnormalEnergyConsumptionNotification(user, property, message);
+        } catch (Exception e) {
+            log.error("发送异常能耗通知失败，用户ID: {}", ownerId, e);
         }
+    }
 }

@@ -160,10 +160,19 @@ public class BuildingController {
         // 从请求数据中提取点坐标和楼栋ID
         Double x = (Double) requestData.get("x");
         Double y = (Double) requestData.get("y");
-        Long buildingId = Long.valueOf(requestData.get("buildingId").toString());
+        Object buildingIdObj = requestData.get("buildingId");
         
         ThrowUtils.throwIf(x == null || y == null, ErrorCode.PARAMS_ERROR, "点坐标不能为空");
-        ThrowUtils.throwIf(buildingId == null || buildingId <= 0, ErrorCode.PARAMS_ERROR, "楼栋ID不能为空");
+        ThrowUtils.throwIf(buildingIdObj == null, ErrorCode.PARAMS_ERROR, "楼栋ID不能为空");
+        
+        Long buildingId = null;
+        try {
+            buildingId = Long.valueOf(buildingIdObj.toString());
+        } catch (NumberFormatException e) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "楼栋ID格式错误");
+        }
+        
+        ThrowUtils.throwIf(buildingId <= 0, ErrorCode.PARAMS_ERROR, "楼栋ID必须大于0");
         
         GeoPoint point = new GeoPoint(x, y);
         Boolean isInside = buildingService.isPointInBuilding(point, buildingId);

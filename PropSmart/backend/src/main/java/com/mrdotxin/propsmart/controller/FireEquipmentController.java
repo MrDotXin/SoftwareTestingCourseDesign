@@ -39,6 +39,13 @@ public class FireEquipmentController {
     @Resource
     private UserService userService;
 
+    /**
+     * 获取消防设备信息
+     *
+     * @param id 设备ID
+     * @param request HTTP请求
+     * @return 消防设备信息
+     */
     @GetMapping("/get/id")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "获取消防设备信息")
@@ -52,6 +59,13 @@ public class FireEquipmentController {
         return ResultUtils.success(equipment);
     }
 
+    /**
+     * 获取楼栋消防设备列表
+     *
+     * @param buildingId 楼栋ID
+     * @param request HTTP请求
+     * @return 消防设备列表
+     */
     @GetMapping("/list/building/{buildingId}")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "获取楼栋消防设备列表")
@@ -63,6 +77,13 @@ public class FireEquipmentController {
         return ResultUtils.success(equipmentList);
     }
 
+    /**
+     * 获取需要巡检的设备列表
+     *
+     * @param daysThreshold 天数阈值，即多少天内需要巡检的设备
+     * @param request HTTP请求
+     * @return 需要巡检的设备列表
+     */
     @GetMapping("/list/need-inspection")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "获取需要巡检的设备列表")

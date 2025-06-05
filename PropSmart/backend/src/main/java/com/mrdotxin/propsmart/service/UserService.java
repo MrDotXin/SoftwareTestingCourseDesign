@@ -152,5 +152,5 @@ public interface UserService extends IService<User> {
      * @param value
      * @return
      */
-    User getByFiled(String fieldName, Object value);
+    User getByField(String fieldName, Object value);
 }

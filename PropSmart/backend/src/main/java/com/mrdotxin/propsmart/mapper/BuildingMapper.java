@@ -2,7 +2,6 @@ package com.mrdotxin.propsmart.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mrdotxin.propsmart.model.entity.Building;
-import com.mrdotxin.propsmart.model.geo.GeoPoint;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 

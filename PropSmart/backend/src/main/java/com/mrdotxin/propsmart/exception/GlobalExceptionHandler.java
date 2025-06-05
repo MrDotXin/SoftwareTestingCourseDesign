@@ -1,7 +1,5 @@
 package com.mrdotxin.propsmart.exception;
 
-
-import cn.hutool.core.lang.UUID;
 import com.mrdotxin.propsmart.common.BaseResponse;
 import com.mrdotxin.propsmart.common.ErrorCode;
 import com.mrdotxin.propsmart.common.ResultUtils;

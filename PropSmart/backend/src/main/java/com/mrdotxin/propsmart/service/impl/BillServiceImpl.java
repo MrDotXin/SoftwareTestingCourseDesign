@@ -57,6 +57,9 @@ public class BillServiceImpl extends ServiceImpl<BillMapper, Bill>
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         
+        // 获取当前用户
+        User loginUser = userService.getLoginUser(request);
+        
         // 检查房产是否存在
         Long propertyId = billAddRequest.getPropertyId();
         Property property = propertyMapper.selectById(propertyId);
@@ -86,6 +89,9 @@ public class BillServiceImpl extends ServiceImpl<BillMapper, Bill>
     @Override
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public boolean deleteBill(long id, HttpServletRequest request) {
+        // 获取当前用户
+        User loginUser = userService.getLoginUser(request);
+        
         // 检查账单是否存在
         Bill bill = this.getById(id);
         if (bill == null) {
@@ -101,6 +107,9 @@ public class BillServiceImpl extends ServiceImpl<BillMapper, Bill>
         if (billUpdateRequest == null || billUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        
+        // 获取当前用户
+        User loginUser = userService.getLoginUser(request);
         
         // 检查账单是否存在
         Bill oldBill = this.getById(billUpdateRequest.getId());

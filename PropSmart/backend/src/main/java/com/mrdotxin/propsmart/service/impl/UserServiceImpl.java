@@ -20,7 +20,6 @@ import com.mrdotxin.propsmart.utils.FormatUtils;
 import com.mrdotxin.propsmart.utils.SqlUtils;
 import com.mrdotxin.propsmart.websocket.WebSocketConnection;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.implementation.bytecode.Throw;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -323,7 +322,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public User getByFiled(String fieldName, Object value) {
+    public User getByField(String fieldName, Object value) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(fieldName, value);
         return this.baseMapper.selectOne(queryWrapper);

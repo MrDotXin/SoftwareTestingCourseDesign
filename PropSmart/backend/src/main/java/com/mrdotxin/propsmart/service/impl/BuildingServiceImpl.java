@@ -130,8 +130,11 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building>
         if (point == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "点不能为空");
         }
-        if (buildingId == null || buildingId <= 0) {
+        if (buildingId == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "楼栋ID不能为空");
+        }
+        if (buildingId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "楼栋ID必须大于0");
         }
         
         // 方法一：使用MySQL空间函数ST_Contains直接在数据库中判断
@@ -151,8 +154,11 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building>
     
     @Override
     public List<GeoPoint> getBuildingPolygonPoints(Long buildingId) {
-        if (buildingId == null || buildingId <= 0) {
+        if (buildingId == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "楼栋ID不能为空");
+        }
+        if (buildingId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "楼栋ID必须大于0");
         }
         
         String polygonWkt = this.baseMapper.getBuildingPolygonWkt(buildingId);

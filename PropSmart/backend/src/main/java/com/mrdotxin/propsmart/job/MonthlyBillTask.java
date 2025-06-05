@@ -90,10 +90,8 @@ public class MonthlyBillTask {
                 
                 // 生成物业费账单（固定费用）
                 Bill propertyFeeBill = generatePropertyFeeBill(property);
-                if (propertyFeeBill != null) {
-                    billService.save(propertyFeeBill);
-                    generatedCount++;
-                }
+                billService.save(propertyFeeBill);
+                generatedCount++;
                 
             } catch (Exception e) {
                 log.error("生成房产{}账单失败: {}", property.getId(), e.getMessage());
@@ -177,10 +175,10 @@ public class MonthlyBillTask {
         String message = String.format("您的%s账单异常！金额: %.2f元，请及时核查", 
             billType, bill.getAmount());
         
-            try {
-                notificationService.handleAbnormalBillNotification(user, property, message);
-            } catch (Exception e) {
-                log.error("发送异常账单通知失败，用户ID: {}", ownerId, e);
-            }
+        try {
+            notificationService.handleAbnormalBillNotification(user, property, message);
+        } catch (Exception e) {
+            log.error("发送异常账单通知失败，用户ID: {}", ownerId, e);
+        }
     }
 }
