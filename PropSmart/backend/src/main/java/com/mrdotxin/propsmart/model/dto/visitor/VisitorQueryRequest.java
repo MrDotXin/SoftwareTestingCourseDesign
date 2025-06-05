@@ -1,6 +1,7 @@
 package com.mrdotxin.propsmart.model.dto.visitor;
 
 import com.mrdotxin.propsmart.common.PageRequest;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,26 +18,31 @@ public class VisitorQueryRequest extends PageRequest implements Serializable {
     /**
      * 访客姓名
      */
+    @ApiModelProperty(value = "访客姓名")
     private String visitorName;
 
     /**
      * 身份证号
      */
+    @ApiModelProperty(value = "身份证号")
     private String idNumber;
 
     /**
      * 被访用户id
      */
+    @ApiModelProperty(value = "被访用户id")
     private Long userId;
 
     /**
      * 审批状态（pending/approved/rejected）
      */
+    @ApiModelProperty(value = "审批状态（pending/approved/rejected）")
     private String reviewStatus;
 
     /**
      * 访问时间
      */
+    @ApiModelProperty(value = "访问时间")
     private Date visitTime;
 
     private static final long serialVersionUID = 1L;

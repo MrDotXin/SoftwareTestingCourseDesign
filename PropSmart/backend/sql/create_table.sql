@@ -241,3 +241,4 @@ CREATE TABLE IF NOT EXISTS fireEquipment (
                                              INDEX idx_status (currentStatus),
                                              INDEX idx_next_due (nextInspectionDue)
 ) DEFAULT CHARSET=utf8mb4 COMMENT='消防设备综合管理表';
+

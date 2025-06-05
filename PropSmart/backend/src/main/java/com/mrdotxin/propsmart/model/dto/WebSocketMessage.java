@@ -1,5 +1,7 @@
 package com.mrdotxin.propsmart.model.dto;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +16,7 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ApiModel(value = "WebSocket消息")
 public class WebSocketMessage implements Serializable {
 
     /**
@@ -26,32 +29,38 @@ public class WebSocketMessage implements Serializable {
      * VISITOR: 访客管理相关消息
      * FACILITY: 设施预订相关消息
      */
+    @ApiModelProperty(value = "消息类型(ELEVATOR/REPAIR/BILL/NOTICE/COMPLAINT/VISITOR/FACILITY)")
     private String type;
 
     /**
      * 消息标题
      */
+    @ApiModelProperty(value = "消息标题")
     private String title;
 
     /**
      * 消息内容
      */
+    @ApiModelProperty(value = "消息内容")
     private String content;
 
     /**
      * 目标ID
      * 可能是用户ID、楼栋ID等，根据消息类型决定
      */
+    @ApiModelProperty(value = "目标ID(可能是用户ID、楼栋ID等，根据消息类型决定)")
     private Long targetId;
 
     /**
      * 关联业务数据ID
      * 例如报修单ID、账单ID等
      */
+    @ApiModelProperty(value = "关联业务数据ID(例如报修单ID、账单ID等)")
     private Long businessId;
 
     /**
      * 是否紧急消息
      */
+    @ApiModelProperty(value = "是否紧急消息")
     private Boolean urgent;
 } 
