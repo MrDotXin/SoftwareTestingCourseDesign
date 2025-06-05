@@ -13,19 +13,15 @@ import com.mrdotxin.propsmart.model.dto.energyConsumption.EnergyConsumptionAddRe
 import com.mrdotxin.propsmart.model.dto.energyConsumption.EnergyConsumptionQueryRequest;
 import com.mrdotxin.propsmart.model.dto.energyConsumption.EnergyConsumptionUpdateRequest;
 import com.mrdotxin.propsmart.model.entity.EnergyConsumption;
-import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.vo.EnergyConsumptionVO;
 import com.mrdotxin.propsmart.model.vo.EnergyMonthlyStatsVO;
 import com.mrdotxin.propsmart.service.EnergyConsumptionService;
-import com.mrdotxin.propsmart.service.PropertyService;
-import com.mrdotxin.propsmart.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -36,20 +32,12 @@ public class EnergyConsumptionController {
     @Resource
     private EnergyConsumptionService energyConsumptionService;
 
-    @Resource
-    private UserService userService;
-
-    @Resource
-    private PropertyService propertyService;
-
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/add")
     @ApiOperation(value = "添加能耗记录")
-    public BaseResponse<Long> addEnergyConsumption(@RequestBody EnergyConsumptionAddRequest addRequest,
-                                                 HttpServletRequest request) {
+    public BaseResponse<Long> addEnergyConsumption(@RequestBody EnergyConsumptionAddRequest addRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(addRequest), ErrorCode.PARAMS_ERROR);
 
-        User loginUser = userService.getLoginUser(request);
         EnergyConsumption energy = new EnergyConsumption();
         BeanUtils.copyProperties(addRequest, energy);
 
@@ -63,8 +51,7 @@ public class EnergyConsumptionController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/update")
     @ApiOperation(value = "更新能耗记录")
-    public BaseResponse<Boolean> updateEnergyConsumption(@RequestBody EnergyConsumptionUpdateRequest updateRequest,
-                                                       HttpServletRequest request) {
+    public BaseResponse<Boolean> updateEnergyConsumption(@RequestBody EnergyConsumptionUpdateRequest updateRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(updateRequest), ErrorCode.PARAMS_ERROR);
 
         EnergyConsumption energy = new EnergyConsumption();
@@ -80,8 +67,7 @@ public class EnergyConsumptionController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/delete")
     @ApiOperation(value = "删除能耗记录")
-    public BaseResponse<Boolean> deleteEnergyConsumption(@RequestBody DeleteRequest deleteRequest,
-                                                       HttpServletRequest request) {
+    public BaseResponse<Boolean> deleteEnergyConsumption(@RequestBody DeleteRequest deleteRequest) {
         Long id = deleteRequest.getId();
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
 
@@ -93,8 +79,7 @@ public class EnergyConsumptionController {
 
     @GetMapping("/get")
     @ApiOperation(value = "获取能耗记录详情")
-    public BaseResponse<EnergyConsumptionVO> getEnergyConsumptionById(@RequestParam Long id,
-                                                                    HttpServletRequest request) {
+    public BaseResponse<EnergyConsumptionVO> getEnergyConsumptionById(@RequestParam Long id) {
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
 
         EnergyConsumption energy = energyConsumptionService.getById(id);
@@ -107,8 +92,7 @@ public class EnergyConsumptionController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/list/page")
     @ApiOperation(value = "分页查询能耗记录")
-    public BaseResponse<Page<EnergyConsumptionVO>> listEnergyConsumptionByPage(@RequestBody EnergyConsumptionQueryRequest queryRequest,
-                                                                               HttpServletRequest request) {
+    public BaseResponse<Page<EnergyConsumptionVO>> listEnergyConsumptionByPage(@RequestBody EnergyConsumptionQueryRequest queryRequest) {
         long current = queryRequest.getCurrent();
         long size = queryRequest.getPageSize();
 

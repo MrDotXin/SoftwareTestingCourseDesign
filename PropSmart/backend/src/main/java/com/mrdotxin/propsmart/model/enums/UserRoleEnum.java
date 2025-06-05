@@ -1,5 +1,6 @@
 package com.mrdotxin.propsmart.model.enums;
 
+import lombok.Getter;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.Arrays;
@@ -10,8 +11,8 @@ import java.util.stream.Collectors;
  * 用户角色枚举
  *
  * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
+@Getter
 public enum UserRoleEnum {
 
     USER("用户", "ROLE_USER"),
@@ -30,7 +31,6 @@ public enum UserRoleEnum {
     /**
      * 获取值列表
      *
-     * @return
      */
     public static List<String> getValues() {
         return Arrays.stream(values()).map(item -> item.value).collect(Collectors.toList());
@@ -39,8 +39,6 @@ public enum UserRoleEnum {
     /**
      * 根据 value 获取枚举
      *
-     * @param value
-     * @return
      */
     public static UserRoleEnum getEnumByValue(String value) {
         if (ObjectUtils.isEmpty(value)) {
@@ -54,11 +52,4 @@ public enum UserRoleEnum {
         return null;
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public String getText() {
-        return text;
-    }
 }

@@ -1,8 +1,11 @@
 package com.mrdotxin.propsmart.model.enums;
 
+import lombok.Getter;
+
 /**
  * 异常处理状态枚举
  */
+@Getter
 public enum AbnormalityStatusEnum {
     /**
      * 待处理
@@ -29,8 +32,5 @@ public enum AbnormalityStatusEnum {
     AbnormalityStatusEnum(String status) {
         this.status = status;
     }
-    
-    public String getStatus() {
-        return status;
-    }
+
 } 

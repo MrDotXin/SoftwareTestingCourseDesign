@@ -14,7 +14,6 @@ import java.util.Date;
 /**
  * 楼栋信息
  *
- * @TableName building
  */
 @TableName(value = "building")
 @Data

@@ -7,7 +7,6 @@ import com.mrdotxin.propsmart.common.DeleteRequest;
 import com.mrdotxin.propsmart.common.ErrorCode;
 import com.mrdotxin.propsmart.common.ResultUtils;
 import com.mrdotxin.propsmart.constant.UserConstant;
-import com.mrdotxin.propsmart.exception.BusinessException;
 import com.mrdotxin.propsmart.exception.ThrowUtils;
 import com.mrdotxin.propsmart.model.dto.fireequipment.FireEquipmentAddRequest;
 import com.mrdotxin.propsmart.model.dto.fireequipment.FireEquipmentInspectionRequest;
@@ -95,6 +94,13 @@ public class FireEquipmentController {
         return ResultUtils.success(equipmentList);
     }
 
+    /**
+     * 添加消防设备
+     *
+     * @param fireEquipmentAddRequest 消防设备添加请求
+     * @param request HTTP请求
+     * @return 添加结果
+     */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "添加消防设备")
@@ -120,6 +126,13 @@ public class FireEquipmentController {
         return ResultUtils.success(true);
     }
 
+    /**
+     * 更新消防设备信息
+     *
+     * @param fireEquipmentUpdateRequest 消防设备更新请求
+     * @param request HTTP请求
+     * @return 更新结果
+     */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "更新消防设备信息")
@@ -141,6 +154,13 @@ public class FireEquipmentController {
         return ResultUtils.success(true);
     }
 
+    /**
+     * 删除消防设备
+     *
+     * @param deleteRequest 删除请求
+     * @param request HTTP请求
+     * @return 删除结果
+     */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "删除消防设备")
@@ -159,6 +179,13 @@ public class FireEquipmentController {
         return ResultUtils.success(true);
     }
 
+    /**
+     * 进行消防设备巡检
+     *
+     * @param inspectionRequest 巡检请求
+     * @param request HTTP请求
+     * @return 巡检结果
+     */
     @PostMapping("/inspection")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "进行消防设备巡检")
@@ -181,6 +208,14 @@ public class FireEquipmentController {
         return ResultUtils.success(true);
     }
 
+    /**
+     * 更新消防设备状态
+     *
+     * @param equipmentId 设备ID
+     * @param status 新状态
+     * @param request HTTP请求
+     * @return 状态更新结果
+     */
     @PostMapping("/update-status")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "更新消防设备状态")
@@ -199,6 +234,14 @@ public class FireEquipmentController {
         return ResultUtils.success(true);
     }
 
+    /**
+     * 设置下次巡检日期
+     *
+     * @param equipmentId 设备ID
+     * @param nextDate 下次巡检日期
+     * @param request HTTP请求
+     * @return 设置结果
+     */
     @PostMapping("/set-next-inspection")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "设置下次巡检日期")
@@ -217,6 +260,13 @@ public class FireEquipmentController {
         return ResultUtils.success(true);
     }
 
+    /**
+     * 分页获取消防设备列表
+     *
+     * @param fireEquipmentQueryRequest 消防设备查询请求
+     * @param request HTTP请求
+     * @return 设备分页列表
+     */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "分页获取消防设备列表")

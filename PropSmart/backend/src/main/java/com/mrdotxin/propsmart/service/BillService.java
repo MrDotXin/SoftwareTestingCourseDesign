@@ -72,16 +72,12 @@ public interface BillService extends IService<Bill> {
     /**
      * 获取查询条件
      *
-     * @param billQueryRequest
-     * @return
      */
     QueryWrapper<Bill> getQueryWrapper(BillQueryRequest billQueryRequest);
 
     /**
      * 账单对象转视图对象
      *
-     * @param bill
-     * @return
      */
     BillVO getBillVO(Bill bill);
 }

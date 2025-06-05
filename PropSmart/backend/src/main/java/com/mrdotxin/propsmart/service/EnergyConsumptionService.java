@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
-* @author Administrator
+* 能耗预警服务
 */
 public interface EnergyConsumptionService extends IService<EnergyConsumption> {
 
@@ -51,23 +51,7 @@ public interface EnergyConsumptionService extends IService<EnergyConsumption> {
      */
     List<EnergyMonthlyStatsVO> getMonthlyStats(Long propertyId, String energyType, String yearMonth);
 
-    /**
-     *
-     * @param propertyId
-     * @param energyType
-     * @param startTime
-     * @param endTime
-     * @return
-     */
     double getAverageConsumption(Long propertyId, String energyType, Date startTime, Date endTime);
 
-    /**
-     *
-      * @param propertyId
-     * @param energyType
-     * @param startTime
-     * @param endTime
-     * @return
-     */
     Double getTotalConsumption(Long propertyId, String energyType, Date startTime, Date endTime);
 }

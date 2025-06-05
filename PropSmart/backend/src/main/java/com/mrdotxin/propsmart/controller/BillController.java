@@ -57,9 +57,6 @@ public class BillController {
     /**
      * 创建账单
      *
-     * @param billAddRequest
-     * @param request
-     * @return
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -82,9 +79,6 @@ public class BillController {
     /**
      * 删除账单
      *
-     * @param deleteRequest
-     * @param request
-     * @return
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -100,9 +94,6 @@ public class BillController {
     /**
      * 更新账单
      *
-     * @param billUpdateRequest
-     * @param request
-     * @return
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -118,8 +109,6 @@ public class BillController {
     /**
      * 根据ID获取账单
      *
-     * @param id
-     * @return
      */
     @GetMapping("/get")
     @ApiOperation(value = "根据ID获取账单")
@@ -134,8 +123,8 @@ public class BillController {
         // 获取账单
         BillVO billVO = billService.getBillById(id);
         
-        // 权限校验：非管理员只能查看自己的账单
-        if (!userService.isAdmin(loginUser) && !canUserViewBill(loginUser, billVO)) {
+        // 权限校验：只有管理员或账单所有者可以查看账单
+        if (!userService.isAdmin(loginUser) && lacksBillAccess(loginUser, billVO)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         
@@ -145,8 +134,6 @@ public class BillController {
     /**
      * 获取账单分页（管理员可查看所有账单）
      *
-     * @param billQueryRequest
-     * @return
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -162,9 +149,6 @@ public class BillController {
     /**
      * 支付账单
      *
-     * @param billPayRequest
-     * @param request
-     * @return
      */
     @PostMapping("/pay")
     @ApiOperation(value = "支付账单")
@@ -179,8 +163,8 @@ public class BillController {
         // 获取账单
         BillVO billVO = billService.getBillById(billPayRequest.getId());
         
-        // 权限校验：非管理员只能支付自己的账单
-        if (!userService.isAdmin(loginUser) && !canUserViewBill(loginUser, billVO)) {
+        // 权限校验：只有管理员或账单所有者可以支付账单
+        if (!userService.isAdmin(loginUser) && lacksBillAccess(loginUser, billVO)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "您无权支付该账单");
         }
         
@@ -200,7 +184,6 @@ public class BillController {
     /**
      * 获取账单类型列表
      *
-     * @return
      */
     @GetMapping("/types")
     @ApiOperation(value = "获取账单类型列表")
@@ -212,7 +195,6 @@ public class BillController {
     /**
      * 获取账单状态列表
      *
-     * @return
      */
     @GetMapping("/statuses")
     @ApiOperation(value = "获取账单状态列表")
@@ -224,9 +206,6 @@ public class BillController {
     /**
      * 获取我的账单
      *
-     * @param billQueryRequest
-     * @param request
-     * @return
      */
     @PostMapping("/my/list/page")
     @ApiOperation(value = "获取我的账单")
@@ -277,26 +256,26 @@ public class BillController {
     }
     
     /**
-     * 判断用户是否可以查看该账单
+     * 判断用户是否缺少账单访问权限
      *
      * @param user 用户
      * @param billVO 账单
-     * @return 是否可以查看
+     * @return 如果用户无权访问该账单则返回true，否则返回false
      */
-    private boolean canUserViewBill(User user, BillVO billVO) {
+    private boolean lacksBillAccess(User user, BillVO billVO) {
         // 管理员可以查看所有账单
         if (userService.isAdmin(user)) {
-            return true;
+            return false;
         }
         
         // 非业主无法查看账单
         if (!user.getIsOwner()) {
-            return false;
+            return true;
         }
         
         // 业主只能查看自己的账单
         List<Long> propertyIds = getUserPropertyIds(user);
-        return propertyIds.contains(billVO.getPropertyId());
+        return !propertyIds.contains(billVO.getPropertyId());
     }
     
     /**
@@ -306,12 +285,15 @@ public class BillController {
      * @return 房产ID列表
      */
     private List<Long> getUserPropertyIds(User user) {
-        // 这里需要根据实际业务逻辑实现
-        // 简化处理：假设业主可以查看所有房产的账单
-        // 实际应用中应该通过关联表查询用户拥有的房产
+        // 通过用户的身份证号查询所有属于该用户的房产
+        if (user == null || user.getUserIdCardNumber() == null) {
+            return new ArrayList<>();
+        }
         
-        // 临时实现，返回所有房产ID
-        List<Property> properties = propertyService.list();
+        // 查询条件：ownerIdentity等于用户的身份证号
+        List<Property> properties = propertyService.listByField("ownerIdentity", user.getUserIdCardNumber());
+        
+        // 提取房产ID列表
         return properties.stream()
                 .map(Property::getId)
                 .collect(Collectors.toList());

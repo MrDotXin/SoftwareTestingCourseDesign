@@ -19,14 +19,12 @@ import com.mrdotxin.propsmart.model.entity.Building;
 import com.mrdotxin.propsmart.model.geo.GeoPoint;
 import com.mrdotxin.propsmart.service.BuildingService;
 import com.mrdotxin.propsmart.service.PropertyService;
-import com.mrdotxin.propsmart.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -41,13 +39,11 @@ public class BuildingController {
     @Resource
     private PropertyService propertyService;
 
-    @Resource
-    private UserService userService;
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/add")
     @ApiOperation(value = "添加楼栋")
-    public BaseResponse<Boolean> addBuilding(@RequestBody BuildingAddRequest buildingAddRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> addBuilding(@RequestBody BuildingAddRequest buildingAddRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(buildingAddRequest), ErrorCode.PARAMS_ERROR);
         ThrowUtils.throwIf(ObjectUtil.isNull(buildingAddRequest.getLocation()), ErrorCode.PARAMS_ERROR, "楼栋地理位置不能为空");
 
@@ -64,7 +60,7 @@ public class BuildingController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/update")
     @ApiOperation(value = "更新楼栋信息")
-    public BaseResponse<Boolean> updateBuilding(@RequestBody BuildingUpdateRequest buildingUpdateRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> updateBuilding(@RequestBody BuildingUpdateRequest buildingUpdateRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(buildingUpdateRequest), ErrorCode.PARAMS_ERROR);
         ThrowUtils.throwIf(buildingUpdateRequest.getId() == null, ErrorCode.PARAMS_ERROR, "楼栋ID不能为空");
 
@@ -81,7 +77,7 @@ public class BuildingController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/delete")
     @ApiOperation(value = "删除楼栋")
-    public BaseResponse<Boolean> deleteBuilding(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> deleteBuilding(@RequestBody DeleteRequest deleteRequest) {
         Long id = deleteRequest.getId();
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
 
@@ -99,7 +95,7 @@ public class BuildingController {
 
     @GetMapping("/get")
     @ApiOperation(value = "根据ID获取楼栋信息")
-    public BaseResponse<Building> getBuildingById(@RequestParam Long id, HttpServletRequest request) {
+    public BaseResponse<Building> getBuildingById(@RequestParam Long id) {
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
         Building building = buildingService.getById(id);
         ThrowUtils.throwIf(ObjectUtil.isNull(building), ErrorCode.NOT_FOUND_ERROR, "楼栋不存在");
@@ -108,7 +104,7 @@ public class BuildingController {
 
     @GetMapping("/get/name")
     @ApiOperation(value = "根据名称获取楼栋信息")
-    public BaseResponse<Building> getBuildingByName(@RequestParam String buildingName, HttpServletRequest request) {
+    public BaseResponse<Building> getBuildingByName(@RequestParam String buildingName) {
         ThrowUtils.throwIf(StrUtil.isBlank(buildingName), ErrorCode.PARAMS_ERROR);
         Building building = buildingService.getByBuildingName(buildingName);
         ThrowUtils.throwIf(ObjectUtil.isNull(building), ErrorCode.NOT_FOUND_ERROR, "楼栋不存在");
@@ -117,7 +113,7 @@ public class BuildingController {
 
     @PostMapping("/list/page")
     @ApiOperation(value = "分页获取楼栋列表")
-    public BaseResponse<Page<Building>> listBuildingByPage(@RequestBody BuildingQueryRequest buildingQueryRequest, HttpServletRequest request) {
+    public BaseResponse<Page<Building>> listBuildingByPage(@RequestBody BuildingQueryRequest buildingQueryRequest) {
         long current = buildingQueryRequest.getCurrent();
         long size = buildingQueryRequest.getPageSize();
         Page<Building> buildingPage = buildingService.page(new Page<>(current, size),
@@ -127,8 +123,7 @@ public class BuildingController {
     
     @PostMapping("/nearby")
     @ApiOperation(value = "获取附近楼栋")
-    public BaseResponse<List<Building>> findNearbyBuildings(@RequestBody BuildingQueryRequest buildingQueryRequest, 
-                                                            HttpServletRequest request) {
+    public BaseResponse<List<Building>> findNearbyBuildings(@RequestBody BuildingQueryRequest buildingQueryRequest) {
         GeoPoint centerPoint = buildingQueryRequest.getCenterPoint();
         Double searchRadius = buildingQueryRequest.getSearchRadius();
         
@@ -143,8 +138,7 @@ public class BuildingController {
     
     @PostMapping("/polygon")
     @ApiOperation(value = "获取多边形区域内的楼栋")
-    public BaseResponse<List<Building>> findBuildingsInPolygon(@RequestBody List<GeoPoint> polygonPoints, 
-                                                               HttpServletRequest request) {
+    public BaseResponse<List<Building>> findBuildingsInPolygon(@RequestBody List<GeoPoint> polygonPoints) {
         ThrowUtils.throwIf(CollUtil.isEmpty(polygonPoints) || polygonPoints.size() < 3, 
                 ErrorCode.PARAMS_ERROR, "多边形至少需要3个点");
         
@@ -155,8 +149,7 @@ public class BuildingController {
     
     @PostMapping("/isPointInBuilding")
     @ApiOperation(value = "判断点是否在建筑物内")
-    public BaseResponse<Boolean> isPointInBuilding(@RequestBody Map<String, Object> requestData, 
-                                                  HttpServletRequest request) {
+    public BaseResponse<Boolean> isPointInBuilding(@RequestBody Map<String, Object> requestData) {
         // 从请求数据中提取点坐标和楼栋ID
         Double x = (Double) requestData.get("x");
         Double y = (Double) requestData.get("y");
@@ -182,8 +175,7 @@ public class BuildingController {
     
     @GetMapping("/polygon/{buildingId}")
     @ApiOperation(value = "获取楼栋的多边形点列表")
-    public BaseResponse<List<GeoPoint>> getBuildingPolygonPoints(@PathVariable Long buildingId, 
-                                                               HttpServletRequest request) {
+    public BaseResponse<List<GeoPoint>> getBuildingPolygonPoints(@PathVariable Long buildingId) {
         ThrowUtils.throwIf(buildingId == null || buildingId <= 0, ErrorCode.PARAMS_ERROR, "楼栋ID不能为空");
         
         List<GeoPoint> points = buildingService.getBuildingPolygonPoints(buildingId);

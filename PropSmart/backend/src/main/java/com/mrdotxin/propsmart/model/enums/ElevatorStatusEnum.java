@@ -1,8 +1,11 @@
 package com.mrdotxin.propsmart.model.enums;
 
+import lombok.Getter;
+
 /**
  * 电梯运行状态枚举
  */
+@Getter
 public enum ElevatorStatusEnum {
     /**
      * 正常
@@ -29,9 +32,6 @@ public enum ElevatorStatusEnum {
     ElevatorStatusEnum(String status) {
         this.status = status;
     }
-    
-    public String getStatus() {
-        return status;
-    }
+
 }
 

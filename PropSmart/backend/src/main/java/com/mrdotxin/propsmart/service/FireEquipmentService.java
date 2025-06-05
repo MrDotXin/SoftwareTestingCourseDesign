@@ -9,9 +9,6 @@ import java.util.List;
 
 /**
 * 消防设备管理服务接口
-* @author 32054
-* @description 针对表【fireEquipment(消防设备综合管理表)】的数据库操作Service
-* @createDate 2025-06-05 15:47:09
 */
 public interface FireEquipmentService extends IService<FireEquipment> {
 

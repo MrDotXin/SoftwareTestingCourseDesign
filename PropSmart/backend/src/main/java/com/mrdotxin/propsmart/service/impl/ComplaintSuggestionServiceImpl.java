@@ -16,9 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 
 /**
-* @author 32054
-* @description 针对表【complaintSuggestion(投诉建议)】的数据库操作Service实现
-* @createDate 2025-06-04 10:23:23
+* 投诉建议服务实现
 */
 @Service
 public class ComplaintSuggestionServiceImpl extends ServiceImpl<ComplaintSuggestionMapper, ComplaintSuggestion>

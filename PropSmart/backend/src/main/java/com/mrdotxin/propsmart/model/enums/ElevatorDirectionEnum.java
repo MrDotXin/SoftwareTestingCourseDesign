@@ -1,8 +1,11 @@
 package com.mrdotxin.propsmart.model.enums;
 
+import lombok.Getter;
+
 /**
  * 电梯运行方向枚举
  */
+@Getter
 public enum ElevatorDirectionEnum {
     /**
      * 上行
@@ -24,8 +27,5 @@ public enum ElevatorDirectionEnum {
     ElevatorDirectionEnum(String direction) {
         this.direction = direction;
     }
-    
-    public String getDirection() {
-        return direction;
-    }
+
 }

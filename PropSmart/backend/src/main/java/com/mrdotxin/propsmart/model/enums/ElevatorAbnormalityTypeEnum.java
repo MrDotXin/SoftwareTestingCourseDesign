@@ -1,8 +1,11 @@
 package com.mrdotxin.propsmart.model.enums;
 
+import lombok.Getter;
+
 /**
  * 电梯异常类型枚举
  */
+@Getter
 public enum ElevatorAbnormalityTypeEnum {
     /**
      * 门故障
@@ -49,8 +52,5 @@ public enum ElevatorAbnormalityTypeEnum {
     ElevatorAbnormalityTypeEnum(String type) {
         this.type = type;
     }
-    
-    public String getType() {
-        return type;
-    }
+
 } 

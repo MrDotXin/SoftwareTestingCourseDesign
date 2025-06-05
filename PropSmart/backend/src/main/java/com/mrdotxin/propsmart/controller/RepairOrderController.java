@@ -112,8 +112,7 @@ public class RepairOrderController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/delete")
     @ApiOperation(value = "删除报修单")
-    public BaseResponse<Boolean> deleteRepairOrder(@RequestBody DeleteRequest deleteRequest,
-                                                   HttpServletRequest request) {
+    public BaseResponse<Boolean> deleteRepairOrder(@RequestBody DeleteRequest deleteRequest) {
         Long id = deleteRequest.getId();
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
 
@@ -166,8 +165,7 @@ public class RepairOrderController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/list/page")
     @ApiOperation(value = "管理员分页查询报修单")
-    public BaseResponse<Page<RepairOrder>> listRepairOrderByPage(@RequestBody RepairOrderQueryRequest queryRequest,
-                                                                 HttpServletRequest request) {
+    public BaseResponse<Page<RepairOrder>> listRepairOrderByPage(@RequestBody RepairOrderQueryRequest queryRequest) {
         Page<RepairOrder> repairOrderPage = repairOrderService.page(new Page<>(queryRequest.getCurrent(), queryRequest.getPageSize()),
                 repairOrderService.getQueryWrapper(queryRequest));
 

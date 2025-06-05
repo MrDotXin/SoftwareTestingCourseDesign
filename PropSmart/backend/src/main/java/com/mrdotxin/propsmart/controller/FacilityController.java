@@ -16,14 +16,12 @@ import com.mrdotxin.propsmart.model.dto.facility.FacilityUpdateRequest;
 import com.mrdotxin.propsmart.model.entity.Facility;
 import com.mrdotxin.propsmart.service.FacilityReservationService;
 import com.mrdotxin.propsmart.service.FacilityService;
-import com.mrdotxin.propsmart.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/facility")
@@ -36,13 +34,10 @@ public class FacilityController {
     @Resource
     private FacilityReservationService facilityReservationService;
 
-    @Resource
-    private UserService userService;
-
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/add")
     @ApiOperation(value = "添加设施")
-    public BaseResponse<Boolean> addFacility(@RequestBody FacilityAddRequest facilityAddRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> addFacility(@RequestBody FacilityAddRequest facilityAddRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(facilityAddRequest), ErrorCode.PARAMS_ERROR);
 
         Facility facility = new Facility();
@@ -58,7 +53,7 @@ public class FacilityController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/update")
     @ApiOperation(value = "更新设施信息")
-    public BaseResponse<Boolean> updateFacility(@RequestBody FacilityUpdateRequest facilityUpdateRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> updateFacility(@RequestBody FacilityUpdateRequest facilityUpdateRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(facilityUpdateRequest), ErrorCode.PARAMS_ERROR);
 
         Facility facility = new Facility();
@@ -74,7 +69,7 @@ public class FacilityController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/delete")
     @ApiOperation(value = "删除设施")
-    public BaseResponse<Boolean> deleteFacility(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> deleteFacility(@RequestBody DeleteRequest deleteRequest) {
         Long id = deleteRequest.getId();
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
 
@@ -92,17 +87,16 @@ public class FacilityController {
 
     @GetMapping("/get")
     @ApiOperation(value = "根据ID获取设施信息")
-    public BaseResponse<Facility> getFacilityById(@RequestParam Long id, HttpServletRequest request) {
+    public BaseResponse<Facility> getFacilityById(@RequestParam Long id) {
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
         Facility facility = facilityService.getById(id);
         ThrowUtils.throwIf(ObjectUtil.isNull(facility), ErrorCode.NOT_FOUND_ERROR, "设施不存在");
         return ResultUtils.success(facility);
     }
 
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/list/page")
     @ApiOperation(value = "分页获取设施列表")
-    public BaseResponse<Page<Facility>> listFacilityByPage(@RequestBody FacilityQueryRequest facilityQueryRequest, HttpServletRequest request) {
+    public BaseResponse<Page<Facility>> listFacilityByPage(@RequestBody FacilityQueryRequest facilityQueryRequest) {
         long current = facilityQueryRequest.getCurrent();
         long size = facilityQueryRequest.getPageSize();
         Page<Facility> facilityPage = facilityService.page(new Page<>(current, size),

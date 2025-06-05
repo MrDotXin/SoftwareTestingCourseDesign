@@ -46,7 +46,7 @@ public interface BuildingService extends IService<Building> {
      * @param value 字段值
      * @return 楼栋对象
      */
-    Building getByFiled(String fieldName, Object value);
+    Building getByField(String fieldName, Object value);
     
     /**
      * 查询指定距离范围内的楼栋

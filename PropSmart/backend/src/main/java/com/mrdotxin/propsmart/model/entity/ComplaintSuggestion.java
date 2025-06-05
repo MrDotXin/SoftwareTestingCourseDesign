@@ -10,7 +10,6 @@ import lombok.Data;
 
 /**
  * 投诉建议
- * @TableName complaintSuggestion
  */
 @TableName(value ="complaintSuggestion")
 @Data

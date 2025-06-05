@@ -1,6 +1,5 @@
 package com.mrdotxin.propsmart.job;
 
-import cn.hutool.core.date.DateUtil;
 import com.mrdotxin.propsmart.model.entity.FireEquipment;
 import com.mrdotxin.propsmart.service.FireEquipmentService;
 import com.mrdotxin.propsmart.websocket.NotificationService;

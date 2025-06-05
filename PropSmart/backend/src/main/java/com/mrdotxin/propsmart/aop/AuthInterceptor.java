@@ -1,6 +1,5 @@
 package com.mrdotxin.propsmart.aop;
 
-import cn.hutool.core.util.StrUtil;
 import com.mrdotxin.propsmart.annotation.AuthCheck;
 import com.mrdotxin.propsmart.common.ErrorCode;
 import com.mrdotxin.propsmart.exception.BusinessException;

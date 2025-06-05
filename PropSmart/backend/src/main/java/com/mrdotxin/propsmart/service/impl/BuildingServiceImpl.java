@@ -97,7 +97,7 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building>
     }
 
     @Override
-    public Building getByFiled(String fieldName, Object value) {
+    public Building getByField(String fieldName, Object value) {
         QueryWrapper<Building> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(fieldName, value);
         return this.baseMapper.selectOne(queryWrapper);

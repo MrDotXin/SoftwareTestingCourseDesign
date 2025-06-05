@@ -46,9 +46,7 @@ public class WebSocketService {
      */
     public void sendMessageToAll(WebSocketMessage message, boolean persistent) {
         Set<Long> userIds = WebSocketConnection.getMap().keySet();
-        userIds.forEach(id -> {
-            this.sendMessageToUser(id, message, persistent);
-        });
+        userIds.forEach(id -> this.sendMessageToUser(id, message, persistent));
     }
 
         /**
@@ -58,9 +56,7 @@ public class WebSocketService {
      */
     public void sendMessageToAllAdmins(WebSocketMessage message, boolean persistent) {
         List<Long> userIds = userService.listAdminId();
-        userIds.forEach(id -> {
-            this.sendMessageToUser(id, message, persistent);
-        });
+        userIds.forEach(id -> this.sendMessageToUser(id, message, persistent));
     }
 
     /**

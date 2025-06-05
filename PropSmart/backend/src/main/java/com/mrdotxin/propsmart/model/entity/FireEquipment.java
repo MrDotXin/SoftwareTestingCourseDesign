@@ -10,7 +10,6 @@ import lombok.Data;
 
 /**
  * 消防设备综合管理表
- * @TableName fireEquipment
  */
 @TableName(value ="fireEquipment")
 @Data

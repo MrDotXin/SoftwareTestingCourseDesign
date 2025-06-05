@@ -11,18 +11,13 @@ import com.mrdotxin.propsmart.exception.ThrowUtils;
 import com.mrdotxin.propsmart.mapper.FacilityMapper;
 import com.mrdotxin.propsmart.model.dto.facility.FacilityQueryRequest;
 import com.mrdotxin.propsmart.model.entity.Facility;
-import com.mrdotxin.propsmart.model.entity.FacilityReservation;
-import com.mrdotxin.propsmart.service.FacilityReservationService;
 import com.mrdotxin.propsmart.service.FacilityService;
 import com.mrdotxin.propsmart.utils.SqlUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 
 /**
- * @author Administrator
- * @description 针对表【facilities(小区设施)】的数据库操作Service实现
- * @createDate 2025-06-03 18:27:14
+ * 小区设施服务实现
  */
 @Service
 public class FacilityServiceImpl extends ServiceImpl<FacilityMapper, Facility>

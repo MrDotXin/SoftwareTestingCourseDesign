@@ -32,9 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
-* @author Administrator
-* @description 针对表【energyconsumption(账单流水)】的数据库操作Service实现
-* @createDate 2025-06-05 11:07:06
+* 账单流水服务实现
 */
 @Service
 public class EnergyConsumptionServiceImpl extends ServiceImpl<EnergyConsumptionMapper, EnergyConsumption>
