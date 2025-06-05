@@ -123,4 +123,17 @@ public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property>
                 .map(Property::getId)
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public List<Property> getPropertiesByBuildingId(Long buildingId) {
+        if (buildingId == null || buildingId <= 0) {
+            return new ArrayList<>();
+        }
+        
+        // 根据楼栋ID查询房产
+        QueryWrapper<Property> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("buildingId", buildingId);
+        
+        return this.list(queryWrapper);
+    }
 }

@@ -9,9 +9,8 @@ import com.mrdotxin.propsmart.model.geo.GeoPoint;
 import java.util.List;
 
 /**
-* @author Administrator
-* @description 针对表【building(楼栋信息)】的数据库操作Service
-* @createDate 2025-06-03 18:45:18
+* 楼栋信息的数据库操作Service
+*
 */
 public interface BuildingService extends IService<Building> {
 

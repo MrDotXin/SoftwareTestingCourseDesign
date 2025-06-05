@@ -20,7 +20,7 @@ public enum AbnormalityLevelEnum {
     /**
      * 严重
      */
-    SEVERE("严重");
+    SERIOUS("严重");
     
     private final String level;
     
