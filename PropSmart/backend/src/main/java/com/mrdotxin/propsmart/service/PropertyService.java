@@ -29,4 +29,11 @@ public interface PropertyService extends IService<Property> {
      *
      */
     List<Long> getPropertyIdsByOwnerId(Long ownerId);
+    
+    /**
+     * 根据楼栋ID获取所有房产信息
+     * @param buildingId 楼栋ID
+     * @return 房产列表
+     */
+    List<Property> getPropertiesByBuildingId(Long buildingId);
 }

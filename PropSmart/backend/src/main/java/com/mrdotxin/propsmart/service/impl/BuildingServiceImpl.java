@@ -22,9 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* @author Administrator
-* @description 针对表【building(楼栋信息)】的数据库操作Service实现
-* @createDate 2025-06-03 18:45:18
+* 楼栋信息的数据库操作Service实现
 */
 @Service
 public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building>

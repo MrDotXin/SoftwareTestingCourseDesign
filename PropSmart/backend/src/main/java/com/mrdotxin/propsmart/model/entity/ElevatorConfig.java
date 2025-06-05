@@ -16,45 +16,49 @@ import lombok.Data;
 @TableName("elevator_config")
 public class ElevatorConfig implements Serializable {
     /**
-     * 配置ID，与电梯ID相同
+     * 配置ID
      */
-    @TableId(type = IdType.INPUT)
+    @TableId(type = IdType.AUTO)
+    private Long id;
+    
+    /**
+     * 电梯ID
+     */
     private Long elevatorId;
 
     /**
-     * 轿厢温度预警阈值（默认35℃）
+     * 最大轿厢温度（默认35℃）
      */
-    @TableField(value = "cabinTempAlertThr")
-    private BigDecimal cabinTempAlertThr;
+    private BigDecimal maxCabinTemperature;
 
     /**
-     * 电机温度预警阈值（默认60℃）
+     * 最大电机温度（默认70℃）
      */
-    @TableField(value = "motorTempAlertThr")
-    private BigDecimal motorTempAlertThr;
+    private BigDecimal maxMotorTemperature;
 
     /**
-     * 速度异常百分比阈值（默认±10%）
+     * 最大运行速度（默认2.5m/s）
      */
-    @TableField(value = "speedAlertPercent")
-    private BigDecimal speedAlertPercent;
+    private BigDecimal maxSpeed;
 
     /**
-     * 加速度异常阈值（默认1.5m/s²）
+     * 最大功耗（默认8kW）
      */
-    @TableField(value = "accelAlertThr")
-    private BigDecimal accelAlertThr;
+    private BigDecimal maxPowerConsumption;
 
     /**
-     * 配置生效时间
+     * 维护间隔天数（默认90天）
      */
-    @TableField(value = "effectiveTime")
-    private Date effectiveTime;
+    private Integer maintenanceIntervalDays;
 
     /**
-     * 配置更新时间
+     * 创建时间
      */
-    @TableField(value = "updateTime")
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
     private Date updateTime;
 
     @TableField(exist = false)
