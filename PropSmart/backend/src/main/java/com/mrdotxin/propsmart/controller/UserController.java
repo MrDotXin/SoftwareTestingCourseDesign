@@ -70,9 +70,7 @@ public class UserController {
 
     /**
      * 用户登录
-     * @param userLoginRequest
-     * @param request
-     * @return
+     *
      */
     @PostMapping("/login")
     @ApiOperation(value = "用户登录接口")
@@ -92,8 +90,6 @@ public class UserController {
     /**
      * 用户注销
      *
-     * @param request
-     * @return
      */
     @PostMapping("/logout")
     @ApiOperation(value = "用户注销")
@@ -102,14 +98,13 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         boolean result = userService.userLogout(request);
+
         return ResultUtils.success(result);
     }
 
     /**
      * 获取当前登录用户
      *
-     * @param request
-     * @return
      */
     @GetMapping("/get/login")
     @ApiOperation(value = "获取当前登录用户信息", notes = "这个函数用来获取登录的用户信息")
@@ -125,14 +120,11 @@ public class UserController {
     /**
      * 创建用户
      *
-     * @param userAddRequest
-     * @param request
-     * @return
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "添加用户", notes = "管理员可以使用这个操作来添加账号")
-    public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
+    public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest) {
         if (userAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -154,7 +146,7 @@ public class UserController {
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "删除用户")
-    public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -165,15 +157,11 @@ public class UserController {
     /**
      * 更新用户
      *
-     * @param userUpdateRequest
-     * @param request
-     * @return
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "更新用户")
-    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
-            HttpServletRequest request) {
+    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest) {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -187,9 +175,6 @@ public class UserController {
     /**
      * 根据 id 获取用户（仅管理员）
      *
-     * @param id
-     * @param request
-     * @return
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -206,9 +191,6 @@ public class UserController {
     /**
      * 根据 id 获取包装类
      *
-     * @param id
-     * @param request
-     * @return
      */
     @GetMapping("/get/vo")
     @ApiOperation(value = "根据 id 获取用户VO")
@@ -221,15 +203,11 @@ public class UserController {
     /**
      * 分页获取用户列表（仅管理员）
      *
-     * @param userQueryRequest
-     * @param request
-     * @return
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "分页获取用户列表")
-    public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
-            HttpServletRequest request) {
+    public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
         Page<User> userPage = userService.page(new Page<>(current, size),
@@ -240,14 +218,10 @@ public class UserController {
     /**
      * 分页获取用户封装列表
      *
-     * @param userQueryRequest
-     * @param request
-     * @return
      */
     @PostMapping("/list/page/vo")
     @ApiOperation(value = "分页获取用户VO列表")
-    public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest,
-            HttpServletRequest request) {
+    public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest) {
         if (userQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }

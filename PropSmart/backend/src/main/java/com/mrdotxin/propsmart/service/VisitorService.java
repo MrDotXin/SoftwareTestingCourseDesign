@@ -16,18 +16,12 @@ public interface VisitorService extends IService<Visitor> {
     /**
      * 添加访客申请
      *
-     * @param visitor
-     * @param userId
-     * @return
      */
     long addVisitor(Visitor visitor, Long userId);
 
     /**
      * 处理访客申请
      *
-     * @param visitor
-     * @param reviewerId
-     * @return
      */
     boolean reviewVisitor(Visitor visitor, Long reviewerId);
 
@@ -40,8 +34,6 @@ public interface VisitorService extends IService<Visitor> {
     /**
      * 获取查询条件
      *
-     * @param visitorQueryRequest
-     * @return
      */
     QueryWrapper<Visitor> getQueryWrapper(VisitorQueryRequest visitorQueryRequest);
 

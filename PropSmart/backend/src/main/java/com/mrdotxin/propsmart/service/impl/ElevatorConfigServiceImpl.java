@@ -1,11 +1,11 @@
 package com.mrdotxin.propsmart.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mrdotxin.propsmart.mapper.ElevatorConfigMapper;
-import com.mrdotxin.propsmart.model.dto.elevator.ElevatorConfigDTO;
 import com.mrdotxin.propsmart.model.entity.ElevatorConfig;
 import com.mrdotxin.propsmart.service.ElevatorConfigService;
-import org.springframework.beans.BeanUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -14,64 +14,54 @@ import java.util.Date;
 /**
  * 电梯配置服务实现类
  */
+@Slf4j
 @Service
 public class ElevatorConfigServiceImpl extends ServiceImpl<ElevatorConfigMapper, ElevatorConfig> implements ElevatorConfigService {
 
     @Override
-    public ElevatorConfigDTO getElevatorConfig(Long elevatorId) {
-        ElevatorConfig config = getById(elevatorId);
-        if (config == null) {
-            // 如果配置不存在，创建默认配置
-            createDefaultConfig(elevatorId);
-            config = getById(elevatorId);
-        }
-        
-        return convertToDTO(config);
-    }
-
-    @Override
-    public boolean updateElevatorConfig(ElevatorConfigDTO configDTO) {
-        ElevatorConfig config = new ElevatorConfig();
-        BeanUtils.copyProperties(configDTO, config);
-        config.setUpdateTime(new Date());
-        return updateById(config);
-    }
-
-    @Override
     public boolean createDefaultConfig(Long elevatorId) {
-        // 检查配置是否已存在
-        ElevatorConfig existingConfig = getById(elevatorId);
-        if (existingConfig != null) {
-            return true;
+        // 检查是否已存在配置
+        LambdaQueryWrapper<ElevatorConfig> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ElevatorConfig::getElevatorId, elevatorId);
+        
+        if (this.count(queryWrapper) > 0) {
+            log.warn("电梯 {} 已存在配置，不再创建默认配置", elevatorId);
+            return false;
         }
         
         // 创建默认配置
         ElevatorConfig config = new ElevatorConfig();
         config.setElevatorId(elevatorId);
-        config.setCabinTempAlertThr(new BigDecimal("35.0")); // 轿厢温度预警阈值 35℃
-        config.setMotorTempAlertThr(new BigDecimal("60.0")); // 电机温度预警阈值 60℃
-        config.setSpeedAlertPercent(new BigDecimal("10.0")); // 速度异常百分比阈值 ±10%
-        config.setAccelAlertThr(new BigDecimal("1.500")); // 加速度异常阈值 1.5m/s²
-        config.setEffectiveTime(new Date());
+        
+        // 设置默认阈值
+        config.setMaxSpeed(new BigDecimal("2.5"));  // 最大速度 2.5 m/s
+        config.setMaxMotorTemperature(new BigDecimal("70.0"));  // 最大电机温度 70℃
+        config.setMaxCabinTemperature(new BigDecimal("35.0"));  // 最大轿厢温度 35℃
+        config.setMaxPowerConsumption(new BigDecimal("8.0"));  // 最大功耗 8 kW
+        config.setMaintenanceIntervalDays(90);  // 维护间隔 90 天
+        
+        config.setCreateTime(new Date());
         config.setUpdateTime(new Date());
         
-        return save(config);
+        return this.save(config);
     }
-    
-    /**
-     * 将配置实体转换为DTO
-     */
-    private ElevatorConfigDTO convertToDTO(ElevatorConfig config) {
-        if (config == null) {
-            return null;
+
+    @Override
+    public ElevatorConfig getElevatorConfig(Long elevatorId) {
+        LambdaQueryWrapper<ElevatorConfig> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ElevatorConfig::getElevatorId, elevatorId);
+        
+        return this.getOne(queryWrapper);
+    }
+
+    @Override
+    public boolean updateConfig(ElevatorConfig elevatorConfig) {
+        if (elevatorConfig.getId() == null) {
+            log.error("更新电梯配置失败：配置ID不能为空");
+            return false;
         }
         
-        ElevatorConfigDTO dto = new ElevatorConfigDTO();
-        BeanUtils.copyProperties(config, dto);
-        return dto;
+        elevatorConfig.setUpdateTime(new Date());
+        return this.updateById(elevatorConfig);
     }
-}
-
-
-
-
+} 

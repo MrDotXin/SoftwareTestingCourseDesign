@@ -5,12 +5,9 @@ import com.mrdotxin.propsmart.model.entity.Elevator;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 电梯数据访问层
+ * 电梯Mapper接口
  */
 @Mapper
 public interface ElevatorMapper extends BaseMapper<Elevator> {
-}
 
-
-
-
+} 

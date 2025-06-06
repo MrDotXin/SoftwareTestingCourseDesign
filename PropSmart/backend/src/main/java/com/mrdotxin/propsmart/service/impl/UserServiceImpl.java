@@ -18,8 +18,8 @@ import com.mrdotxin.propsmart.model.vo.UserVO;
 import com.mrdotxin.propsmart.service.UserService;
 import com.mrdotxin.propsmart.utils.FormatUtils;
 import com.mrdotxin.propsmart.utils.SqlUtils;
+import com.mrdotxin.propsmart.websocket.WebSocketConnection;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.implementation.bytecode.Throw;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -35,9 +35,6 @@ import static com.mrdotxin.propsmart.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
  * 用户服务实现
- *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
 @Service
 @Slf4j
@@ -47,6 +44,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 盐值，混淆密码
      */
     public static final String SALT = "mrdotxin";
+    private final WebSocketConnection webSocketService;
+
+    public UserServiceImpl(WebSocketConnection webSocketService) {
+        this.webSocketService = webSocketService;
+    }
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -113,6 +115,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
         // 3. 记录用户的登录态
+        ThrowUtils.throwIf(WebSocketConnection.existsUser(user.getId()), ErrorCode.OPERATION_ERROR, "用户已经在其它地方登录了!");
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
         return this.getLoginUserVO(user);
     }
@@ -120,8 +123,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 获取当前登录用户
      *
-     * @param request
-     * @return
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
@@ -143,8 +144,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 获取当前登录用户（允许未登录）
      *
-     * @param request
-     * @return
      */
     @Override
     public User getLoginUserPermitNull(HttpServletRequest request) {
@@ -162,8 +161,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 是否为管理员
      *
-     * @param request
-     * @return
      */
     @Override
     public boolean isAdmin(HttpServletRequest request) {
@@ -181,7 +178,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 用户注销
      *
-     * @param request
      */
     @Override
     public boolean userLogout(HttpServletRequest request) {
@@ -189,7 +185,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
         }
         // 移除登录态
+        User user = (User) getLoginUser(request);
+
+        WebSocketConnection.closeConnection(user.getId());
+
         request.getSession().removeAttribute(USER_LOGIN_STATE);
+
         return true;
     }
 
@@ -294,6 +295,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return user;
     }
 
+    public List<Long> listUserIdByBuildingId(Long buildingId) {
+        return this.baseMapper.selectUserByBuildingId(buildingId);
+    }
+
+    @Override
+    public List<Long> listAdminId() {
+        return this.baseMapper.selectAllAdminId();
+    }
+
     @Override
     public Boolean existsWithField(String fieldName, Object value) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -302,7 +312,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public User getByFiled(String fieldName, Object value) {
+    public User getByField(String fieldName, Object value) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(fieldName, value);
         return this.baseMapper.selectOne(queryWrapper);

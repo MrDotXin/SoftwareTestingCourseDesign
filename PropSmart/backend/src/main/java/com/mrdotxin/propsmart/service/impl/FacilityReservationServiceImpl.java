@@ -23,9 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @author Administrator
- * @description 针对表【facilityreservation(设施预订)】的数据库操作Service实现
- * @createDate 2025-06-03 21:37:35
+ * 设施预订服务实现
  */
 @Service
 public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservationMapper, FacilityReservation>

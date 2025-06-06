@@ -65,7 +65,7 @@ public class PropertyController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "权限不足");
         }
 
-        List<Property> property = propertyService.listByFiled("ownerIdentity", idCardNumber);
+        List<Property> property = propertyService.listByField("ownerIdentity", idCardNumber);
         ThrowUtils.throwIf(CollUtil.isEmpty(property), ErrorCode.NOT_FOUND_ERROR, "房产不存在");
 
         return ResultUtils.success(property);
@@ -75,7 +75,7 @@ public class PropertyController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/add")
     @ApiOperation(value = "添加房产信息", notes = "如果传入的房产本身是带身份证的, 那么如果用户存在, 就会自动关联身份")
-    BaseResponse<Boolean> addProperty(@RequestBody PropertyAddRequest propertyAddRequest, HttpServletRequest httpServletRequest) {
+    BaseResponse<Boolean> addProperty(@RequestBody PropertyAddRequest propertyAddRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(propertyAddRequest), ErrorCode.PARAMS_ERROR);
         Property property = new Property();
         property.setOwnerIdentity(propertyAddRequest.getOwnerIdentity());
@@ -101,7 +101,7 @@ public class PropertyController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/update")
     @ApiOperation(value = "更新房产信息", notes = "更新的时候会自动修改关联的用户身份")
-    BaseResponse<Boolean> updateProperty(@RequestBody PropertyUpdateRequest propertyUpdateRequest, HttpServletRequest httpServletRequest) {
+    BaseResponse<Boolean> updateProperty(@RequestBody PropertyUpdateRequest propertyUpdateRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(propertyUpdateRequest), ErrorCode.PARAMS_ERROR);
 
         Property property = new Property();
@@ -133,7 +133,7 @@ public class PropertyController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/delete")
     @ApiOperation(value = "删除房产信息", notes = "删除房产信息, 同时更新对应用户的身份")
-    BaseResponse<Boolean> deleteProperty(@RequestBody DeleteRequest deleteRequest, HttpServletRequest httpServletRequest) {
+    BaseResponse<Boolean> deleteProperty(@RequestBody DeleteRequest deleteRequest) {
         Long id = deleteRequest.getId();
 
         Property oldProperty = propertyService.getById(id);
@@ -150,7 +150,7 @@ public class PropertyController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/list/page")
     @ApiOperation(value = "分页获得房产信息")
-    BaseResponse<Page<Property>> listPropertyByPage(@RequestBody PropertyQueryRequest propertyQueryRequest, HttpServletRequest httpServletRequest) {
+    BaseResponse<Page<Property>> listPropertyByPage(@RequestBody PropertyQueryRequest propertyQueryRequest) {
         long current = propertyQueryRequest.getCurrent();
         long size = propertyQueryRequest.getPageSize();
         Page<Property> propertyPage = propertyService.page(new Page<>(current, size),

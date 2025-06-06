@@ -11,7 +11,6 @@ import lombok.Data;
 
 /**
  * 电梯基本信息及实时运行参数表
- * @TableName elevator
  */
 @Data
 @TableName("elevator")

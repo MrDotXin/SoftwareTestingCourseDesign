@@ -15,8 +15,6 @@ import com.mrdotxin.propsmart.model.entity.Visitor;
 import com.mrdotxin.propsmart.model.enums.VisitorReviewStatusEnum;
 import com.mrdotxin.propsmart.service.VisitorService;
 import com.mrdotxin.propsmart.utils.SqlUtils;
-import net.bytebuddy.implementation.bytecode.Throw;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

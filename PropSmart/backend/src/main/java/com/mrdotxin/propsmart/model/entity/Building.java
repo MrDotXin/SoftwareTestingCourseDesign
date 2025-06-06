@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.mrdotxin.propsmart.config.typehandler.MysqlGeoTypeHandler;
+import com.mrdotxin.propsmart.model.geo.GeoPoint;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,7 +14,6 @@ import java.util.Date;
 /**
  * 楼栋信息
  *
- * @TableName building
  */
 @TableName(value = "building")
 @Data
@@ -30,10 +31,16 @@ public class Building implements Serializable {
     private String buildingName;
 
     /**
-     * 地理位置
+     * 楼栋总层数
      */
-    @TableField(value = "address")
-    private String address;
+    @TableField(value = "totalLevels")
+    private Integer totalLevels;
+
+    /**
+     * 地理位置几何图形
+     */
+    @TableField(value = "location", typeHandler = MysqlGeoTypeHandler.class)
+    private GeoPoint location;
 
     /**
      * 创建时间

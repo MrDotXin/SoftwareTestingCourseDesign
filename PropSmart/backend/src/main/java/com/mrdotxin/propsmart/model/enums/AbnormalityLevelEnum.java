@@ -1,8 +1,11 @@
 package com.mrdotxin.propsmart.model.enums;
 
+import lombok.Getter;
+
 /**
  * 异常级别枚举
  */
+@Getter
 public enum AbnormalityLevelEnum {
     /**
      * 轻微
@@ -17,15 +20,12 @@ public enum AbnormalityLevelEnum {
     /**
      * 严重
      */
-    SEVERE("严重");
+    SERIOUS("严重");
     
     private final String level;
     
     AbnormalityLevelEnum(String level) {
         this.level = level;
     }
-    
-    public String getLevel() {
-        return level;
-    }
+
 } 

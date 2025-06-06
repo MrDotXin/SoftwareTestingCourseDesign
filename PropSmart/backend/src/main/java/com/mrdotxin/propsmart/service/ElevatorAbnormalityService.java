@@ -12,40 +12,41 @@ import java.util.List;
 public interface ElevatorAbnormalityService extends IService<ElevatorAbnormality> {
     
     /**
-     * 获取所有电梯异常记录
-     * @return 异常记录列表
+     * 获取所有电梯异常记录并转换为DTO
+     * @return 电梯异常DTO列表
      */
-    List<ElevatorAbnormalityDTO> listAbnormalities();
+    List<ElevatorAbnormalityDTO> listAllDTO();
     
     /**
-     * 根据电梯ID获取异常记录
+     * 获取指定电梯的异常记录并转换为DTO
      * @param elevatorId 电梯ID
-     * @return 异常记录列表
+     * @return 电梯异常DTO列表
      */
-    List<ElevatorAbnormalityDTO> listAbnormalitiesByElevatorId(Long elevatorId);
+    List<ElevatorAbnormalityDTO> listByElevatorIdDTO(Long elevatorId);
     
     /**
-     * 创建异常记录
-     * @param abnormality 异常信息
-     * @return 异常记录ID
+     * 获取指定ID的异常记录并转换为DTO
+     * @param id 异常记录ID
+     * @return 电梯异常DTO
      */
-    Long createAbnormality(ElevatorAbnormality abnormality);
+    ElevatorAbnormalityDTO getDTOById(Long id);
     
     /**
-     * 处理异常
-     * @param abnormalityId 异常ID
-     * @param handlerId 处理人ID
-     * @param status 处理状态
-     * @param handlingNotes 处理记录
-     * @return 是否处理成功
+     * 获取所有未解决的电梯异常（待处理和处理中状态）
+     * @return 未解决的电梯异常列表
      */
-    boolean handleAbnormality(Long abnormalityId, Long handlerId, String status, String handlingNotes);
+    List<ElevatorAbnormality> listUnresolved();
     
     /**
-     * 关闭异常
-     * @param abnormalityId 异常ID
-     * @param handlerId 处理人ID
-     * @return 是否关闭成功
+     * 获取电梯异常统计数据
+     * @return 异常统计信息
      */
-    boolean closeAbnormality(Long abnormalityId, Long handlerId);
-}
+    List<Object> getAbnormalityStats();
+    
+    /**
+     * 将实体列表转换为DTO列表
+     * @param entityList 实体列表
+     * @return DTO列表
+     */
+    List<ElevatorAbnormalityDTO> convertToDTOList(List<ElevatorAbnormality> entityList);
+} 

@@ -10,7 +10,6 @@ import lombok.Data;
 
 /**
  * 报修申请
- * @TableName repairorder
  */
 @TableName(value ="repairorder")
 @Data

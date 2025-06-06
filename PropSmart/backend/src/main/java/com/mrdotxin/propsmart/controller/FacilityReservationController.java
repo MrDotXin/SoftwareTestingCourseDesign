@@ -17,7 +17,7 @@ import com.mrdotxin.propsmart.model.entity.FacilityReservation;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.service.FacilityReservationService;
 import com.mrdotxin.propsmart.service.FacilityService;
-import com.mrdotxin.propsmart.service.NotificationService;
+import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -56,6 +56,7 @@ public class FacilityReservationController {
      * 提交设施预约申请
      */
     @PostMapping("/submit")
+    @AuthCheck(mustOwner = true)
     @ApiOperation(value = "提交设施预约申请", notes = "用户提交设施预约申请")
     public BaseResponse<Long> submitReservation(@RequestBody FacilityReservationAddRequest reservationAddRequest,
                                                HttpServletRequest request) {
@@ -125,6 +126,7 @@ public class FacilityReservationController {
      * 取消预约申请（用户）
      */
     @PostMapping("/cancel")
+    @AuthCheck(mustOwner = true)
     @ApiOperation(value = "取消预约申请", notes = "用户取消自己的预约申请")
     public BaseResponse<Boolean> cancelReservation(@RequestBody DeleteRequest deleteRequest,
                                                  HttpServletRequest request) {
@@ -186,8 +188,7 @@ public class FacilityReservationController {
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "分页获取预约列表", notes = "管理员分页获取所有预约记录")
-    public BaseResponse<Page<FacilityReservation>> listReservationByPage(@RequestBody FacilityReservationQueryRequest reservationQueryRequest,
-                                                                       HttpServletRequest request) {
+    public BaseResponse<Page<FacilityReservation>> listReservationByPage(@RequestBody FacilityReservationQueryRequest reservationQueryRequest) {
         if (reservationQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }

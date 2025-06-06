@@ -13,53 +13,52 @@ import java.util.List;
 public interface ElevatorService extends IService<Elevator> {
     
     /**
-     * 获取所有电梯基本信息（用户视图）
+     * 保存电梯基本信息
+     * @param elevator 电梯实体
+     * @return 是否保存成功
+     */
+    boolean save(Elevator elevator);
+    
+    /**
+     * 更新电梯信息
+     * @param elevator 电梯实体
+     * @return 是否更新成功
+     */
+    boolean updateById(Elevator elevator);
+    
+    /**
+     * 获取所有电梯的基本信息（用户视图）
      * @return 电梯基本信息列表
      */
     List<ElevatorBasicInfoDTO> listElevatorBasicInfo();
     
     /**
-     * 根据ID获取电梯基本信息（用户视图）
-     * @param elevatorId 电梯ID
-     * @return 电梯基本信息
-     */
-    ElevatorBasicInfoDTO getElevatorBasicInfo(Long elevatorId);
-    
-    /**
-     * 获取所有电梯详细信息（管理员视图）
+     * 获取所有电梯的详细信息（管理员视图）
      * @return 电梯详细信息列表
      */
     List<ElevatorDetailDTO> listElevatorDetails();
     
     /**
-     * 根据ID获取电梯详细信息（管理员视图）
+     * 获取单个电梯的详细信息（管理员视图）
      * @param elevatorId 电梯ID
      * @return 电梯详细信息
      */
     ElevatorDetailDTO getElevatorDetail(Long elevatorId);
     
     /**
-     * 更新电梯维护日期
+     * 更新电梯的维护日期（设为当前日期）
      * @param elevatorId 电梯ID
      * @return 是否更新成功
      */
     boolean updateMaintenanceDate(Long elevatorId);
     
     /**
-     * 更新电梯运行状态
-     * @param elevatorId 电梯ID
-     * @param status 状态
-     * @return 是否更新成功
-     */
-    boolean updateElevatorStatus(Long elevatorId, String status);
-    
-    /**
-     * 启动电梯实时数据模拟器
+     * 启动电梯数据模拟器
      */
     void startElevatorDataSimulator();
     
     /**
-     * 停止电梯实时数据模拟器
+     * 停止电梯数据模拟器
      */
     void stopElevatorDataSimulator();
-}
+} 

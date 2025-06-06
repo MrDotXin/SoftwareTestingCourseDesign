@@ -15,7 +15,7 @@ import com.mrdotxin.propsmart.model.dto.complaint.ComplaintSuggestionUpdateReque
 import com.mrdotxin.propsmart.model.entity.ComplaintSuggestion;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.service.ComplaintSuggestionService;
-import com.mrdotxin.propsmart.service.NotificationService;
+import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -47,9 +47,6 @@ public class ComplaintSuggestionController {
     /**
      * 创建投诉建议
      *
-     * @param complaintSuggestionAddRequest
-     * @param request
-     * @return
      */
     @PostMapping("/add")
     @ApiOperation(value = "创建投诉建议")
@@ -77,9 +74,6 @@ public class ComplaintSuggestionController {
     /**
      * 删除投诉建议
      *
-     * @param deleteRequest
-     * @param request
-     * @return
      */
     @PostMapping("/delete")
     @ApiOperation(value = "删除投诉建议")
@@ -108,9 +102,6 @@ public class ComplaintSuggestionController {
     /**
      * 更新投诉建议（管理员审批）
      *
-     * @param complaintUpdateRequest
-     * @param request
-     * @return
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -147,9 +138,6 @@ public class ComplaintSuggestionController {
     /**
      * 根据 id 获取投诉建议
      *
-     * @param id
-     * @param request
-     * @return
      */
     @GetMapping("/get")
     @ApiOperation(value = "根据 id 获取投诉建议")
@@ -175,9 +163,6 @@ public class ComplaintSuggestionController {
     /**
      * 分页获取投诉建议列表（仅管理员）
      *
-     * @param complaintQueryRequest
-     * @param request
-     * @return
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -202,9 +187,6 @@ public class ComplaintSuggestionController {
     /**
      * 分页获取当前用户的投诉建议列表
      *
-     * @param complaintQueryRequest
-     * @param request
-     * @return
      */
     @PostMapping("/my/list/page")
     @ApiOperation(value = "分页获取当前用户的投诉建议列表")

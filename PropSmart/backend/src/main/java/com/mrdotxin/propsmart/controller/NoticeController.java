@@ -16,7 +16,7 @@ import com.mrdotxin.propsmart.model.dto.notice.NoticeUpdateRequest;
 import com.mrdotxin.propsmart.model.entity.Notice;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.service.NoticeService;
-import com.mrdotxin.propsmart.service.NotificationService;
+import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -66,8 +66,7 @@ public class NoticeController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/update")
     @ApiOperation(value = "更新公告")
-    public BaseResponse<Boolean> updateNotice(@RequestBody NoticeUpdateRequest noticeUpdateRequest,
-                                             HttpServletRequest request) {
+    public BaseResponse<Boolean> updateNotice(@RequestBody NoticeUpdateRequest noticeUpdateRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(noticeUpdateRequest), ErrorCode.PARAMS_ERROR);
 
         Notice notice = new Notice();
@@ -83,8 +82,7 @@ public class NoticeController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/delete")
     @ApiOperation(value = "删除公告")
-    public BaseResponse<Boolean> deleteNotice(@RequestBody DeleteRequest deleteRequest,
-                                             HttpServletRequest request) {
+    public BaseResponse<Boolean> deleteNotice(@RequestBody DeleteRequest deleteRequest) {
         Long id = deleteRequest.getId();
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
 
@@ -96,7 +94,7 @@ public class NoticeController {
 
     @GetMapping("/get")
     @ApiOperation(value = "根据ID获取公告详情")
-    public BaseResponse<Notice> getNoticeById(@RequestParam Long id, HttpServletRequest request) {
+    public BaseResponse<Notice> getNoticeById(@RequestParam Long id) {
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
         Notice notice = noticeService.getById(id);
         ThrowUtils.throwIf(ObjectUtil.isNull(notice), ErrorCode.NOT_FOUND_ERROR, "公告不存在");
@@ -106,8 +104,7 @@ public class NoticeController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/list/page")
     @ApiOperation(value = "分页获取公告列表（管理员）")
-    public BaseResponse<Page<Notice>> listNoticeByPage(@RequestBody NoticeQueryRequest noticeQueryRequest,
-                                                       HttpServletRequest request) {
+    public BaseResponse<Page<Notice>> listNoticeByPage(@RequestBody NoticeQueryRequest noticeQueryRequest) {
         long current = noticeQueryRequest.getCurrent();
         long size = noticeQueryRequest.getPageSize();
         Page<Notice> noticePage = noticeService.page(new Page<>(current, size),
@@ -117,8 +114,7 @@ public class NoticeController {
 
     @GetMapping("/list/public")
     @ApiOperation(value = "分页获取有效公告（公开接口）")
-    public BaseResponse<Page<Notice>> listPublicNotice(@RequestBody NoticeQueryRequest noticeQueryRequest,
-                                                       HttpServletRequest request) {
+    public BaseResponse<Page<Notice>> listPublicNotice(@RequestBody NoticeQueryRequest noticeQueryRequest) {
         long current = noticeQueryRequest.getCurrent();
         long size = noticeQueryRequest.getPageSize();
 

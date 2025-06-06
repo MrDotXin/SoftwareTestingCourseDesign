@@ -25,7 +25,6 @@ public enum VisitorReviewStatusEnum {
     /**
      * 获取值列表
      *
-     * @return
      */
     public static List<String> getValues() {
         return Arrays.stream(values()).map(item -> item.value).collect(Collectors.toList());
@@ -34,8 +33,7 @@ public enum VisitorReviewStatusEnum {
     /**
      * 根据 value 获取枚举
      *
-     * @param value
-     * @return
+
      */
     public static VisitorReviewStatusEnum getEnumByValue(String value) {
         if (ObjectUtils.isEmpty(value)) {

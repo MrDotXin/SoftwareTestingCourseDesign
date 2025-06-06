@@ -1,163 +1,162 @@
 package com.mrdotxin.propsmart.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mrdotxin.propsmart.mapper.ElevatorAbnormalityMapper;
-import com.mrdotxin.propsmart.mapper.ElevatorMapper;
 import com.mrdotxin.propsmart.model.dto.elevator.ElevatorAbnormalityDTO;
 import com.mrdotxin.propsmart.model.entity.Elevator;
 import com.mrdotxin.propsmart.model.entity.ElevatorAbnormality;
-import com.mrdotxin.propsmart.model.entity.User;
+import com.mrdotxin.propsmart.model.enums.AbnormalityLevelEnum;
 import com.mrdotxin.propsmart.model.enums.AbnormalityStatusEnum;
-import com.mrdotxin.propsmart.model.enums.ElevatorStatusEnum;
 import com.mrdotxin.propsmart.service.ElevatorAbnormalityService;
+import com.mrdotxin.propsmart.service.ElevatorNotificationService;
 import com.mrdotxin.propsmart.service.ElevatorService;
-import com.mrdotxin.propsmart.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * 电梯异常服务实现类
  */
+@Slf4j
 @Service
 public class ElevatorAbnormalityServiceImpl extends ServiceImpl<ElevatorAbnormalityMapper, ElevatorAbnormality> implements ElevatorAbnormalityService {
-
-    @Resource
-    private ElevatorMapper elevatorMapper;
-
-    @Resource
-    private UserService userService;
-
+    
     @Resource
     private ElevatorService elevatorService;
-
+    
+    @Resource
+    private ElevatorNotificationService elevatorNotificationService;
+    
     @Override
-    public List<ElevatorAbnormalityDTO> listAbnormalities() {
-        List<ElevatorAbnormality> abnormalities = list(new QueryWrapper<ElevatorAbnormality>().orderByDesc("occurrenceTime"));
-        return convertToDTOList(abnormalities);
-    }
-
-    @Override
-    public List<ElevatorAbnormalityDTO> listAbnormalitiesByElevatorId(Long elevatorId) {
-        List<ElevatorAbnormality> abnormalities = list(
-                new QueryWrapper<ElevatorAbnormality>()
-                        .eq("elevatorId", elevatorId)
-                        .orderByDesc("occurrenceTime")
-        );
-        return convertToDTOList(abnormalities);
-    }
-
-    @Override
-    public Long createAbnormality(ElevatorAbnormality abnormality) {
-        // 设置默认值
-        if (abnormality.getOccurrenceTime() == null) {
-            abnormality.setOccurrenceTime(new Date());
+    public boolean save(ElevatorAbnormality abnormality) {
+        // 设置创建时间
+        if (abnormality.getCreateTime() == null) {
+            abnormality.setCreateTime(new Date());
         }
-        if (abnormality.getStatus() == null) {
-            abnormality.setStatus(AbnormalityStatusEnum.PENDING.getStatus());
-        }
-        abnormality.setCreateTime(new Date());
-        abnormality.setUpdateTime(new Date());
-
-        save(abnormality);
-        return abnormality.getId();
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean handleAbnormality(Long abnormalityId, Long handlerId, String status, String handlingNotes) {
-        ElevatorAbnormality abnormality = getById(abnormalityId);
-        if (abnormality == null) {
-            return false;
-        }
-
-        abnormality.setHandlerId(handlerId);
-        abnormality.setStatus(status);
-        abnormality.setHandlingNotes(handlingNotes);
-        abnormality.setUpdateTime(new Date());
-
-        // 如果状态是已解决，设置恢复时间
-        if (status.equals(AbnormalityStatusEnum.RESOLVED.getStatus())) {
-            abnormality.setRecoveryTime(new Date());
-
-            // 更新电梯状态为正常
-            Elevator elevator = elevatorMapper.selectById(abnormality.getElevatorId());
+        
+        // 保存异常记录
+        boolean result = super.save(abnormality);
+        
+        // 发送通知
+        if (result) {
+            // 获取电梯信息
+            Elevator elevator = elevatorService.getById(abnormality.getElevatorId());
             if (elevator != null) {
-                elevator.setCurrentStatus(ElevatorStatusEnum.NORMAL.getStatus());
-                elevatorMapper.updateById(elevator);
+                // 根据异常级别发送不同通知
+                elevatorNotificationService.handleAbnormalityNotification(elevator, abnormality);
+                
+                // 对于严重异常，还需要通知业主
+                String abnormalityLevel = abnormality.getAbnormalityLevel();
+                if (AbnormalityLevelEnum.SERIOUS.getLevel().equals(abnormalityLevel)) {
+                    String title = "电梯严重异常通知";
+                    String content = "您所在楼栋" + elevator.getBuildingId() + "的电梯" + elevator.getElevatorNumber() 
+                            + "出现严重异常，现已停止运行。请使用其他电梯或楼梯。\n异常类型："
+                            + abnormality.getAbnormalityType();
+                    
+                    elevatorNotificationService.notifyPropertyOwners(elevator, title, content, true);
+                }
             }
         }
-
-        return updateById(abnormality);
+        
+        return result;
     }
-
+    
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean closeAbnormality(Long abnormalityId, Long handlerId) {
-        return handleAbnormality(abnormalityId, handlerId, AbnormalityStatusEnum.CLOSED.getStatus(), "异常已关闭");
+    public List<ElevatorAbnormalityDTO> listAllDTO() {
+        List<ElevatorAbnormality> abnormalities = this.list();
+        return convertToDTOList(abnormalities);
     }
-
-    /**
-     * 将异常实体列表转换为DTO列表
-     */
-    private List<ElevatorAbnormalityDTO> convertToDTOList(List<ElevatorAbnormality> abnormalities) {
-        if (abnormalities == null || abnormalities.isEmpty()) {
+    
+    @Override
+    public List<ElevatorAbnormalityDTO> listByElevatorIdDTO(Long elevatorId) {
+        LambdaQueryWrapper<ElevatorAbnormality> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ElevatorAbnormality::getElevatorId, elevatorId);
+        
+        List<ElevatorAbnormality> abnormalities = this.list(queryWrapper);
+        return convertToDTOList(abnormalities);
+    }
+    
+    @Override
+    public ElevatorAbnormalityDTO getDTOById(Long id) {
+        ElevatorAbnormality abnormality = this.getById(id);
+        return abnormality != null ? convertToDTO(abnormality) : null;
+    }
+    
+    @Override
+    public List<ElevatorAbnormality> listUnresolved() {
+        LambdaQueryWrapper<ElevatorAbnormality> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ElevatorAbnormality::getStatus, AbnormalityStatusEnum.PENDING.getStatus())
+                .or()
+                .eq(ElevatorAbnormality::getStatus, AbnormalityStatusEnum.PROCESSING.getStatus());
+        return this.list(queryWrapper);
+    }
+    
+    @Override
+    public List<Object> getAbnormalityStats() {
+        List<Object> stats = new ArrayList<>();
+        Map<String, Object> statMap = new HashMap<>();
+        
+        // 统计各状态的异常数量
+        LambdaQueryWrapper<ElevatorAbnormality> pendingQuery = new LambdaQueryWrapper<>();
+        pendingQuery.eq(ElevatorAbnormality::getStatus, AbnormalityStatusEnum.PENDING.getStatus());
+        long pendingCount = this.count(pendingQuery);
+        
+        LambdaQueryWrapper<ElevatorAbnormality> processingQuery = new LambdaQueryWrapper<>();
+        processingQuery.eq(ElevatorAbnormality::getStatus, AbnormalityStatusEnum.PROCESSING.getStatus());
+        long processingCount = this.count(processingQuery);
+        
+        LambdaQueryWrapper<ElevatorAbnormality> resolvedQuery = new LambdaQueryWrapper<>();
+        resolvedQuery.eq(ElevatorAbnormality::getStatus, AbnormalityStatusEnum.RESOLVED.getStatus());
+        long resolvedCount = this.count(resolvedQuery);
+        
+        LambdaQueryWrapper<ElevatorAbnormality> closedQuery = new LambdaQueryWrapper<>();
+        closedQuery.eq(ElevatorAbnormality::getStatus, AbnormalityStatusEnum.CLOSED.getStatus());
+        long closedCount = this.count(closedQuery);
+        
+        statMap.put("pending", pendingCount);
+        statMap.put("processing", processingCount);
+        statMap.put("resolved", resolvedCount);
+        statMap.put("closed", closedCount);
+        statMap.put("total", pendingCount + processingCount + resolvedCount + closedCount);
+        
+        stats.add(statMap);
+        return stats;
+    }
+    
+    @Override
+    public List<ElevatorAbnormalityDTO> convertToDTOList(List<ElevatorAbnormality> entityList) {
+        if (entityList == null || entityList.isEmpty()) {
             return new ArrayList<>();
         }
-
-        // 获取所有相关的电梯信息
-        List<Long> elevatorIds = abnormalities.stream()
-                .map(ElevatorAbnormality::getElevatorId)
-                .distinct()
+        return entityList.stream()
+                .map(this::convertToDTO)
                 .collect(Collectors.toList());
-
-        List<Elevator> elevators = elevatorMapper.selectBatchIds(elevatorIds);
-        Map<Long, Elevator> elevatorMap = elevators.stream()
-                .collect(Collectors.toMap(Elevator::getId, Function.identity()));
-
-        // 获取所有处理人信息
-        List<Long> handlerIds = abnormalities.stream()
-                .map(ElevatorAbnormality::getHandlerId)
-                .filter(id -> id != null)
-                .distinct()
-                .collect(Collectors.toList());
-
-        Map<Long, String> handlerNameMap = new java.util.HashMap<>();
-        if (!handlerIds.isEmpty()) {
-            List<User> handlers = userService.listByIds(handlerIds);
-            handlerNameMap = handlers.stream()
-                    .collect(Collectors.toMap(User::getId, User::getUserRealName));
-        }
-
-        // 转换为DTO
-        List<ElevatorAbnormalityDTO> dtoList = new ArrayList<>();
-        for (ElevatorAbnormality abnormality : abnormalities) {
-            ElevatorAbnormalityDTO dto = new ElevatorAbnormalityDTO();
-            BeanUtils.copyProperties(abnormality, dto);
-
-            // 设置电梯编号
-            Elevator elevator = elevatorMap.get(abnormality.getElevatorId());
-            if (elevator != null) {
-                dto.setElevatorNumber(elevator.getElevatorNumber());
-            }
-
-            // 设置处理人姓名
-            if (abnormality.getHandlerId() != null) {
-                dto.setHandlerName(handlerNameMap.get(abnormality.getHandlerId()));
-            }
-
-            dtoList.add(dto);
-        }
-
-        return dtoList;
     }
-}
+    
+    /**
+     * 将实体转换为DTO
+     */
+    public ElevatorAbnormalityDTO convertToDTO(ElevatorAbnormality entity) {
+        if (entity == null) {
+            return null;
+        }
+        
+        ElevatorAbnormalityDTO dto = new ElevatorAbnormalityDTO();
+        BeanUtils.copyProperties(entity, dto);
+        
+        // 如果需要额外的处理，例如获取电梯编号等
+        if (entity.getElevatorId() != null) {
+            Elevator elevator = elevatorService.getById(entity.getElevatorId());
+            if (elevator != null) {
+                dto.setElevatorNumber(elevator.getElevatorNumber().toString());
+            }
+        }
+        
+        return dto;
+    }
+} 

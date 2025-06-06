@@ -30,9 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Administrator
- * @description 针对表【repairorder(报修申请)】的数据库操作Service实现
- * @createDate 2025-06-04 09:36:05
+ * 报修申请服务实现
  */
 @Service
 public class RepairOrderServiceImpl extends ServiceImpl<RepairOrderMapper, RepairOrder>

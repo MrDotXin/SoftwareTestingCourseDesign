@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mrdotxin.propsmart.mapper.ElevatorConfigMapper">
 
+    <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.mrdotxin.propsmart.model.entity.ElevatorConfig">
-            <id property="elevatorId" column="elevatorId" jdbcType="BIGINT"/>
-            <result property="cabinTempAlertThr" column="cabinTempAlertThr" jdbcType="DECIMAL"/>
-            <result property="motorTempAlertThr" column="motorTempAlertThr" jdbcType="DECIMAL"/>
-            <result property="speedAlertPercent" column="speedAlertPercent" jdbcType="DECIMAL"/>
-            <result property="accelAlertThr" column="accelAlertThr" jdbcType="DECIMAL"/>
-            <result property="effectiveTime" column="effectiveTime" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <id column="id" property="id" />
+        <result column="elevator_id" property="elevatorId" />
+        <result column="max_cabin_temperature" property="maxCabinTemperature" />
+        <result column="max_motor_temperature" property="maxMotorTemperature" />
+        <result column="max_speed" property="maxSpeed" />
+        <result column="max_power_consumption" property="maxPowerConsumption" />
+        <result column="maintenance_interval_days" property="maintenanceIntervalDays" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
     </resultMap>
-
+    
+    <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        elevatorId,cabinTempAlertThr,motorTempAlertThr,speedAlertPercent,accelAlertThr,effectiveTime,
-        updateTime
+        id, elevator_id, max_cabin_temperature, max_motor_temperature, max_speed,
+        max_power_consumption, maintenance_interval_days, create_time, update_time
     </sql>
-</mapper>
+</mapper> 

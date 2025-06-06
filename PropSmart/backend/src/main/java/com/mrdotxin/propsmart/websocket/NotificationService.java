@@ -1,9 +1,13 @@
-package com.mrdotxin.propsmart.service;
+package com.mrdotxin.propsmart.websocket;
 
 import com.mrdotxin.propsmart.model.dto.WebSocketMessage;
 import com.mrdotxin.propsmart.model.entity.*;
+import com.mrdotxin.propsmart.service.PropertyService;
+import com.mrdotxin.propsmart.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 
 /**
  * 通知服务
@@ -13,6 +17,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class NotificationService {
 
+    @Resource
+    private WebSocketService webSocketService;
+
+    @Resource
+    private PropertyService propertyService;
+
+    @Resource
+    private UserService userService;
     /**
      * 处理报修申请通知
      * @param repairOrder 报修单信息
@@ -29,7 +41,7 @@ public class NotificationService {
                     .urgent(true) // 假设所有报修申请都是紧急的
                     .build();
             
-            WebSocketService.sendMessageToAllAdmins(message);
+            webSocketService.sendMessageToAllAdmins(message, false);
         } else {
             // 报修状态更新，通知相关用户
             WebSocketMessage message = WebSocketMessage.builder()
@@ -41,7 +53,7 @@ public class NotificationService {
                     .urgent(false)
                     .build();
             
-            WebSocketService.sendMessageToUser(repairOrder.getUserId().toString(), message);
+            webSocketService.sendMessageToUser(repairOrder.getUserId(), message, false);
         }
     }
 
@@ -50,10 +62,10 @@ public class NotificationService {
      * @param bill 账单信息
      * @param isNewBill 是否为新账单
      */
-    public void handleBillNotification(Bill bill, boolean isNewBill) {
+    public void  handleBillNotification(Bill bill, boolean isNewBill) {
+        WebSocketMessage message = null;
         if (isNewBill) {
-            // 新账单，通知相关用户
-            WebSocketMessage message = WebSocketMessage.builder()
+            message = WebSocketMessage.builder()
                     .type("BILL")
                     .title("新账单通知")
                     .content("您有一个新的" + bill.getType() + "账单需要支付，金额：" + bill.getAmount() + "元")
@@ -61,23 +73,58 @@ public class NotificationService {
                     .targetId(bill.getPropertyId()) // 使用房产ID，实际可能需要查询用户ID
                     .urgent(false)
                     .build();
-            
-            // 实际应用中，可能需要从房产ID查询到用户ID，然后发送消息
-            log.info("发送账单通知给房产{}", bill.getPropertyId());
         } else {
-            // 账单状态更新，通知相关用户
-            WebSocketMessage message = WebSocketMessage.builder()
+            message = WebSocketMessage.builder()
                     .type("BILL")
                     .title("账单状态更新")
                     .content("您的账单状态已更新为：" + bill.getStatus())
                     .businessId(bill.getId())
-                    .targetId(bill.getPropertyId()) // 使用房产ID，实际可能需要查询用户ID
+                    .targetId(bill.getPropertyId())
                     .urgent(false)
                     .build();
-            
-            // 实际应用中，可能需要从房产ID查询到用户ID，然后发送消息
-            log.info("发送账单状态更新通知给房产{}", bill.getPropertyId());
         }
+
+        Property property = propertyService.getById(bill.getPropertyId());
+        User user = userService.getByIdCardNumber(property.getOwnerIdentity());
+        Long userId = user.getId();
+
+        webSocketService.sendMessageToUser(userId, message, true);
+    }
+
+    /**
+     * 处理账单通知
+     */
+    public void handleAbnormalEnergyConsumptionNotification(User user, Property property, String msg) {
+        WebSocketMessage message = WebSocketMessage.builder()
+                .type("EnergyConsumption")
+                .title("能源异常提醒更新")
+                .content(msg)
+                .businessId(user.getId())
+                .targetId(property.getId())
+                .urgent(true)
+                .build();
+
+        Long userId = user.getId();
+
+        webSocketService.sendMessageToUser(userId, message, true);
+    }
+
+    /**
+     * 处理账单通知
+     */
+    public void handleAbnormalBillNotification(User user, Property property, String msg) {
+        WebSocketMessage message = WebSocketMessage.builder()
+                .type("Bill")
+                .title("账单异常提醒更新")
+                .content(msg)
+                .businessId(user.getId())
+                .targetId(property.getId())
+                .urgent(true)
+                .build();
+
+        Long userId = user.getId();
+
+        webSocketService.sendMessageToUser(userId, message, true);
     }
 
     /**
@@ -85,7 +132,6 @@ public class NotificationService {
      * @param notice 公告信息
      */
     public void handleNoticeNotification(Notice notice) {
-        // 新公告，通知所有用户（实际实现可能需要根据公告范围通知不同用户）
         WebSocketMessage message = WebSocketMessage.builder()
                 .type("NOTICE")
                 .title("新公告")
@@ -93,10 +139,10 @@ public class NotificationService {
                 .businessId(notice.getId())
                 .urgent(false) // 默认公告非紧急
                 .build();
-        
-        // 这里可以根据公告的范围（如全小区、特定楼栋等）来决定通知哪些用户
+
         log.info("发布新公告通知：{}", notice.getTitle());
-        // 实际应用中需要实现按范围通知的逻辑
+
+        webSocketService.sendMessageToAll(message, false);
     }
 
     /**
@@ -116,7 +162,7 @@ public class NotificationService {
                     .urgent(complaint.getType().equals("complaint"))  // 投诉为紧急，建议为非紧急
                     .build();
             
-            WebSocketService.sendMessageToAllAdmins(message);
+            webSocketService.sendMessageToAllAdmins(message, false);
         } else {
             // 投诉建议状态更新，通知相关用户
             WebSocketMessage message = WebSocketMessage.builder()
@@ -129,7 +175,7 @@ public class NotificationService {
                     .urgent(false)
                     .build();
             
-            WebSocketService.sendMessageToUser(complaint.getUserId().toString(), message);
+            webSocketService.sendMessageToUser(complaint.getUserId(), message, false);
         }
     }
 
@@ -149,7 +195,7 @@ public class NotificationService {
                     .urgent(false)
                     .build();
             
-            WebSocketService.sendMessageToAllAdmins(message);
+            webSocketService.sendMessageToAllAdmins(message, false);
         } else {
             // 访客申请状态更新，通知相关用户
             WebSocketMessage message = WebSocketMessage.builder()
@@ -161,7 +207,7 @@ public class NotificationService {
                     .urgent(false)
                     .build();
             
-            WebSocketService.sendMessageToUser(visitor.getUserId().toString(), message);
+            webSocketService.sendMessageToUser(visitor.getUserId(), message, false);
         }
     }
 
@@ -181,7 +227,7 @@ public class NotificationService {
                     .urgent(false)
                     .build();
             
-            WebSocketService.sendMessageToAllAdmins(message);
+            webSocketService.sendMessageToAllAdmins(message, false);
         } else {
             // 设施预订状态更新，通知相关用户
             WebSocketMessage message = WebSocketMessage.builder()
@@ -193,39 +239,30 @@ public class NotificationService {
                     .urgent(false)
                     .build();
             
-            WebSocketService.sendMessageToUser(reservation.getUserId().toString(), message);
+            webSocketService.sendMessageToUser(reservation.getUserId(), message, false);
         }
     }
-
+    
     /**
-     * 处理电梯状态通知
-     * @param elevator 电梯信息
-     * @param isAbnormal 是否为异常状态
+     * 处理消防设备巡检通知
+     * @param equipment 消防设备信息
+     * @param isOverdue 是否逾期
      */
-    public void handleElevatorStatusNotification(Elevator elevator, boolean isAbnormal) {
-        if (isAbnormal) {
-            // 电梯异常，通知所有管理员
-            WebSocketMessage adminMessage = WebSocketMessage.builder()
-                    .type("ELEVATOR")
-                    .title("电梯异常警报")
-                    .content("楼栋 " + elevator.getBuildingId() + " 的电梯 " + elevator.getId() + " 出现异常，状态：" + elevator.getCurrentStatus())
-                    .businessId(elevator.getId())
-                    .urgent(true)
-                    .build();
-            
-            WebSocketService.sendMessageToAllAdmins(adminMessage);
-        }
+    public void handleFireEquipmentInspectionNotification(FireEquipment equipment, boolean isOverdue) {
+        String title = isOverdue ? "消防设备巡检逾期" : "消防设备巡检提醒";
+        String content = isOverdue 
+                ? "消防设备 ID: " + equipment.getId() + " (楼栋: " + equipment.getBuildingId() + ", 楼层: " + equipment.getSpecificLevel() + ") 已逾期巡检，请尽快安排巡检"
+                : "消防设备 ID: " + equipment.getId() + " (楼栋: " + equipment.getBuildingId() + ", 楼层: " + equipment.getSpecificLevel() + ") 即将需要巡检，请及时安排";
         
-        // 电梯状态变化，通知该楼栋的所有用户
-        WebSocketMessage userMessage = WebSocketMessage.builder()
-                .type("ELEVATOR")
-                .title("电梯状态更新")
-                .content("您所在楼栋的电梯状态已更新为：" + elevator.getCurrentStatus())
-                .businessId(elevator.getId())
-                .targetId(elevator.getBuildingId())
-                .urgent(isAbnormal)
+        WebSocketMessage message = WebSocketMessage.builder()
+                .type("FIRE_EQUIPMENT")
+                .title(title)
+                .content(content)
+                .businessId(equipment.getId())
+                .urgent(isOverdue)  // 逾期巡检为紧急，预警为非紧急
                 .build();
         
-        WebSocketService.sendMessageToBuildingUsers(elevator.getBuildingId(), userMessage);
+        // 通知所有管理员
+        webSocketService.sendMessageToAllAdmins(message, false);
     }
 } 

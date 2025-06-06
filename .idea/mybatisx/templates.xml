@@ -71,8 +71,8 @@
             <option name="tableUIInfoList">
               <list>
                 <TableUIInfo>
-                  <option name="className" value="Elevatorconfig" />
-                  <option name="tableName" value="elevatorConfig" />
+                  <option name="className" value="Fireequipment" />
+                  <option name="tableName" value="fireEquipment" />
                 </TableUIInfo>
               </list>
             </option>

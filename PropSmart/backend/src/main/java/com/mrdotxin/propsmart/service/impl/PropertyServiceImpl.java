@@ -10,7 +10,6 @@ import com.mrdotxin.propsmart.exception.BusinessException;
 import com.mrdotxin.propsmart.exception.ThrowUtils;
 import com.mrdotxin.propsmart.mapper.PropertyMapper;
 import com.mrdotxin.propsmart.model.dto.property.PropertyQueryRequest;
-import com.mrdotxin.propsmart.model.entity.Building;
 import com.mrdotxin.propsmart.model.entity.Property;
 import com.mrdotxin.propsmart.service.BuildingService;
 import com.mrdotxin.propsmart.service.PropertyService;
@@ -23,9 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author Administrator
- * @description 针对表【Property(房产信息)】的数据库操作Service实现
- * @createDate 2025-06-03 18:27:32
+ * 房产信息服务实现
  */
 @Service
 public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property>
@@ -53,7 +50,7 @@ public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property>
         queryWrapper.eq(StrUtil.isNotBlank(roomNumber), "roomNumber", roomNumber);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
-        return null;
+        return queryWrapper;
     }
 
     @Override
@@ -95,14 +92,14 @@ public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property>
     }
 
     @Override
-    public Property getByFiled(String fieldName, Object value) {
+    public Property getByField(String fieldName, Object value) {
         QueryWrapper<Property> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(fieldName, value);
         return this.baseMapper.selectOne(queryWrapper);
     }
 
     @Override
-    public List<Property> listByFiled(String fieldName, Object value) {
+    public List<Property> listByField(String fieldName, Object value) {
         QueryWrapper<Property> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(fieldName, value);
 
@@ -116,10 +113,8 @@ public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property>
         }
         
         // 根据业主ID查询房产
-        // 注意：根据数据库结构，Property表中可能没有直接关联业主ID的字段
-        // 这里假设使用ownerIdentity字段关联，实际应用中需要根据数据库结构调整
         QueryWrapper<Property> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("ownerIdentity", ownerId);
+        queryWrapper.eq("ownerId", ownerId);
         
         List<Property> properties = this.list(queryWrapper);
         
@@ -128,8 +123,17 @@ public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property>
                 .map(Property::getId)
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public List<Property> getPropertiesByBuildingId(Long buildingId) {
+        if (buildingId == null || buildingId <= 0) {
+            return new ArrayList<>();
+        }
+        
+        // 根据楼栋ID查询房产
+        QueryWrapper<Property> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("buildingId", buildingId);
+        
+        return this.list(queryWrapper);
+    }
 }
-
-
-
-

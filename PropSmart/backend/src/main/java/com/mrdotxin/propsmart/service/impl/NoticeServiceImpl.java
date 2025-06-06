@@ -18,9 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 
 /**
-* @author Administrator
-* @description 针对表【notices(小区公告)】的数据库操作Service实现
-* @createDate 2025-06-03 22:56:00
+* 小区公告服务实现
 */
 @Service
 public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice>

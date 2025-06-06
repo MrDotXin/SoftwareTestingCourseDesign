@@ -10,7 +10,6 @@ import lombok.Data;
 
 /**
  * 小区公告
- * @TableName notices
  */
 @TableName(value ="notice")
 @Data

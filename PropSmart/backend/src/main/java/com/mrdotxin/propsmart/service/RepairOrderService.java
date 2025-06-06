@@ -10,9 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* @author Administrator
-* @description 针对表【repairorder(报修申请)】的数据库操作Service
-* @createDate 2025-06-04 09:36:05
+* 报修申请服务
 */
 public interface RepairOrderService extends IService<RepairOrder> {
 

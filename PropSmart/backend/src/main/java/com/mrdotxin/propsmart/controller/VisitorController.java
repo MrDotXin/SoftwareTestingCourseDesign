@@ -15,7 +15,7 @@ import com.mrdotxin.propsmart.model.dto.visitor.VisitorQueryRequest;
 import com.mrdotxin.propsmart.model.dto.visitor.VisitorUpdateRequest;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.entity.Visitor;
-import com.mrdotxin.propsmart.service.NotificationService;
+import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
 import com.mrdotxin.propsmart.service.VisitorService;
 import com.mrdotxin.propsmart.utils.FormatUtils;
@@ -109,9 +109,6 @@ public class VisitorController {
     /**
      * 更新访客申请（管理员审批）
      *
-     * @param visitorUpdateRequest
-     * @param request
-     * @return
      */
     @PostMapping("/update")
     @ApiOperation(value = "管理员审核访问申请")
@@ -147,9 +144,6 @@ public class VisitorController {
     /**
      * 根据 id 获取访客申请
      *
-     * @param id
-     * @param request
-     * @return
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -176,15 +170,11 @@ public class VisitorController {
     /**
      * 分页获取访客申请列表（仅管理员）
      *
-     * @param visitorQueryRequest
-     * @param request
-     * @return
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "分页获取申请")
-    public BaseResponse<Page<Visitor>> listVisitorByPage(@RequestBody VisitorQueryRequest visitorQueryRequest,
-                                                         HttpServletRequest request) {
+    public BaseResponse<Page<Visitor>> listVisitorByPage(@RequestBody VisitorQueryRequest visitorQueryRequest) {
         long current = visitorQueryRequest.getCurrent();
         long size = visitorQueryRequest.getPageSize();
 
