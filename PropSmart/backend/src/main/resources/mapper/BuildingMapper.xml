@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mrdotxin.propsmart.mapper.mysql.BuildingMapper">
+
+    <resultMap id="BaseResultMap" type="com.mrdotxin.propsmart.model.entity.Building">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="buildingName" column="buildingName" jdbcType="VARCHAR"/>
+            <result property="totalLevels" column="totalLevels" jdbcType="INTEGER"/>
+            <result property="location" column="location" typeHandler="com.mrdotxin.propsmart.config.typehandler.MysqlGeoTypeHandler"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,buildingName,totalLevels,
+        ST_AsText(location) as location,
+        createTime,updateTime
+    </sql>
+</mapper>

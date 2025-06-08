@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: propSmart
+  profiles:
+    active: local
+  redis:
+    database: 0
+    host: 8.153.84.186
+    port: 6379
+  rabbitmq:
+    host: 8.153.84.186
+    port: 5672
+    username: rabbitmq
+    password: abc123
+    listener:
+      simple:
+        acknowledge-mode: manual
+    cache:
+      connection:
+        mode: channel
+    dynamic: true
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/JCD
+    username: root
+    password: Sit@210411
+  servlet:
+    multipart:
+      # 大小限制
+      max-file-size: 50MB
+server:
+  address: 0.0.0.0
+  port: 8501
+  servlet:
+    context-path: /api
+    # cookie 30 天过期
+    session:
+      cookie:
+        max-age: 2592000
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# 一定要加, 不然swagger 功能会被默认ban掉
+knife4j:
+  enable: true
+
+jwt-secret: MZJLZYZZZFYPYC
+
+Bill-Generate-Interval: "0 0 2 1 * ?"
+
+Energy-Consumption-Generate-Interval: "0 0 * * * ?"
