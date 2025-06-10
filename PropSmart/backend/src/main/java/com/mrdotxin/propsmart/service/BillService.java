@@ -11,6 +11,7 @@ import com.mrdotxin.propsmart.model.entity.Bill;
 import com.mrdotxin.propsmart.model.vo.BillVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 
 /**
  * 账单服务
@@ -80,4 +81,11 @@ public interface BillService extends IService<Bill> {
      *
      */
     BillVO getBillVO(Bill bill);
+
+
+    Bill getBillByMonth(Long propertyId, String billType, Integer year, Integer month);
+
+    Bill getBillByRange(Long propertyId, String billType, Date begin, Date end);
+
+    void saveOrUpdateBill(Bill bill);
 }

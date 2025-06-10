@@ -62,7 +62,7 @@ public class ElevatorDataSimulatorJob {
     /**
      * 每5秒执行一次数据模拟
      */
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 500000)
     public void simulateElevatorData() {
         // 只有在模拟器启动状态下才执行
         if (!simulatorRunning) {

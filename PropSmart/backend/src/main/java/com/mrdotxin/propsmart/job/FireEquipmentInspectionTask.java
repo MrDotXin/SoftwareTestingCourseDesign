@@ -29,7 +29,7 @@ public class FireEquipmentInspectionTask {
      * 每天早上8点检查需要巡检的消防设备
      * 检查逾期以及即将到期的设备（3天内）
      */
-    @Scheduled(cron = "0 0 8 * * ?")
+    @Scheduled(cron = "${Fire-Equipment-Inspection-Interval}")
     public void checkInspectionDue() {
         log.info("开始检查消防设备巡检状态...");
         

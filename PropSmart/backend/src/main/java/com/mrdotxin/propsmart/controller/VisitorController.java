@@ -19,8 +19,8 @@ import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
 import com.mrdotxin.propsmart.service.VisitorService;
 import com.mrdotxin.propsmart.utils.FormatUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
  * 访客管理接口
  */
 @Slf4j
-@Api(tags = "访客记录功能")
+@Tag(name = "访客记录功能")
 @RestController
 @RequestMapping("/visitor")
 public class VisitorController {
@@ -51,7 +51,7 @@ public class VisitorController {
      *
      */
     @PostMapping("/submit")
-    @ApiOperation(value = "提交访问申请")
+    @Operation(method = "提交访问申请")
     public BaseResponse<Long> submitVisitRequest(@RequestBody VisitorAddRequest visitorAddRequest,
                                          HttpServletRequest request) {
         if (visitorAddRequest == null) {
@@ -83,7 +83,7 @@ public class VisitorController {
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "删除访问申请")
+    @Operation(method = "删除访问申请")
     public BaseResponse<Boolean> deleteVisitor(@RequestBody DeleteRequest deleteRequest,
                                                HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
@@ -111,7 +111,7 @@ public class VisitorController {
      *
      */
     @PostMapping("/update")
-    @ApiOperation(value = "管理员审核访问申请")
+    @Operation(method = "管理员审核访问申请")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> reviewVisitor(@RequestBody VisitorUpdateRequest visitorUpdateRequest,
                                                HttpServletRequest request) {
@@ -147,7 +147,7 @@ public class VisitorController {
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "获取申请详情")
+    @Operation(method = "获取申请详情")
     public BaseResponse<Visitor> getVisitorById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -173,7 +173,7 @@ public class VisitorController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "分页获取申请")
+    @Operation(method = "分页获取申请")
     public BaseResponse<Page<Visitor>> listVisitorByPage(@RequestBody VisitorQueryRequest visitorQueryRequest) {
         long current = visitorQueryRequest.getCurrent();
         long size = visitorQueryRequest.getPageSize();
@@ -189,7 +189,7 @@ public class VisitorController {
      *
      */
     @PostMapping("/my/list/page")
-    @ApiOperation(value = "分页获取用户自身的申请")
+    @Operation(method = "分页获取用户自身的申请")
     public BaseResponse<Page<Visitor>> listMyVisitorByPage(@RequestBody VisitorQueryRequest visitorQueryRequest,
                                                            HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
@@ -205,7 +205,7 @@ public class VisitorController {
     }
     
     @PostMapping("/validate")
-    @ApiOperation(value = "验证申请码是否有效")
+    @Operation(method = "验证申请码是否有效")
     public BaseResponse<String> validateAssignedToken(@RequestParam String token, HttpServletRequest httpServletRequest) {
         ThrowUtils.throwIf(StrUtil.isBlank(token), ErrorCode.PARAMS_ERROR);
 

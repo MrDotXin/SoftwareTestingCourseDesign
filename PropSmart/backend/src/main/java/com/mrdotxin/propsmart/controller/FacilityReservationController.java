@@ -19,8 +19,8 @@ import com.mrdotxin.propsmart.service.FacilityReservationService;
 import com.mrdotxin.propsmart.service.FacilityService;
 import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +36,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/facility/reservation")
-@Api(tags = "设施预约管理")
+@Tag(name = "设施预约管理")
 @Slf4j
 public class FacilityReservationController {
 
@@ -57,7 +57,7 @@ public class FacilityReservationController {
      */
     @PostMapping("/submit")
     @AuthCheck(mustOwner = true)
-    @ApiOperation(value = "提交设施预约申请", notes = "用户提交设施预约申请")
+    @Operation(method = "提交设施预约申请")
     public BaseResponse<Long> submitReservation(@RequestBody FacilityReservationAddRequest reservationAddRequest,
                                                HttpServletRequest request) {
         if (reservationAddRequest == null) {
@@ -91,7 +91,7 @@ public class FacilityReservationController {
      */
     @PostMapping("/review")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "审批设施预约", notes = "管理员审批设施预约申请")
+    @Operation(method = "审批设施预约")
     public BaseResponse<Boolean> reviewReservation(@RequestBody FacilityReservationUpdateRequest reservationUpdateRequest,
                                                   HttpServletRequest request) {
         if (reservationUpdateRequest == null || reservationUpdateRequest.getId() == null) {
@@ -127,7 +127,7 @@ public class FacilityReservationController {
      */
     @PostMapping("/cancel")
     @AuthCheck(mustOwner = true)
-    @ApiOperation(value = "取消预约申请", notes = "用户取消自己的预约申请")
+    @Operation(method = "取消预约申请")
     public BaseResponse<Boolean> cancelReservation(@RequestBody DeleteRequest deleteRequest,
                                                  HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
@@ -162,7 +162,7 @@ public class FacilityReservationController {
      * 根据 id 获取预约详情
      */
     @GetMapping("/get")
-    @ApiOperation(value = "获取预约详情", notes = "根据ID获取预约详情，仅本人或管理员可查看")
+    @Operation(method = "获取预约详情")
     public BaseResponse<FacilityReservation> getReservationById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -187,7 +187,7 @@ public class FacilityReservationController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "分页获取预约列表", notes = "管理员分页获取所有预约记录")
+    @Operation(method = "分页获取预约列表")
     public BaseResponse<Page<FacilityReservation>> listReservationByPage(@RequestBody FacilityReservationQueryRequest reservationQueryRequest) {
         if (reservationQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -206,7 +206,7 @@ public class FacilityReservationController {
      * 分页获取当前用户的预约列表
      */
     @PostMapping("/my/list/page")
-    @ApiOperation(value = "分页获取我的预约", notes = "分页获取当前用户的预约列表")
+    @Operation(method = "分页获取我的预约")
     public BaseResponse<Page<FacilityReservation>> listMyReservationByPage(@RequestBody FacilityReservationQueryRequest reservationQueryRequest,
                                                                          HttpServletRequest request) {
         if (reservationQueryRequest == null) {
@@ -229,7 +229,7 @@ public class FacilityReservationController {
      * 检查设施在特定时间是否可预约
      */
     @GetMapping("/check-availability")
-    @ApiOperation(value = "检查设施可用性", notes = "检查设施在特定时间段是否可以预约")
+    @Operation(method = "检查设施可用性")
     public BaseResponse<Boolean> checkAvailability(@RequestParam Integer facilityId,
                                                  @RequestParam Long reservationTime,
                                                  @RequestParam Integer duration) {
@@ -252,7 +252,7 @@ public class FacilityReservationController {
      */
     @GetMapping("/stats")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "获取预约统计", notes = "获取预约状态统计数据")
+    @Operation(method = "获取预约统计")
     public BaseResponse<Map<String, Long>> getReservationStats() {
         // 统计不同状态的预约数量
         Map<String, Long> stats = new HashMap<>();

@@ -11,6 +11,8 @@ public class FormatUtils {
     // 简单手机号正则（1开头，11位数字）
     private static final String SIMPLE_PHONE_REGEX = "^1[3-9]\\d{9}$";
 
+    private static final String YEAR_MONTH = "^\\d{4}-\\d{2}$";
+
     /**
      * 验证中文姓名合法性
      *
@@ -18,10 +20,15 @@ public class FormatUtils {
      * @return 是否合法
      */
     public static boolean isValidChineseName(String name) {
-        if (StrUtil.isBlank(name)) {
+        return !StrUtil.isBlank(name) && name.length() <= 20;
+    }
+
+    public static boolean isValidYearMonth(String yearMonth) {
+        if (StrUtil.isBlank(yearMonth)) {
             return false;
         }
-        return ReUtil.isMatch(CHINESE_NAME_REGEX, name);
+
+        return ReUtil.isMatch(YEAR_MONTH, yearMonth);
     }
 
     /**

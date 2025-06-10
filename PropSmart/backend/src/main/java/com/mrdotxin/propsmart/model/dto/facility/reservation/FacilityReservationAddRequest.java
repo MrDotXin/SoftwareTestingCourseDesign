@@ -1,6 +1,7 @@
 package com.mrdotxin.propsmart.model.dto.facility.reservation;
 
-import io.swagger.annotations.ApiModelProperty;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,19 +16,19 @@ public class FacilityReservationAddRequest implements Serializable {
     /**
      * 设施ID
      */
-    @ApiModelProperty(value = "设施ID")
+    @Schema(description = "设施ID")
     private Integer facilityId;
     
     /**
      * 预订时间
      */
-    @ApiModelProperty(value = "预订时间")
+    @Schema(description = "预订时间")
     private Date reservationTime;
     
     /**
      * 时长（小时）
      */
-    @ApiModelProperty(value = "时长（小时）")
+    @Schema(description = "时长（小时）")
     private Integer duration;
     
     private static final long serialVersionUID = 1L;

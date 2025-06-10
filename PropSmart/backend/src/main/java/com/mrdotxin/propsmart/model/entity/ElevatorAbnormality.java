@@ -13,7 +13,7 @@ import java.util.Date;
  * 电梯异常实体类
  */
 @Data
-@TableName("elevator_abnormality")
+@TableName("elevatorAbnormality")
 public class ElevatorAbnormality implements Serializable {
     /**
      * 异常记录ID

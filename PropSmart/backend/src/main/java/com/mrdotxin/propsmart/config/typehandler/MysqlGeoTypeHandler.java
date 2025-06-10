@@ -24,8 +24,24 @@ public class MysqlGeoTypeHandler extends BaseTypeHandler<GeoPoint> {
      */
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, GeoPoint parameter, JdbcType jdbcType) throws SQLException {
-        String wkt = parameter.toWkt();
-        ps.setString(i, String.format("ST_GeomFromText('%s')", wkt));
+            String wkt = parameter.toWkt();
+            try (Statement stmt = ps.getConnection().createStatement()) {
+                // 创建一个临时变量存储几何对象
+                stmt.execute("SET @geom = ST_GeomFromText('" + wkt + "')");
+
+                // 使用临时变量设置参数
+                try (PreparedStatement pstmt = ps.getConnection().prepareStatement(
+                        "SELECT @geom")) {
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        if (rs.next()) {
+                            // 从结果集中获取几何对象并设置到主PreparedStatement
+                            ps.setObject(i, rs.getObject(1), Types.OTHER);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                throw new SQLException("Error setting geometry parameter", e);
+            }
     }
 
     /**

@@ -1,31 +1,32 @@
 package com.mrdotxin.propsmart.model.dto.energyConsumption;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
 
 @Data
-@ApiModel(value = "能耗记录更新请求")
+@Tag(name = "能耗记录更新请求")
 public class EnergyConsumptionUpdateRequest implements Serializable {
 
-    @ApiModelProperty(value = "记录ID", required = true)
+    @Schema(description = "记录ID", required = true)
     private Long id;
 
-    @ApiModelProperty(value = "房产ID")
+    @Schema(description = "房产ID")
     private Long propertyId;
 
-    @ApiModelProperty(value = "能耗类型")
+    @Schema(description = "能耗类型")
     private String energyType;
 
-    @ApiModelProperty(value = "消耗值")
+    @Schema(description = "消耗值")
     private Double consumption;
 
-    @ApiModelProperty(value = "单价")
+    @Schema(description = "单价")
     private Double price;
 
-    @ApiModelProperty(value = "测量时间")
+    @Schema(description = "测量时间")
     private Date measureTime;
 }

@@ -17,8 +17,8 @@ import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.service.BuildingService;
 import com.mrdotxin.propsmart.service.PropertyService;
 import com.mrdotxin.propsmart.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +26,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-@Api(tags = "房产资源管理")
+@Tag(name = "房产资源管理")
 @RestController
 @RequestMapping("/property")
 public class PropertyController {
@@ -42,7 +42,7 @@ public class PropertyController {
 
     @GetMapping("/get/id")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "获取房产信息")
+    @Operation(method = "获取房产信息")
     BaseResponse<Property> getPropertyById(@RequestParam("id") String id, HttpServletRequest httpServletRequest) {
         User loginUser = userService.getLoginUser(httpServletRequest);
         ThrowUtils.throwIf(ObjectUtil.isNull(loginUser), ErrorCode.NOT_LOGIN_ERROR, "未登录");
@@ -57,7 +57,7 @@ public class PropertyController {
     }
 
     @GetMapping("/get/idCardNumber")
-    @ApiOperation(value = "获取房产信息", notes = "这个函数可以通过传进来的身份证来查询名下房产, 但只是本人或者管理员")
+    @Operation(method = "获取房产信息")
     BaseResponse<List<Property>> getPropertyByUserIdentity(@RequestParam("idCardNumber") String idCardNumber, HttpServletRequest httpServletRequest) {
         User loginUser = userService.getLoginUser(httpServletRequest);
         ThrowUtils.throwIf(ObjectUtil.isNull(loginUser), ErrorCode.NOT_LOGIN_ERROR, "未登录");
@@ -74,7 +74,7 @@ public class PropertyController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/add")
-    @ApiOperation(value = "添加房产信息", notes = "如果传入的房产本身是带身份证的, 那么如果用户存在, 就会自动关联身份")
+    @Operation(method = "添加房产信息")
     BaseResponse<Boolean> addProperty(@RequestBody PropertyAddRequest propertyAddRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(propertyAddRequest), ErrorCode.PARAMS_ERROR);
         Property property = new Property();
@@ -100,7 +100,7 @@ public class PropertyController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/update")
-    @ApiOperation(value = "更新房产信息", notes = "更新的时候会自动修改关联的用户身份")
+    @Operation(method = "更新房产信息")
     BaseResponse<Boolean> updateProperty(@RequestBody PropertyUpdateRequest propertyUpdateRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(propertyUpdateRequest), ErrorCode.PARAMS_ERROR);
 
@@ -132,7 +132,7 @@ public class PropertyController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/delete")
-    @ApiOperation(value = "删除房产信息", notes = "删除房产信息, 同时更新对应用户的身份")
+    @Operation(method = "删除房产信息")
     BaseResponse<Boolean> deleteProperty(@RequestBody DeleteRequest deleteRequest) {
         Long id = deleteRequest.getId();
 
@@ -149,7 +149,7 @@ public class PropertyController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/list/page")
-    @ApiOperation(value = "分页获得房产信息")
+    @Operation(method = "分页获得房产信息")
     BaseResponse<Page<Property>> listPropertyByPage(@RequestBody PropertyQueryRequest propertyQueryRequest) {
         long current = propertyQueryRequest.getCurrent();
         long size = propertyQueryRequest.getPageSize();

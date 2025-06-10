@@ -16,8 +16,8 @@ import com.mrdotxin.propsmart.model.vo.LoginUserVO;
 import com.mrdotxin.propsmart.model.vo.UserVO;
 import com.mrdotxin.propsmart.service.PropertyService;
 import com.mrdotxin.propsmart.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -39,7 +39,7 @@ import static com.mrdotxin.propsmart.service.impl.UserServiceImpl.SALT;
 @Slf4j
 @RestController
 @RequestMapping("/user")
-@Api(tags = "用户基础")
+@Tag(name = "用户基础")
 public class UserController {
 
     @Resource
@@ -53,7 +53,7 @@ public class UserController {
      *
      */
     @PostMapping("/register")
-    @ApiOperation(value = "用户注册", notes = "仅使用账号密码来注册, 默认用户名为userAccount, 默认为普通用户")
+    @Operation(method = "用户注册")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         if (userRegisterRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -73,7 +73,7 @@ public class UserController {
      *
      */
     @PostMapping("/login")
-    @ApiOperation(value = "用户登录接口")
+    @Operation(method = "用户登录接口")
     public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -92,7 +92,7 @@ public class UserController {
      *
      */
     @PostMapping("/logout")
-    @ApiOperation(value = "用户注销")
+    @Operation(method = "用户注销")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -107,7 +107,7 @@ public class UserController {
      *
      */
     @GetMapping("/get/login")
-    @ApiOperation(value = "获取当前登录用户信息", notes = "这个函数用来获取登录的用户信息")
+    @Operation(method = "获取当前登录用户信息")
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
         User user = userService.getLoginUser(request);
         return ResultUtils.success(userService.getLoginUserVO(user));
@@ -123,7 +123,7 @@ public class UserController {
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "添加用户", notes = "管理员可以使用这个操作来添加账号")
+    @Operation(method = "添加用户")
     public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest) {
         if (userAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -145,7 +145,7 @@ public class UserController {
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "删除用户")
+    @Operation(method = "删除用户")
     public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -160,7 +160,7 @@ public class UserController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "更新用户")
+    @Operation(method = "更新用户")
     public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest) {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -178,7 +178,7 @@ public class UserController {
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "根据 id 获取用户（仅管理员）")
+    @Operation(method = "根据 id 获取用户（仅管理员）")
     public BaseResponse<User> getUserById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -193,7 +193,7 @@ public class UserController {
      *
      */
     @GetMapping("/get/vo")
-    @ApiOperation(value = "根据 id 获取用户VO")
+    @Operation(method = "根据 id 获取用户VO")
     public BaseResponse<UserVO> getUserVOById(long id, HttpServletRequest request) {
         BaseResponse<User> response = getUserById(id, request);
         User user = response.getData();
@@ -206,7 +206,7 @@ public class UserController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "分页获取用户列表")
+    @Operation(method = "分页获取用户列表")
     public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
@@ -220,7 +220,7 @@ public class UserController {
      *
      */
     @PostMapping("/list/page/vo")
-    @ApiOperation(value = "分页获取用户VO列表")
+    @Operation(method = "分页获取用户VO列表")
     public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest) {
         if (userQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -244,7 +244,7 @@ public class UserController {
      *
      */
     @PostMapping("/update/my")
-    @ApiOperation(value = "用户手动更新信息", notes = "用户可以利用这个来更新自己的个人信息")
+    @Operation(method = "用户手动更新信息")
     public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
             HttpServletRequest request) {
         if (userUpdateMyRequest == null) {
@@ -260,7 +260,7 @@ public class UserController {
     }
 
     @PostMapping("/bind/identity")
-    @ApiOperation(value = "绑定身份证信息", notes = "用户通过绑定唯一的身份证信息, 如果小区任意房产与身份证信息绑定, 则用户自动晋升为业主, 同时这个函数也可以用来绑定账号唯一的电话号码")
+    @Operation(method = "绑定身份证信息")
     public BaseResponse<Boolean> bindUserRealInfo(@RequestBody UserRealInfoBindRequest userRealInfoBindRequest, HttpServletRequest httpServletRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(userRealInfoBindRequest), ErrorCode.PARAMS_ERROR);
 
@@ -286,7 +286,7 @@ public class UserController {
     }
 
     @PostMapping("/unbind/userId")
-    @ApiOperation(value = "解绑身份证信息", notes = "用户只有先解绑信息, 才能重新绑定身份证信息")
+    @Operation(method = "解绑身份证信息")
     public BaseResponse<Boolean> unBindUserRealInfo(@RequestParam Long userId, HttpServletRequest httpServletRequest) {
 
         User user = userService.getLoginUser(httpServletRequest);

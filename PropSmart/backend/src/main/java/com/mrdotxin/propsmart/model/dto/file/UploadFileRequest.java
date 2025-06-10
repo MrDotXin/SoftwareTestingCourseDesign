@@ -1,6 +1,7 @@
 package com.mrdotxin.propsmart.model.dto.file;
 
-import io.swagger.annotations.ApiModelProperty;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,7 +17,7 @@ public class UploadFileRequest implements Serializable {
     /**
      * 业务
      */
-    @ApiModelProperty(value = "业务")
+    @Schema(description = "业务")
     private String biz;
 
     private static final long serialVersionUID = 1L;

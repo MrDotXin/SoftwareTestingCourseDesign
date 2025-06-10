@@ -1,5 +1,11 @@
 package com.mrdotxin.propsmart.controller;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.LocalDateTimeUtil;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.ReUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mrdotxin.propsmart.annotation.AuthCheck;
 import com.mrdotxin.propsmart.common.BaseResponse;
@@ -8,28 +14,39 @@ import com.mrdotxin.propsmart.common.ErrorCode;
 import com.mrdotxin.propsmart.common.ResultUtils;
 import com.mrdotxin.propsmart.constant.UserConstant;
 import com.mrdotxin.propsmart.exception.BusinessException;
+import com.mrdotxin.propsmart.exception.ThrowUtils;
 import com.mrdotxin.propsmart.model.dto.bill.BillAddRequest;
 import com.mrdotxin.propsmart.model.dto.bill.BillPayRequest;
 import com.mrdotxin.propsmart.model.dto.bill.BillQueryRequest;
 import com.mrdotxin.propsmart.model.dto.bill.BillUpdateRequest;
 import com.mrdotxin.propsmart.model.entity.Bill;
+import com.mrdotxin.propsmart.model.entity.EnergyConsumption;
 import com.mrdotxin.propsmart.model.entity.Property;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.enums.BillStatusEnum;
 import com.mrdotxin.propsmart.model.enums.BillTypeEnum;
 import com.mrdotxin.propsmart.model.vo.BillVO;
+import com.mrdotxin.propsmart.model.vo.EnergyMonthlyStatsVO;
 import com.mrdotxin.propsmart.service.BillService;
+import com.mrdotxin.propsmart.service.EnergyConsumptionService;
 import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.PropertyService;
 import com.mrdotxin.propsmart.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAdjuster;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,7 +55,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/bill")
-@Api(tags = "账单接口")
+@Tag(name = "账单接口")
 @Slf4j
 public class BillController {
     
@@ -50,6 +67,9 @@ public class BillController {
     
     @Resource
     private PropertyService propertyService;
+
+    @Resource
+    private EnergyConsumptionService energyConsumptionService;
     
     @Resource
     private NotificationService notificationService;
@@ -58,9 +78,10 @@ public class BillController {
      * 创建账单
      *
      */
+    @Deprecated
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "创建账单")
+    @Operation(method = "创建账单, 仅测试使用")
     public BaseResponse<Long> addBill(@RequestBody BillAddRequest billAddRequest, HttpServletRequest request) {
         if (billAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -80,9 +101,10 @@ public class BillController {
      * 删除账单
      *
      */
+    @Deprecated
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "删除账单")
+    @Operation(method = "删除账单")
     public BaseResponse<Boolean> deleteBill(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -95,9 +117,10 @@ public class BillController {
      * 更新账单
      *
      */
+    @Deprecated
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "更新账单")
+    @Operation(method = "更新账单")
     public BaseResponse<Boolean> updateBill(@RequestBody BillUpdateRequest billUpdateRequest, HttpServletRequest request) {
         if (billUpdateRequest == null || billUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -110,9 +133,10 @@ public class BillController {
      * 根据ID获取账单
      *
      */
+    @Deprecated
     @GetMapping("/get")
-    @ApiOperation(value = "根据ID获取账单")
-    public BaseResponse<BillVO> getBillById(long id, HttpServletRequest request) {
+    @Operation(method = "根据ID获取账单")
+    public BaseResponse<Bill> getBillById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -121,14 +145,14 @@ public class BillController {
         User loginUser = userService.getLoginUser(request);
         
         // 获取账单
-        BillVO billVO = billService.getBillById(id);
+        Bill bill = billService.getById(id);
         
         // 权限校验：只有管理员或账单所有者可以查看账单
-        if (!userService.isAdmin(loginUser) && lacksBillAccess(loginUser, billVO)) {
+        if (!userService.isAdmin(loginUser) && lacksBillAccess(loginUser, bill)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         
-        return ResultUtils.success(billVO);
+        return ResultUtils.success(bill);
     }
     
     /**
@@ -137,7 +161,7 @@ public class BillController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "获取账单分页（管理员可查看所有账单）")
+    @Operation(method = "获取账单分页（管理员可查看所有账单）")
     public BaseResponse<Page<BillVO>> listBillByPage(@RequestBody BillQueryRequest billQueryRequest) {
         if (billQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -151,7 +175,7 @@ public class BillController {
      *
      */
     @PostMapping("/pay")
-    @ApiOperation(value = "支付账单")
+    @Operation(method = "支付账单, 只有这个月过去才能支付这个月的账单")
     public BaseResponse<Boolean> payBill(@RequestBody BillPayRequest billPayRequest, HttpServletRequest request) {
         if (billPayRequest == null || billPayRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -161,10 +185,12 @@ public class BillController {
         User loginUser = userService.getLoginUser(request);
         
         // 获取账单
-        BillVO billVO = billService.getBillById(billPayRequest.getId());
-        
+        Bill bill = billService.getById(billPayRequest.getId());
+
+        ThrowUtils.throwIf(DateUtil.isSameMonth(bill.getCreateTime(), new Date()), ErrorCode.OPERATION_ERROR, "当前月份还没有结束, 无法提前支付");
+
         // 权限校验：只有管理员或账单所有者可以支付账单
-        if (!userService.isAdmin(loginUser) && lacksBillAccess(loginUser, billVO)) {
+        if (!userService.isAdmin(loginUser) && lacksBillAccess(loginUser, bill)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "您无权支付该账单");
         }
         
@@ -172,7 +198,7 @@ public class BillController {
         
         // 支付成功后，获取更新后的账单并发送通知
         if (result) {
-            Bill bill = billService.getById(billPayRequest.getId());
+            Bill newBill = billService.getById(billPayRequest.getId());
             if (bill != null) {
                 notificationService.handleBillNotification(bill, false);
             }
@@ -186,7 +212,7 @@ public class BillController {
      *
      */
     @GetMapping("/types")
-    @ApiOperation(value = "获取账单类型列表")
+    @Operation(method = "获取账单类型列表")
     public BaseResponse<List<String>> getBillTypes() {
         List<String> types = BillTypeEnum.getTexts();
         return ResultUtils.success(types);
@@ -197,7 +223,7 @@ public class BillController {
      *
      */
     @GetMapping("/statuses")
-    @ApiOperation(value = "获取账单状态列表")
+    @Operation(method = "获取账单状态列表")
     public BaseResponse<List<String>> getBillStatuses() {
         List<String> statuses = BillStatusEnum.getTexts();
         return ResultUtils.success(statuses);
@@ -208,7 +234,7 @@ public class BillController {
      *
      */
     @PostMapping("/my/list/page")
-    @ApiOperation(value = "获取我的账单")
+    @Operation(method = "获取我的账单")
     public BaseResponse<Page<BillVO>> listMyBillByPage(@RequestBody BillQueryRequest billQueryRequest, HttpServletRequest request) {
         if (billQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -254,6 +280,49 @@ public class BillController {
         
         return ResultUtils.success(filteredPage);
     }
+
+    @GetMapping("/get/current/bill")
+    @Operation(method = "获取某个房产下的当月账单情况, 如果有就直接从账单表里面获得")
+    public BaseResponse<Bill> getPropertyMonthBill(Long propertyId, String billType, HttpServletRequest request) {
+        Date now = new Date();
+        Property property = propertyService.getById(propertyId);
+        ThrowUtils.throwIf(ObjectUtil.isEmpty(property.getOwnerIdentity()), ErrorCode.OPERATION_ERROR, "当前房产暂无人居住");
+
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1; // 月份从 0 开始，所以要加 1
+
+        Bill bill = billService.getBillByMonth(propertyId, billType, year, month);
+
+        if (ObjectUtil.isNotNull(bill)) {
+            Date updateTime = bill.getUpdateTime();
+            Double consumption = energyConsumptionService.getTotalConsumption(propertyId, billType, updateTime, new Date());
+            BigDecimal amount = bill.getAmount();
+            BigDecimal result = amount.add(BigDecimal.valueOf(consumption));
+            bill.setAmount(result);
+        } else {
+            Date firstDay = DateUtil.beginOfMonth(now);
+            Date lastDay = DateUtil.endOfMonth(now);
+            bill = new Bill();
+            User user = userService.getLoginUser(request);
+            if (!userService.isAdmin(user) || !property.getOwnerIdentity().equals(user.getUserIdCardNumber())) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "无法获取，仅业主和管理员可以获取!");
+            }
+            Double consumption = energyConsumptionService.getTotalConsumption(propertyId, billType, firstDay, lastDay);
+
+            bill.setPropertyId(propertyId);
+            bill.setType(billType);
+            bill.setAmount(BigDecimal.valueOf(consumption));
+            bill.setDeadline(DateUtil.offsetDay(lastDay, 1));
+            bill.setStatus(BillStatusEnum.UNPAID.getValue());
+            bill.setCreateTime(firstDay);
+        }
+
+        // 没有就保存起来
+        billService.saveOrUpdateBill(bill);
+
+        return ResultUtils.success(bill);
+    }
     
     /**
      * 判断用户是否缺少账单访问权限
@@ -262,7 +331,7 @@ public class BillController {
      * @param billVO 账单
      * @return 如果用户无权访问该账单则返回true，否则返回false
      */
-    private boolean lacksBillAccess(User user, BillVO billVO) {
+    private boolean lacksBillAccess(User user, Bill billVO) {
         // 管理员可以查看所有账单
         if (userService.isAdmin(user)) {
             return false;

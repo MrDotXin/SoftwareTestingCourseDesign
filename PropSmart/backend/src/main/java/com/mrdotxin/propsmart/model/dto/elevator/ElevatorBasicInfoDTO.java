@@ -1,6 +1,7 @@
 package com.mrdotxin.propsmart.model.dto.elevator;
 
-import io.swagger.annotations.ApiModelProperty;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.Date;
@@ -14,30 +15,30 @@ public class ElevatorBasicInfoDTO {
     /**
      * 电梯ID
      */
-    @ApiModelProperty(value = "电梯ID")
+    @Schema(description = "电梯ID")
     private Long id;
     
     /**
      * 电梯编号
      */
-    @ApiModelProperty(value = "电梯编号")
+    @Schema(description = "电梯编号")
     private String elevatorNumber;
     
     /**
      * 安装日期
      */
-    @ApiModelProperty(value = "安装日期")
+    @Schema(description = "安装日期")
     private Date installationDate;
     
     /**
      * 上次维护日期
      */
-    @ApiModelProperty(value = "上次维护日期")
+    @Schema(description = "上次维护日期")
     private Date lastMaintenanceDate;
     
     /**
      * 当前运行状态
      */
-    @ApiModelProperty(value = "当前运行状态")
+    @Schema(description = "当前运行状态")
     private String currentStatus;
 } 

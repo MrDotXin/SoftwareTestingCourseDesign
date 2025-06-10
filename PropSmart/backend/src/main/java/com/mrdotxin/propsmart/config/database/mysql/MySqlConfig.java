@@ -1,5 +1,6 @@
 package com.mrdotxin.propsmart.config.database.mysql;
 
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -43,12 +44,15 @@ public class MySqlConfig {
         MybatisSqlSessionFactoryBean mybatisSqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
         mybatisSqlSessionFactoryBean.setDataSource(dataSource);
 
+        MybatisConfiguration mybatisConfiguration = new MybatisConfiguration();
+
+        mybatisConfiguration.setMapUnderscoreToCamelCase(false);
         if (dataSource instanceof HikariDataSource) {
             HikariDataSource hikariDataSource = (HikariDataSource) dataSource;
             log.info("Postgresql JDBC URL: {}", hikariDataSource.getJdbcUrl());
             log.info("Driver Class: {}", hikariDataSource.getDriverClassName());
         }
-
+        mybatisSqlSessionFactoryBean.setConfiguration(mybatisConfiguration);
         return mybatisSqlSessionFactoryBean.getObject();
     }
 }

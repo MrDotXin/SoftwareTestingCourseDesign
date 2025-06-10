@@ -17,8 +17,8 @@ import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.service.ComplaintSuggestionService;
 import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 @RequestMapping("/complaintSuggestion")
-@Api(tags = "投诉建议接口")
+@Tag(name = "投诉建议接口")
 @Slf4j
 public class ComplaintSuggestionController {
 
@@ -49,7 +49,7 @@ public class ComplaintSuggestionController {
      *
      */
     @PostMapping("/add")
-    @ApiOperation(value = "创建投诉建议")
+    @Operation(method = "创建投诉建议")
     public BaseResponse<Long> addComplaint(@RequestBody ComplaintSuggestionAddRequest complaintSuggestionAddRequest,
                                           HttpServletRequest request) {
         if (complaintSuggestionAddRequest == null) {
@@ -76,7 +76,7 @@ public class ComplaintSuggestionController {
      *
      */
     @PostMapping("/delete")
-    @ApiOperation(value = "删除投诉建议")
+    @Operation(method = "删除投诉建议")
     public BaseResponse<Boolean> deleteComplaint(@RequestBody DeleteRequest deleteRequest,
                                                HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
@@ -105,7 +105,7 @@ public class ComplaintSuggestionController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "更新投诉建议（管理员审批）")
+    @Operation(method = "更新投诉建议（管理员审批）")
     public BaseResponse<Boolean> updateComplaint(@RequestBody ComplaintSuggestionUpdateRequest complaintUpdateRequest,
                                               HttpServletRequest request) {
         if (complaintUpdateRequest == null || complaintUpdateRequest.getId() == null) {
@@ -140,7 +140,7 @@ public class ComplaintSuggestionController {
      *
      */
     @GetMapping("/get")
-    @ApiOperation(value = "根据 id 获取投诉建议")
+    @Operation(method = "根据 id 获取投诉建议")
     public BaseResponse<ComplaintSuggestion> getComplaintById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -166,7 +166,7 @@ public class ComplaintSuggestionController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "分页获取投诉建议列表（仅管理员）")
+    @Operation(method = "分页获取投诉建议列表（仅管理员）")
     public BaseResponse<Page<ComplaintSuggestion>> listComplaintByPage(@RequestBody ComplaintSuggestionQueryRequest complaintQueryRequest,
                                                                      HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
@@ -189,7 +189,7 @@ public class ComplaintSuggestionController {
      *
      */
     @PostMapping("/my/list/page")
-    @ApiOperation(value = "分页获取当前用户的投诉建议列表")
+    @Operation(method = "分页获取当前用户的投诉建议列表")
     public BaseResponse<Page<ComplaintSuggestion>> listMyComplaintByPage(@RequestBody ComplaintSuggestionQueryRequest complaintQueryRequest,
                                                                        HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);

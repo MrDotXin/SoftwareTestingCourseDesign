@@ -16,8 +16,8 @@ import com.mrdotxin.propsmart.model.dto.facility.FacilityUpdateRequest;
 import com.mrdotxin.propsmart.model.entity.Facility;
 import com.mrdotxin.propsmart.service.FacilityReservationService;
 import com.mrdotxin.propsmart.service.FacilityService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +25,7 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("/facility")
-@Api(tags = "设施管理")
+@Tag(name = "设施管理")
 public class FacilityController {
 
     @Resource
@@ -36,7 +36,7 @@ public class FacilityController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/add")
-    @ApiOperation(value = "添加设施")
+    @Operation(method = "添加设施")
     public BaseResponse<Boolean> addFacility(@RequestBody FacilityAddRequest facilityAddRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(facilityAddRequest), ErrorCode.PARAMS_ERROR);
 
@@ -52,7 +52,7 @@ public class FacilityController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/update")
-    @ApiOperation(value = "更新设施信息")
+    @Operation(method = "更新设施信息")
     public BaseResponse<Boolean> updateFacility(@RequestBody FacilityUpdateRequest facilityUpdateRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(facilityUpdateRequest), ErrorCode.PARAMS_ERROR);
 
@@ -68,7 +68,7 @@ public class FacilityController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/delete")
-    @ApiOperation(value = "删除设施")
+    @Operation(method = "删除设施")
     public BaseResponse<Boolean> deleteFacility(@RequestBody DeleteRequest deleteRequest) {
         Long id = deleteRequest.getId();
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
@@ -86,7 +86,7 @@ public class FacilityController {
     }
 
     @GetMapping("/get")
-    @ApiOperation(value = "根据ID获取设施信息")
+    @Operation(method = "根据ID获取设施信息")
     public BaseResponse<Facility> getFacilityById(@RequestParam Long id) {
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
         Facility facility = facilityService.getById(id);
@@ -95,7 +95,7 @@ public class FacilityController {
     }
 
     @PostMapping("/list/page")
-    @ApiOperation(value = "分页获取设施列表")
+    @Operation(method = "分页获取设施列表")
     public BaseResponse<Page<Facility>> listFacilityByPage(@RequestBody FacilityQueryRequest facilityQueryRequest) {
         long current = facilityQueryRequest.getCurrent();
         long size = facilityQueryRequest.getPageSize();

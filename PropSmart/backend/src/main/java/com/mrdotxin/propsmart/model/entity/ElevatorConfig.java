@@ -13,7 +13,7 @@ import lombok.Data;
  * 电梯配置实体类
  */
 @Data
-@TableName("elevator_config")
+@TableName("elevatorConfig")
 public class ElevatorConfig implements Serializable {
     /**
      * 配置ID

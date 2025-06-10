@@ -1,6 +1,7 @@
 package com.mrdotxin.propsmart.model.dto.complaint;
 
-import io.swagger.annotations.ApiModelProperty;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -14,13 +15,13 @@ public class ComplaintSuggestionAddRequest implements Serializable {
     /**
      * 内容
      */
-    @ApiModelProperty(value = "内容")
+    @Schema(description = "内容")
     private String content;
     
     /**
      * 类型（complaint/suggestion）
      */
-    @ApiModelProperty
+    @Schema(description = "类型")
     private String type;
     
     private static final long serialVersionUID = 1L;

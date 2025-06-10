@@ -16,8 +16,8 @@ import com.mrdotxin.propsmart.model.entity.FireEquipment;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.service.FireEquipmentService;
 import com.mrdotxin.propsmart.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
-@Api(tags = "消防设备巡检管理")
+@Tag(name = "消防设备巡检管理")
 @RestController
 @RequestMapping("/fire-equipment")
 public class FireEquipmentController {
@@ -47,7 +47,7 @@ public class FireEquipmentController {
      */
     @GetMapping("/get/id")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "获取消防设备信息")
+    @Operation(method = "获取消防设备信息")
     public BaseResponse<FireEquipment> getFireEquipmentById(@RequestParam("id") Long id, HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR, "未登录");
@@ -67,7 +67,7 @@ public class FireEquipmentController {
      */
     @GetMapping("/list/building/{buildingId}")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "获取楼栋消防设备列表")
+    @Operation(method = "获取楼栋消防设备列表")
     public BaseResponse<List<FireEquipment>> getFireEquipmentByBuilding(@PathVariable("buildingId") Long buildingId, HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR, "未登录");
@@ -85,7 +85,7 @@ public class FireEquipmentController {
      */
     @GetMapping("/list/need-inspection")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "获取需要巡检的设备列表")
+    @Operation(method = "获取需要巡检的设备列表")
     public BaseResponse<List<FireEquipment>> getEquipmentNeedingInspection(@RequestParam(value = "daysThreshold", defaultValue = "3") int daysThreshold, HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR, "未登录");
@@ -103,7 +103,7 @@ public class FireEquipmentController {
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "添加消防设备")
+    @Operation(method = "添加消防设备")
     public BaseResponse<Boolean> addFireEquipment(@RequestBody FireEquipmentAddRequest fireEquipmentAddRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(fireEquipmentAddRequest == null, ErrorCode.PARAMS_ERROR);
 
@@ -135,7 +135,7 @@ public class FireEquipmentController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "更新消防设备信息")
+    @Operation(method = "更新消防设备信息")
     public BaseResponse<Boolean> updateFireEquipment(@RequestBody FireEquipmentUpdateRequest fireEquipmentUpdateRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(fireEquipmentUpdateRequest == null, ErrorCode.PARAMS_ERROR);
 
@@ -163,7 +163,7 @@ public class FireEquipmentController {
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "删除消防设备")
+    @Operation(method = "删除消防设备")
     public BaseResponse<Boolean> deleteFireEquipment(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(deleteRequest == null, ErrorCode.PARAMS_ERROR);
 
@@ -188,7 +188,7 @@ public class FireEquipmentController {
      */
     @PostMapping("/inspection")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "进行消防设备巡检")
+    @Operation(method = "进行消防设备巡检")
     public BaseResponse<Boolean> performInspection(@RequestBody FireEquipmentInspectionRequest inspectionRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(inspectionRequest == null, ErrorCode.PARAMS_ERROR);
 
@@ -218,7 +218,7 @@ public class FireEquipmentController {
      */
     @PostMapping("/update-status")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "更新消防设备状态")
+    @Operation(method = "更新消防设备状态")
     public BaseResponse<Boolean> updateStatus(@RequestParam("equipmentId") Long equipmentId, 
                                             @RequestParam("status") String status, 
                                             HttpServletRequest request) {
@@ -244,7 +244,7 @@ public class FireEquipmentController {
      */
     @PostMapping("/set-next-inspection")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "设置下次巡检日期")
+    @Operation(method = "设置下次巡检日期")
     public BaseResponse<Boolean> setNextInspection(@RequestParam("equipmentId") Long equipmentId, 
                                                 @RequestParam("nextDate") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date nextDate, 
                                                 HttpServletRequest request) {
@@ -269,7 +269,7 @@ public class FireEquipmentController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "分页获取消防设备列表")
+    @Operation(method = "分页获取消防设备列表")
     public BaseResponse<Page<FireEquipment>> listFireEquipmentByPage(@RequestBody FireEquipmentQueryRequest fireEquipmentQueryRequest, 
                                                                    HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);

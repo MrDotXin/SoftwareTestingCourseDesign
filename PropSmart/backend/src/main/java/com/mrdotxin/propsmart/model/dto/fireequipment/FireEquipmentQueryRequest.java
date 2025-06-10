@@ -1,8 +1,10 @@
 package com.mrdotxin.propsmart.model.dto.fireequipment;
 
 import com.mrdotxin.propsmart.common.PageRequest;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,13 +15,13 @@ import java.io.Serializable;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@ApiModel(description = "消防设备查询请求")
+@Tag(name = "消防设备查询请求")
 public class FireEquipmentQueryRequest extends PageRequest implements Serializable {
 
-    @ApiModelProperty(value = "设备状态")
+    @Schema(description = "设备状态")
     private String status;
 
-    @ApiModelProperty(value = "所属楼栋ID")
+    @Schema(description = "所属楼栋ID")
     private Long buildingId;
 
     private static final long serialVersionUID = 1L;

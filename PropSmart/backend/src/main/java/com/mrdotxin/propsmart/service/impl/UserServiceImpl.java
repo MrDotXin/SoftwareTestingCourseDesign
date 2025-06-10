@@ -274,7 +274,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String identity = userRealInfoBindRequest.getUserIdCardNumber();
         String realName = userRealInfoBindRequest.getUserRealName();
         if (ObjectUtil.isAllNotEmpty(identity, realName)) {
-            ThrowUtils.throwIf(FormatUtils.isValidNameAndIdCard(realName, identity), ErrorCode.PARAMS_ERROR, "用户身份证或者姓名格式不合法!");
+            ThrowUtils.throwIf(!FormatUtils.isValidNameAndIdCard(realName, identity), ErrorCode.PARAMS_ERROR, "用户身份证或者姓名格式不合法!");
             ThrowUtils.throwIf(existsWithField("userIdCardNumber", identity), ErrorCode.PARAMS_ERROR, "这个身份证已经被绑定了!");
 
             user.setUserRealName(realName);
@@ -283,7 +283,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         String userPhoneNumber = userRealInfoBindRequest.getUserPhoneNumber();
         if (ObjectUtil.isNotNull(userPhoneNumber)) {
-            ThrowUtils.throwIf(FormatUtils.isValidPhone(userPhoneNumber), ErrorCode.PARAMS_ERROR, "电话格式不合法!");
+            ThrowUtils.throwIf(!FormatUtils.isValidPhone(userPhoneNumber), ErrorCode.PARAMS_ERROR, "电话格式不合法!");
             ThrowUtils.throwIf(existsWithField("userPhoneNumber", userPhoneNumber), ErrorCode.PARAMS_ERROR, "这个电话号码已经被绑定了!");
             user.setUserPhoneNumber(userPhoneNumber);
         }

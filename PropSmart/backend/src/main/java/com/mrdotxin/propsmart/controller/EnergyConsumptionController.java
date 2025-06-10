@@ -16,8 +16,8 @@ import com.mrdotxin.propsmart.model.entity.EnergyConsumption;
 import com.mrdotxin.propsmart.model.vo.EnergyConsumptionVO;
 import com.mrdotxin.propsmart.model.vo.EnergyMonthlyStatsVO;
 import com.mrdotxin.propsmart.service.EnergyConsumptionService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/energy")
-@Api(tags = "能耗流水管理")
+@Tag(name = "能耗流水管理")
 public class EnergyConsumptionController {
 
     @Resource
@@ -34,7 +34,7 @@ public class EnergyConsumptionController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/add")
-    @ApiOperation(value = "添加能耗记录")
+    @Operation(method = "添加能耗记录")
     public BaseResponse<Long> addEnergyConsumption(@RequestBody EnergyConsumptionAddRequest addRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(addRequest), ErrorCode.PARAMS_ERROR);
 
@@ -50,7 +50,7 @@ public class EnergyConsumptionController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/update")
-    @ApiOperation(value = "更新能耗记录")
+    @Operation(method = "更新能耗记录")
     public BaseResponse<Boolean> updateEnergyConsumption(@RequestBody EnergyConsumptionUpdateRequest updateRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(updateRequest), ErrorCode.PARAMS_ERROR);
 
@@ -66,7 +66,7 @@ public class EnergyConsumptionController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/delete")
-    @ApiOperation(value = "删除能耗记录")
+    @Operation(method = "删除能耗记录")
     public BaseResponse<Boolean> deleteEnergyConsumption(@RequestBody DeleteRequest deleteRequest) {
         Long id = deleteRequest.getId();
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
@@ -78,7 +78,7 @@ public class EnergyConsumptionController {
     }
 
     @GetMapping("/get")
-    @ApiOperation(value = "获取能耗记录详情")
+    @Operation(method = "获取能耗记录详情")
     public BaseResponse<EnergyConsumptionVO> getEnergyConsumptionById(@RequestParam Long id) {
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
 
@@ -91,7 +91,7 @@ public class EnergyConsumptionController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/list/page")
-    @ApiOperation(value = "分页查询能耗记录")
+    @Operation(method = "分页查询能耗记录")
     public BaseResponse<Page<EnergyConsumptionVO>> listEnergyConsumptionByPage(@RequestBody EnergyConsumptionQueryRequest queryRequest) {
         long current = queryRequest.getCurrent();
         long size = queryRequest.getPageSize();
@@ -106,9 +106,10 @@ public class EnergyConsumptionController {
         return ResultUtils.success(voPage);
     }
 
+
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @GetMapping("/stats/monthly")
-    @ApiOperation(value = "按月统计能耗数据")
+    @Operation(method = "按月统计能耗数据(以天为单位)")
     public BaseResponse<List<EnergyMonthlyStatsVO>> getMonthlyEnergyStats(@RequestParam(required = false) Long propertyId,
                                                                           @RequestParam String energyType,
                                                                           @RequestParam String yearMonth) {

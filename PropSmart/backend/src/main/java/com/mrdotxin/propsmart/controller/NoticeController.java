@@ -18,8 +18,8 @@ import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.service.NoticeService;
 import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +29,7 @@ import java.util.Date;
 
 @RestController
 @RequestMapping("/notice")
-@Api(tags = "公告管理")
+@Tag(name = "公告管理")
 public class NoticeController {
 
     @Resource
@@ -43,7 +43,7 @@ public class NoticeController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/add")
-    @ApiOperation(value = "添加公告")
+    @Operation(method = "添加公告")
     public BaseResponse<Long> addNotice(@RequestBody NoticeAddRequest noticeAddRequest,
                                         HttpServletRequest request) {
         ThrowUtils.throwIf(ObjectUtil.isNull(noticeAddRequest), ErrorCode.PARAMS_ERROR);
@@ -65,7 +65,7 @@ public class NoticeController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/update")
-    @ApiOperation(value = "更新公告")
+    @Operation(method = "更新公告")
     public BaseResponse<Boolean> updateNotice(@RequestBody NoticeUpdateRequest noticeUpdateRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(noticeUpdateRequest), ErrorCode.PARAMS_ERROR);
 
@@ -81,7 +81,7 @@ public class NoticeController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/delete")
-    @ApiOperation(value = "删除公告")
+    @Operation(method = "删除公告")
     public BaseResponse<Boolean> deleteNotice(@RequestBody DeleteRequest deleteRequest) {
         Long id = deleteRequest.getId();
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
@@ -93,7 +93,7 @@ public class NoticeController {
     }
 
     @GetMapping("/get")
-    @ApiOperation(value = "根据ID获取公告详情")
+    @Operation(method = "根据ID获取公告详情")
     public BaseResponse<Notice> getNoticeById(@RequestParam Long id) {
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
         Notice notice = noticeService.getById(id);
@@ -103,7 +103,7 @@ public class NoticeController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/list/page")
-    @ApiOperation(value = "分页获取公告列表（管理员）")
+    @Operation(method = "分页获取公告列表（管理员）")
     public BaseResponse<Page<Notice>> listNoticeByPage(@RequestBody NoticeQueryRequest noticeQueryRequest) {
         long current = noticeQueryRequest.getCurrent();
         long size = noticeQueryRequest.getPageSize();
@@ -112,8 +112,8 @@ public class NoticeController {
         return ResultUtils.success(noticePage);
     }
 
-    @GetMapping("/list/public")
-    @ApiOperation(value = "分页获取有效公告（公开接口）")
+    @PostMapping("/list/public")
+    @Operation(method = "分页获取有效公告（公开接口）")
     public BaseResponse<Page<Notice>> listPublicNotice(@RequestBody NoticeQueryRequest noticeQueryRequest) {
         long current = noticeQueryRequest.getCurrent();
         long size = noticeQueryRequest.getPageSize();

@@ -2,6 +2,7 @@ package com.mrdotxin.propsmart.job;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.mrdotxin.propsmart.model.entity.EnergyConsumption;
 import com.mrdotxin.propsmart.model.entity.Property;
 import com.mrdotxin.propsmart.model.entity.User;
@@ -38,7 +39,6 @@ public class EnergyConsumptionTask {
     // 每小时执行一次，模拟能耗数据
     @Scheduled(cron = "${Energy-Consumption-Generate-Interval}")
     public void generateHourlyEnergyConsumption() {
-        log.info("开始生成每小时能耗数据...");
 
         List<Property> properties = propertyService.list();
         if (CollUtil.isEmpty(properties)) {
@@ -48,15 +48,11 @@ public class EnergyConsumptionTask {
         int generatedCount = 0;
         for (Property property : properties) {
             if (ObjectUtils.isNotEmpty(property.getOwnerIdentity())) {
-                try {
                     // 生成电力消耗
                     generateEnergyRecord(property, "electricity");
                     // 生成水消耗
                     generateEnergyRecord(property, "water");
                     generatedCount++;
-                } catch (Exception e) {
-                    log.error("生成房产{}能耗数据失败: {}", property.getId(), e.getMessage());
-                }
             }
         }
 
@@ -105,6 +101,10 @@ public class EnergyConsumptionTask {
     private void notifyAbnormalConsumption(Property property, String energyType,
                                          double current, double average) {
         User user = userService.getByField("userIdCardNumber", property.getOwnerIdentity());
+        if (ObjectUtil.isNull(user)) {
+            return;
+        }
+
         Long ownerId = user.getId();
 
         String energyName = energyType.equals("electricity") ? "电力" : "水";

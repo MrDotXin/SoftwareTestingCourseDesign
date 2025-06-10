@@ -12,7 +12,7 @@ import lombok.Data;
  * 账单流水
  *
  */
-@TableName(value ="energyconsumption")
+@TableName(value = "energyConsumption")
 @Data
 public class EnergyConsumption implements Serializable {
     /**

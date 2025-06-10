@@ -22,8 +22,8 @@ import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.PropertyService;
 import com.mrdotxin.propsmart.service.RepairOrderService;
 import com.mrdotxin.propsmart.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +35,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/repair")
-@Api(tags = "报修管理")
+@Tag(name = "报修管理")
 public class RepairOrderController {
 
     @Resource
@@ -52,7 +52,7 @@ public class RepairOrderController {
 
     @PostMapping("/submit")
     @AuthCheck(mustOwner = true)
-    @ApiOperation(value = "用户提交报修申请")
+    @Operation(method = "用户提交报修申请")
     public BaseResponse<Long> submitRepairOrder(@RequestBody RepairOrderSubmitRequest submitRequest,
                                                 HttpServletRequest request) {
         ThrowUtils.throwIf(ObjectUtil.isNull(submitRequest), ErrorCode.PARAMS_ERROR);
@@ -81,7 +81,7 @@ public class RepairOrderController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/update/status")
-    @ApiOperation(value = "管理员审核报修")
+    @Operation(method = "管理员审核报修")
     public BaseResponse<Boolean> reviewRepairOrder(@RequestBody RepairOrderStatusUpdateRequest statusUpdateRequest,
                                                    HttpServletRequest request) {
         ThrowUtils.throwIf(ObjectUtil.isNull(statusUpdateRequest), ErrorCode.PARAMS_ERROR);
@@ -111,7 +111,7 @@ public class RepairOrderController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/delete")
-    @ApiOperation(value = "删除报修单")
+    @Operation(method = "删除报修单")
     public BaseResponse<Boolean> deleteRepairOrder(@RequestBody DeleteRequest deleteRequest) {
         Long id = deleteRequest.getId();
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
@@ -124,7 +124,7 @@ public class RepairOrderController {
 
     @GetMapping("/get")
     @AuthCheck(mustOwner = true)
-    @ApiOperation(value = "获取报修单详情")
+    @Operation(method = "获取报修单详情")
     public BaseResponse<RepairOrderVO> getRepairOrderById(@RequestParam Long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR);
 
@@ -143,7 +143,7 @@ public class RepairOrderController {
 
     @GetMapping("/list/my")
     @AuthCheck(mustOwner = true)
-    @ApiOperation(value = "用户查看自己的报修单")
+    @Operation(method = "用户查看自己的报修单")
     public BaseResponse<Page<RepairOrderVO>> listMyRepairOrdersPage(@RequestBody RepairOrderQueryRequest queryRequest,
                                                                     HttpServletRequest request) {
         ThrowUtils.throwIf(ObjectUtil.isNull(queryRequest), ErrorCode.PARAMS_ERROR);
@@ -164,7 +164,7 @@ public class RepairOrderController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/list/page")
-    @ApiOperation(value = "管理员分页查询报修单")
+    @Operation(method = "管理员分页查询报修单")
     public BaseResponse<Page<RepairOrder>> listRepairOrderByPage(@RequestBody RepairOrderQueryRequest queryRequest) {
         Page<RepairOrder> repairOrderPage = repairOrderService.page(new Page<>(queryRequest.getCurrent(), queryRequest.getPageSize()),
                 repairOrderService.getQueryWrapper(queryRequest));
@@ -175,7 +175,7 @@ public class RepairOrderController {
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @GetMapping("/stats/status")
-    @ApiOperation(value = "报修单状态统计")
+    @Operation(method = "报修单状态统计")
     public BaseResponse<Map<String, Long>> getRepairOrderStatusStats() {
         Map<String, Long> stats = repairOrderService.getStatusStatistics();
         return ResultUtils.success(stats);

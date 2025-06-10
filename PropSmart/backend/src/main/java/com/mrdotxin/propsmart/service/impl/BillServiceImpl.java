@@ -1,5 +1,6 @@
 package com.mrdotxin.propsmart.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -7,22 +8,21 @@ import com.mrdotxin.propsmart.annotation.AuthCheck;
 import com.mrdotxin.propsmart.common.ErrorCode;
 import com.mrdotxin.propsmart.constant.UserConstant;
 import com.mrdotxin.propsmart.exception.BusinessException;
+import com.mrdotxin.propsmart.exception.ThrowUtils;
 import com.mrdotxin.propsmart.mapper.mysql.BillMapper;
 import com.mrdotxin.propsmart.mapper.mysql.PropertyMapper;
 import com.mrdotxin.propsmart.model.dto.bill.BillAddRequest;
 import com.mrdotxin.propsmart.model.dto.bill.BillPayRequest;
 import com.mrdotxin.propsmart.model.dto.bill.BillQueryRequest;
 import com.mrdotxin.propsmart.model.dto.bill.BillUpdateRequest;
-import com.mrdotxin.propsmart.model.entity.Bill;
-import com.mrdotxin.propsmart.model.entity.Building;
-import com.mrdotxin.propsmart.model.entity.Property;
-import com.mrdotxin.propsmart.model.entity.User;
+import com.mrdotxin.propsmart.model.entity.*;
 import com.mrdotxin.propsmart.model.enums.BillStatusEnum;
 import com.mrdotxin.propsmart.model.enums.BillTypeEnum;
 import com.mrdotxin.propsmart.model.vo.BillVO;
 import com.mrdotxin.propsmart.service.BillService;
 import com.mrdotxin.propsmart.service.BuildingService;
 import com.mrdotxin.propsmart.service.UserService;
+import com.mrdotxin.propsmart.utils.FormatUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -30,6 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -281,6 +286,33 @@ public class BillServiceImpl extends ServiceImpl<BillMapper, Bill>
         }
         
         return billVO;
+    }
+
+    @Override
+    public Bill getBillByMonth(Long propertyId, String billType, Integer year, Integer month) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+        YearMonth yearMonth = YearMonth.of(year, month);
+
+        LocalDate localDate = yearMonth.atDay(1);
+        Date begin = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date endDate = DateUtil.endOfMonth(begin);
+        return this.getBillByRange(propertyId, billType, begin, endDate);
+    }
+
+    @Override
+    public Bill getBillByRange(Long propertyId, String billType, Date begin, Date end) {
+        QueryWrapper<Bill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("propertyId", propertyId);
+        queryWrapper.eq("billType", billType);
+        queryWrapper.between("createTime", begin, end);
+
+        return this.getOne(queryWrapper);
+    }
+
+    @Override
+    @Transactional
+    public void saveOrUpdateBill(Bill bill) {
+        this.saveOrUpdate(bill);
     }
 }
 

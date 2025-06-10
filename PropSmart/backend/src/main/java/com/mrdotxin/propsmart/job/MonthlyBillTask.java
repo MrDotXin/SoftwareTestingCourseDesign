@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollUtil;
 import com.mrdotxin.propsmart.model.entity.Bill;
 import com.mrdotxin.propsmart.model.entity.Property;
 import com.mrdotxin.propsmart.model.entity.User;
+import com.mrdotxin.propsmart.model.enums.BillStatusEnum;
+import com.mrdotxin.propsmart.model.enums.BillTypeEnum;
 import com.mrdotxin.propsmart.service.BillService;
 import com.mrdotxin.propsmart.service.EnergyConsumptionService;
 import com.mrdotxin.propsmart.service.PropertyService;
@@ -67,7 +69,7 @@ public class MonthlyBillTask {
         for (Property property : properties) {
             try {
                 // 生成电费账单
-                Bill electricityBill = generateUtilityBill(property, "electricity", monthStart, monthEnd);
+                Bill electricityBill = billService.getBillByRange(property.getId(), BillTypeEnum.ELECTRICITY.getValue(), monthStart, monthEnd);
                 if (electricityBill != null) {
                     billService.save(electricityBill);
                     generatedCount++;
@@ -78,7 +80,7 @@ public class MonthlyBillTask {
                 }
                 
                 // 生成水费账单
-                Bill waterBill = generateUtilityBill(property, "water", monthStart, monthEnd);
+                Bill waterBill = billService.getBillByRange(property.getId(), BillTypeEnum.WATER.getValue(), monthStart, monthEnd);
                 if (waterBill != null) {
                     billService.save(waterBill);
                     generatedCount++;
@@ -105,22 +107,22 @@ public class MonthlyBillTask {
         // 计算上个月的总消耗量和总费用
         Double totalConsumption = energyConsumptionService.getTotalConsumption(
             property.getId(), utilityType, monthStart, monthEnd);
-        
+
         if (totalConsumption == null || totalConsumption == 0) {
             return null;
         }
-        
+
         // 获取单价
         Double price = utilityType.equals("electricity") ? 0.8 : 3.5;
         Double amount = totalConsumption * price;
-        
+
         Bill bill = new Bill();
         bill.setPropertyId(property.getId());
         bill.setType(utilityType);
         bill.setAmount(BigDecimal.valueOf(amount).setScale(2, RoundingMode.HALF_UP));
         bill.setDeadline(getBillDeadline());
         bill.setStatus("unpaid");
-        
+
         return bill;
     }
 
@@ -147,12 +149,12 @@ public class MonthlyBillTask {
 
     private boolean checkAbnormalBill(Bill bill) {
         // 电费超过300元视为异常
-        if ("electricity".equals(bill.getType())) {
+        if (BillTypeEnum.ELECTRICITY.getValue().equals(bill.getType())) {
             return bill.getAmount().compareTo(BigDecimal.valueOf(300)) > 0;
         }
         
         // 水费超过200元视为异常
-        if ("water".equals(bill.getType())) {
+        if (BillTypeEnum.WATER.getValue().equals(bill.getType())) {
             return bill.getAmount().compareTo(BigDecimal.valueOf(200)) > 0;
         }
         
