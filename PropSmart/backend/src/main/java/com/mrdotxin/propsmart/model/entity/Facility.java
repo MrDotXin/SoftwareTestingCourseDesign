@@ -29,12 +29,6 @@ public class Facility implements Serializable {
     private String facilityName;
 
     /**
-     * 位置
-     */
-    @TableField(value = "location")
-    private String location;
-
-    /**
      * 容量
      */
     @TableField(value = "capacity")

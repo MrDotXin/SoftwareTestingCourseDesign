@@ -21,12 +21,6 @@ public class FacilityUpdateRequest implements Serializable {
     private String facilityName;
 
     /**
-     * 位置
-     */
-    @Schema(description = "位置")
-    private String location;
-
-    /**
      * 容量
      */
     @Schema(description = "容量")

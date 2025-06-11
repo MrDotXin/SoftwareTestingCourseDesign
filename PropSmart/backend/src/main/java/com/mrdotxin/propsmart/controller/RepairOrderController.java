@@ -58,7 +58,7 @@ public class RepairOrderController {
         ThrowUtils.throwIf(ObjectUtil.isNull(submitRequest), ErrorCode.PARAMS_ERROR);
 
         User loginUser = userService.getLoginUser(request);
-        ThrowUtils.throwIf(!loginUser.getIsOwner(), ErrorCode.NO_AUTH_ERROR, "仅业主有权限报修");
+        ThrowUtils.throwIf(!userService.isAdmin(loginUser) && !loginUser.getIsOwner(), ErrorCode.NO_AUTH_ERROR, "仅业主有权限报修");
 
         RepairOrder repairOrder = new RepairOrder();
         BeanUtils.copyProperties(submitRequest, repairOrder);
@@ -85,8 +85,8 @@ public class RepairOrderController {
     public BaseResponse<Boolean> reviewRepairOrder(@RequestBody RepairOrderStatusUpdateRequest statusUpdateRequest,
                                                    HttpServletRequest request) {
         ThrowUtils.throwIf(ObjectUtil.isNull(statusUpdateRequest), ErrorCode.PARAMS_ERROR);
-        if (statusUpdateRequest.getStatus().equals(RepairOrderStatusEnum.COMPLETED.getValue()) ||
-                statusUpdateRequest.getStatus().equals(RepairOrderStatusEnum.CANCELLED.getValue())) {
+        if (!statusUpdateRequest.getStatus().equals(RepairOrderStatusEnum.COMPLETED.getValue()) &&
+                !statusUpdateRequest.getStatus().equals(RepairOrderStatusEnum.CANCELLED.getValue())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "错误, 审核结果只能是completed或者cancelled");
         }
 
@@ -141,7 +141,7 @@ public class RepairOrderController {
         return ResultUtils.success(vo);
     }
 
-    @GetMapping("/list/my")
+    @PostMapping("/list/my")
     @AuthCheck(mustOwner = true)
     @Operation(method = "用户查看自己的报修单")
     public BaseResponse<Page<RepairOrderVO>> listMyRepairOrdersPage(@RequestBody RepairOrderQueryRequest queryRequest,

@@ -45,7 +45,6 @@ public class BuildingController {
     @Operation(method = "添加楼栋")
     public BaseResponse<Boolean> addBuilding(@RequestBody BuildingAddRequest buildingAddRequest) {
         ThrowUtils.throwIf(ObjectUtil.isNull(buildingAddRequest), ErrorCode.PARAMS_ERROR);
-        ThrowUtils.throwIf(ObjectUtil.isNull(buildingAddRequest.getLocation()), ErrorCode.PARAMS_ERROR, "楼栋地理位置不能为空");
 
         Building building = new Building();
         BeanUtils.copyProperties(buildingAddRequest, building);

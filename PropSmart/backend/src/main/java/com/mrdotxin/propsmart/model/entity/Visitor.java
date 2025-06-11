@@ -48,9 +48,9 @@ public class Visitor implements Serializable {
     private Date visitTime;
 
     /**
-     * 预计时长（小时）
+     * 离开时间
      */
-    private Integer duration;
+    private Date visitEndTime;
 
     /**
      * 审批状态（待审批/已通过/已拒绝）

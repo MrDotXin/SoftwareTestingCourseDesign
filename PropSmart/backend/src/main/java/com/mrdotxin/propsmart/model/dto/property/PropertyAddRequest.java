@@ -18,7 +18,7 @@ public class PropertyAddRequest implements Serializable {
      * 楼栋名称
      */
     @Schema(description = "楼栋名称")
-    private String buildingName;
+    private Long buildingId;
 
     /**
      * 单元号

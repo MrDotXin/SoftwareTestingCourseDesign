@@ -19,23 +19,4 @@
         userName,userAvatar,userProfile,
         userRole,createTime,updateTime,isDelete
     </sql>
-    <select id="selectUserByBuildingId" parameterType="Long" resultType="Long">
-        select
-            userId
-        from
-            user
-        where
-            user.userIdCardNumber in (
-                select UNIQUE
-                    ownerIdentity
-                FROM
-                    building
-                WHERE
-                    building.id = #{buildingId}
-                )
-    </select>
-
-    <select id="selectAllAdminId" resultType="Long">
-        select useId from user where userRole = 'ROLE_ADMIN'
-    </select>
 </mapper>

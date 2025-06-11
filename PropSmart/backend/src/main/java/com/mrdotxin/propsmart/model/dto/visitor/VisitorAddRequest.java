@@ -40,8 +40,8 @@ public class VisitorAddRequest implements Serializable {
     /**
      * 预计时长（小时）
      */
-    @Schema(description = "预计时长（小时）", required = true)
-    private Integer duration;
+    @Schema(description = "离开时间", required = true)
+    private Date visitEndTime;
 
     private static final long serialVersionUID = 1L;
 } 

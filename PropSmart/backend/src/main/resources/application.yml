@@ -60,11 +60,12 @@ server:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 logging:
   level:
-    com.mrdotxin.propsmart.mapper.postgresql: DEBUG
-    org.mybatis: DEBUG
+    com.mrdotxin.propsmart.mapper: ERROR
+    com.mrdotxin.propsmart.mapper.postgresql: ERROR
+    org.mybatis: ERROR
 # 一定要加, 不然swagger 功能会被默认ban掉
 knife4j:
   enable: true

@@ -28,8 +28,8 @@ public class FacilityReservationAddRequest implements Serializable {
     /**
      * 时长（小时）
      */
-    @Schema(description = "时长（小时）")
-    private Integer duration;
+    @Schema(description = "结束时间")
+    private Date reservationEndTime;
     
     private static final long serialVersionUID = 1L;
 } 

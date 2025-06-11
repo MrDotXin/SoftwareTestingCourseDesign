@@ -51,10 +51,12 @@ public class VisitorServiceImpl extends ServiceImpl<VisitorMapper, Visitor> impl
         }
 
         // 校验时长
-        Integer duration = visitor.getDuration();
-        if (duration == null || duration <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "访问时长不合法");
+        Date duration = visitor.getVisitEndTime();
+        if (duration == null || !duration.after(visitTime)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "访问结束时间不合法");
         }
+
+        ThrowUtils.throwIf(existContradictionVisit(visitor.getIdNumber(), visitor.getVisitTime(), visitor.getVisitEndTime()), ErrorCode.OPERATION_ERROR, "当前预约时间有冲突!");
 
         // 设置初始状态和用户ID
         visitor.setUserId(userId);
@@ -80,24 +82,13 @@ public class VisitorServiceImpl extends ServiceImpl<VisitorMapper, Visitor> impl
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "状态错误");
         }
 
-        // 获取原记录
-        Visitor oldRecord = this.getById(visitor.getId());
-        if (oldRecord == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
-        }
-
-        // 只能审批待处理的记录
-        if (!oldRecord.getReviewStatus().equals(VisitorReviewStatusEnum.PENDING.getValue())) {
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "该访客申请已处理");
-        }
-
         // 设置审批信息
         visitor.setReviewerId(reviewerId);
         visitor.setReviewTime(new Date());
 
         // 如果审批通过，生成电子通行证
         if (reviewStatus.equals(VisitorReviewStatusEnum.APPROVED.getValue())) {
-            String passCode = generatePassCode(visitor.getIdNumber(), visitor.getVisitTime(), visitor.getDuration());
+            String passCode = generatePassCode(visitor.getIdNumber(), visitor.getVisitTime(), visitor.getVisitEndTime());
             visitor.setPassCode(passCode);
         }
 
@@ -105,8 +96,8 @@ public class VisitorServiceImpl extends ServiceImpl<VisitorMapper, Visitor> impl
     }
 
     @Override
-    public String generatePassCode(String idCardNumber, Date visitTime, Integer duration) {
-        long expirationTime = visitTime.getTime() + duration * 1000 * 3600;
+    public String generatePassCode(String idCardNumber, Date visitTime, Date visitEndTime) {
+        long expirationTime = visitEndTime.getTime() - visitTime.getTime();
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("idCardNumber", idCardNumber);
@@ -124,6 +115,20 @@ public class VisitorServiceImpl extends ServiceImpl<VisitorMapper, Visitor> impl
 
         JWT jwt = JWTUtil.parseToken(token);
         return (String) jwt.getPayload("idCardNumber");
+    }
+
+    @Override
+    public boolean existContradictionVisit(String identity, Date beginTime, Date endTime) {
+        QueryWrapper<Visitor> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("idNumber", identity);
+        queryWrapper.and(wrapper ->
+            wrapper.le("visitTime", endTime)        // 记录开始时间 ≤ 查询结束时间
+                   .and(nested ->                   // 并且
+                       nested.ge("visitEndTime", beginTime)  // 记录结束时间 ≥ 查询开始时间
+                   )
+        );
+
+        return this.baseMapper.exists(queryWrapper);
     }
 
 
@@ -147,7 +152,7 @@ public class VisitorServiceImpl extends ServiceImpl<VisitorMapper, Visitor> impl
         queryWrapper.like(StringUtils.isNotBlank(visitorName), "visitorName", visitorName);
         queryWrapper.eq(StringUtils.isNotBlank(idNumber), "idNumber", idNumber);
         queryWrapper.eq(StringUtils.isNotBlank(reviewStatus), "reviewStatus", reviewStatus);
-        queryWrapper.eq(userId != null, "userId", userId);
+        queryWrapper.eq(userId != null && userId > 0, "userId", userId);
         queryWrapper.ge(visitTime != null,"visitTime", visitTime);
 
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),

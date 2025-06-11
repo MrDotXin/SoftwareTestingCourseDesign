@@ -22,11 +22,6 @@ public class BuildingAddRequest implements Serializable {
     @Schema(description = "楼栋总层数")
     private Integer totalFloors;
 
-    /**
-     * 地理位置几何图形
-     */
-    @Schema(description = "地理位置几何图形")
-    private GeoPoint location;
 
     /**
      * 创建时间

@@ -1,6 +1,7 @@
 package com.mrdotxin.propsmart.model.dto.property;
 
 
+import com.rabbitmq.client.LongString;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -19,13 +20,13 @@ public class PropertyUpdateRequest implements Serializable {
      * 实际拥有者的身份证号
      */
     @Schema(description = "实际拥有者的身份证号")
-    private Long ownerIdentity;
+    private String ownerIdentity;
 
     /**
      * 楼栋名称
      */
-    @Schema(description = "楼栋名称")
-    private String buildingName;
+    @Schema(description = "楼栋ID")
+    private Long buildingId;
 
     /**
      * 单元号

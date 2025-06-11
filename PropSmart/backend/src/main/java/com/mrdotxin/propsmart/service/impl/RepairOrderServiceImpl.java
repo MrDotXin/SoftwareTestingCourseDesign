@@ -90,10 +90,10 @@ public class RepairOrderServiceImpl extends ServiceImpl<RepairOrderMapper, Repai
         String sortOrder = queryRequest.getSortOrder();
 
         QueryWrapper<RepairOrder> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(ObjectUtil.isNotNull(id), "id", id);
-        queryWrapper.eq(ObjectUtil.isNotNull(userId), "userId", userId);
-        queryWrapper.eq(ObjectUtil.isNotNull(propertyId), "propertyId", propertyId);
-        queryWrapper.eq(ObjectUtil.isNotNull(reviewerId), "reviewerId", reviewerId);
+        queryWrapper.eq(ObjectUtil.isNotNull(id) && id > 0, "id", id);
+        queryWrapper.eq(ObjectUtil.isNotNull(userId) && userId > 0, "userId", userId);
+        queryWrapper.eq(ObjectUtil.isNotNull(propertyId) && propertyId > 0, "propertyId", propertyId);
+        queryWrapper.eq(ObjectUtil.isNotNull(reviewerId) && reviewerId > 0, "reviewerId", reviewerId);
         queryWrapper.eq(StrUtil.isNotBlank(status), "status", status);
         queryWrapper.like(StrUtil.isNotBlank(description), "description", description);
 

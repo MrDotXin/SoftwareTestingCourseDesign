@@ -39,10 +39,10 @@ public class FacilityReservation implements Serializable {
     private Date reservationTime;
 
     /**
-     * 时长（小时）
+     * 预约结束时间
      */
-    @TableField(value = "duration")
-    private Integer duration;
+    @TableField(value = "reservationEndTime")
+    private Date reservationEndTime;
 
     /**
      * 状态

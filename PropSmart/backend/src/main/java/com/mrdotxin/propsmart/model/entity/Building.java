@@ -37,12 +37,6 @@ public class Building implements Serializable {
     private Integer totalLevels;
 
     /**
-     * 地理位置几何图形
-     */
-    @TableField(value = "location", typeHandler = MysqlGeoTypeHandler.class)
-    private GeoPoint location;
-
-    /**
      * 创建时间
      */
     @TableField(value = "createTime")

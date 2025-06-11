@@ -32,12 +32,6 @@ public class BuildingQueryRequest extends PageRequest implements Serializable {
     private Integer totalFloors;
 
     /**
-     * 地理位置
-     */
-    @Schema(description = "地理位置几何图形")
-    private GeoPoint location;
-
-    /**
      * 用于地理位置搜索的中心点
      */
     @Schema(description = "搜索中心点")

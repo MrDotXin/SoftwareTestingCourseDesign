@@ -80,13 +80,13 @@ public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservat
         }
 
         // 校验时长
-        Integer duration = facilityReservation.getDuration();
-        if (duration == null || duration <= 0) {
+        Date reservationEndDuration = facilityReservation.getReservationEndTime();
+        if (reservationEndDuration == null || !reservationEndDuration.after(reservationTime)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "预订时长不合法");
         }
 
         // 检查设施是否可预订
-        boolean isAvailable = checkFacilityAvailability(facilityId, reservationTime, duration);
+        boolean isAvailable = checkFacilityAvailability(facilityId, reservationTime, 1);
         if (!isAvailable) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "该时段设施已被预订满");
         }
@@ -130,7 +130,7 @@ public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservat
         // 如果是通过申请，需要再次检查容量
         if (status.equals("success")) {
             boolean isAvailable = checkFacilityAvailability(oldRecord.getFacilityId(),
-                    oldRecord.getReservationTime(), oldRecord.getDuration());
+                    oldRecord.getReservationTime(), 1);
             if (!isAvailable) {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "该时段设施已被预订满");
             }
@@ -214,8 +214,8 @@ public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservat
         String sortOrder = facilityReservationQueryRequest.getSortOrder();
 
         // 拼接查询条件
-        queryWrapper.eq(facilityId != null,"facilityId", facilityId);
-        queryWrapper.eq(userId != null,"userId", userId);
+        queryWrapper.eq(facilityId != null && facilityId > 0,"facilityId", facilityId);
+        queryWrapper.eq(userId != null && userId > 0,"userId", userId);
         queryWrapper.eq(StringUtils.isNotBlank(status),"status", status);
         queryWrapper.ge(reservationTime != null,"reservationTime", reservationTime);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),

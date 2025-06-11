@@ -32,7 +32,6 @@ CREATE TABLE IF NOT EXISTS `building` (
                                           id              BIGINT AUTO_INCREMENT,
                                           buildingName    VARCHAR(50)     UNIQUE NOT NULL COMMENT '楼栋名称/编号',
                                           totalLevels     INT             NOT NULL DEFAULT 1 COMMENT '楼栋总层数',
-                                          location        GEOMETRY        NOT NULL COMMENT '地理位置几何图形',
                                           createTime      DATETIME        DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                           updateTime      DATETIME        DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                                           PRIMARY KEY (id),
@@ -170,7 +169,7 @@ CREATE TABLE IF NOT EXISTS `visitor` (
                                          idNumber        VARCHAR(18)         NULL COMMENT '身份证号',
                                          visitReason     VARCHAR(200)        NULL COMMENT '访问原因',
                                          visitTime       DATETIME        NOT NULL COMMENT '预计访问时间',
-                                         duration        INT                 NULL COMMENT '预计时长（小时）',
+                                         visitEndTime    DATETIME        NOT NULL COMMENT '预计结束时长（小时）',
                                          reviewStatus    ENUM('pending', 'approved', 'rejected') DEFAULT 'pending' COMMENT '审批状态',
                                          reviewerId      BIGINT              NULL COMMENT '审批人ID（管理员）',
                                          reviewTime      DATETIME            NULL COMMENT '审批时间',
@@ -192,7 +191,7 @@ CREATE TABLE IF NOT EXISTS `facilityReservation` (
                                                      userId              BIGINT          NOT NULL COMMENT '预订用户ID',
                                                      facilityId          BIGINT          NOT NULL COMMENT '设施ID',
                                                      reservationTime     DATETIME        NOT NULL COMMENT '预订时间',
-                                                     duration            INT             NOT NULL COMMENT '时长（小时）',
+                                                     visitEndTime    DATETIME        NOT NULL COMMENT '预计结束时长（小时）',
                                                      status              ENUM('pending', 'success', 'rejected') DEFAULT 'pending' COMMENT '状态',
                                                      createTime          DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                                      reviewerId          BIGINT              NULL COMMENT '审批人ID（管理员）',
@@ -212,11 +211,11 @@ CREATE TABLE IF NOT EXISTS `elevator` (
                                           id                  BIGINT AUTO_INCREMENT COMMENT '电梯ID',
                                           buildingId          BIGINT          NOT NULL COMMENT '所属楼栋ID（关联building表）',
                                           elevatorNumber      VARCHAR(50)     NOT NULL COMMENT '电梯编号（如A栋1号电梯）',
-                                          installationDate    DATE            NULL COMMENT '安装日期',
-                                          lastMaintenanceDate DATE            NULL COMMENT '上次维护日期',
+                                          installationDate    DATE            DEFAULT (CURRENT_DATE) COMMENT '安装日期',
+                                          lastMaintenanceDate DATE            DEFAULT (CURRENT_DATE) COMMENT '上次维护日期',
                                           currentStatus       ENUM('正常', '预警', '故障', '维护中') DEFAULT '正常' COMMENT '当前运行状态',
-                                          currentFloor        INT             NULL COMMENT '当前所在楼层',
-                                          runningDirection    ENUM('上行', '下行', '静止') NULL COMMENT '运行方向',
+                                          currentFloor        INT             DEFAULT '1' COMMENT '当前所在楼层',
+                                          runningDirection    ENUM('上行', '下行', '静止') DEFAULT '静止' COMMENT '运行方向',
                                           loadPercentage      INT             DEFAULT 0 COMMENT '负载百分比（0-100）',
                                           doorStatus          ENUM('开启', '关闭') DEFAULT '关闭' COMMENT '电梯门状态',
 
@@ -295,8 +294,8 @@ CREATE TABLE IF NOT EXISTS `fireEquipment` (
                                                specificLevel       INT             NOT NULL COMMENT '设备所在具体楼层',
                                                currentStatus       ENUM('normal', 'needs_inspection', 'faulty') DEFAULT 'normal' COMMENT '当前状态',
                                                lastInspectorId     BIGINT          NULL COMMENT '上次巡检人ID',
-                                               lastInspectionTime  DATETIME        NULL COMMENT '上次巡检时间',
-                                               nextInspectionDue   DATETIME        NULL COMMENT '下次巡检截止时间',
+                                               lastInspectionTime  DATETIME        DEFAULT CURRENT_TIMESTAMP COMMENT '上次巡检时间',
+                                               nextInspectionDue   DATE            DEFAULT (CURRENT_DATE) COMMENT '下次巡检截止时间',
                                                inspectionRemarks   TEXT            NULL COMMENT '巡检备注',
                                                createTime          DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                                updateTime          DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -305,6 +304,3 @@ CREATE TABLE IF NOT EXISTS `fireEquipment` (
                                                INDEX idx_status (currentStatus),
                                                INDEX idx_next_due (nextInspectionDue)
 ) DEFAULT CHARSET=utf8mb4 COMMENT '消防设备综合管理表';
-
-
-

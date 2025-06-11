@@ -39,5 +39,10 @@ public class VisitorQueryRequest extends PageRequest implements Serializable {
      */
     private Date visitTime;
 
+    /**
+     * 离开时间
+     */
+    private Date visitEndTime;
+
     private static final long serialVersionUID = 1L;
 } 

@@ -50,10 +50,6 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building>
         ThrowUtils.throwIf(ObjectUtil.isNull(building), ErrorCode.PARAMS_ERROR);
         String buildingName = building.getBuildingName();
         ThrowUtils.throwIf(StrUtil.isBlank(buildingName), ErrorCode.PARAMS_ERROR, "楼栋名称不能为空");
-        
-        // 验证地理位置
-        ThrowUtils.throwIf(ObjectUtil.isNull(building.getLocation()), 
-                ErrorCode.PARAMS_ERROR, "楼栋地理位置不能为空");
 
         // 检查楼栋名称是否重复
         QueryWrapper<Building> queryWrapper = new QueryWrapper<>();
@@ -80,7 +76,7 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building>
         
         QueryWrapper<Building> queryWrapper = new QueryWrapper<>();
         queryWrapper.like(StrUtil.isNotBlank(buildingName), "buildingName", buildingName);
-        queryWrapper.eq(ObjectUtil.isNotNull(totalFloors), "totalLevels", totalFloors);
+        queryWrapper.eq(ObjectUtil.isNotNull(totalFloors) && totalFloors > 0, "totalLevels", totalFloors);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField),
                           sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                           sortField);

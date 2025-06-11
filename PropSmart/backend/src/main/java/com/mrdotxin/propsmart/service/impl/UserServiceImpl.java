@@ -234,7 +234,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 删除房产，清除对应的用户认证信息
         User user = this.getByIdCardNumber(idCardNumber);
         if (ObjectUtil.isNotNull(user)) {
-            user.setIsOwner(false);
+            user.setIsOwner(isOwner);
             this.updateById(user);
         }
     }
@@ -255,7 +255,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String sortOrder = userQueryRequest.getSortOrder();
 
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(id != null, "id", id);
+        queryWrapper.eq(id != null && id > 0, "id", id);
         queryWrapper.eq(StringUtils.isNotBlank(userRole), "userRole", userRole);
         queryWrapper.like(StringUtils.isNotBlank(userPhoneNumber), "userPhoneNumber", userPhoneNumber);
         queryWrapper.like(StringUtils.isNotBlank(userRealName), "userRealName", userRealName);

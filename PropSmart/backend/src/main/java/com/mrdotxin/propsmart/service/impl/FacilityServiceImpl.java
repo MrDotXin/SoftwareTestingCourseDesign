@@ -37,13 +37,11 @@ public class FacilityServiceImpl extends ServiceImpl<FacilityMapper, Facility>
         }
 
         String facilityName = facilityQueryRequest.getFacilityName();
-        String location = facilityQueryRequest.getLocation();
         String sortField = facilityQueryRequest.getSortField();
         String sortOrder = facilityQueryRequest.getSortOrder();
 
         QueryWrapper<Facility> queryWrapper = new QueryWrapper<>();
         queryWrapper.like(StrUtil.isNotBlank(facilityName), "facilityName", facilityName);
-        queryWrapper.like(StrUtil.isNotBlank(location), "location", location);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField),
                 sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);

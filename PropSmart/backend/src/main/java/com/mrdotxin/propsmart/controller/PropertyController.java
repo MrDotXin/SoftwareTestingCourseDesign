@@ -41,7 +41,6 @@ public class PropertyController {
     private BuildingService buildingService;
 
     @GetMapping("/get/id")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @Operation(method = "获取房产信息")
     BaseResponse<Property> getPropertyById(@RequestParam("id") String id, HttpServletRequest httpServletRequest) {
         User loginUser = userService.getLoginUser(httpServletRequest);
@@ -83,9 +82,12 @@ public class PropertyController {
         property.setRoomNumber(propertyAddRequest.getRoomNumber());
         property.setArea(propertyAddRequest.getArea());
 
-        Building building = buildingService.getByBuildingName(propertyAddRequest.getBuildingName());
-        property.setBuildingId(building.getId());
+        ThrowUtils.throwIf(buildingService.existsWithField("id", propertyAddRequest.getBuildingId()), ErrorCode.NOT_FOUND_ERROR);
+        property.setBuildingId(propertyAddRequest.getBuildingId());
 
+        if (ObjectUtil.isNotNull(property.getOwnerIdentity())) {
+            userService.updateUserOwnerStatus(property.getOwnerIdentity(), true);
+        }
         propertyService.validateProperty(property);
 
         boolean result = propertyService.save(property);
@@ -112,7 +114,7 @@ public class PropertyController {
         Property oldProperty = propertyService.getById(property.getId());
         if (ObjectUtil.isNotNull(oldProperty.getOwnerIdentity()) || ObjectUtil.isNotNull(property.getOwnerIdentity())) {
             if (!(ObjectUtil.isAllNotEmpty(oldProperty.getOwnerIdentity(), property.getOwnerIdentity()) &&
-                    !oldProperty.getOwnerIdentity().equals(property.getOwnerIdentity()))) {
+                    oldProperty.getOwnerIdentity().equals(property.getOwnerIdentity()))) {
 
                 if (ObjectUtil.isNotNull(oldProperty.getOwnerIdentity())) {
                     userService.updateUserOwnerStatus(oldProperty.getOwnerIdentity(), false);

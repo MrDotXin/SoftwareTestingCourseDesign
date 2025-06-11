@@ -29,7 +29,7 @@ public interface VisitorService extends IService<Visitor> {
      * 生成电子通行证
      *
      */
-    String generatePassCode(String idCardNumber, Date visitTime, Integer duration);
+    String generatePassCode(String idCardNumber, Date visitTime, Date visitEndTime);
 
     /**
      * 获取查询条件
@@ -41,4 +41,10 @@ public interface VisitorService extends IService<Visitor> {
      * 验证身份并提取信息
      */
     String validatePassCode(String token, User loginUser);
+
+    /**
+     *
+     * 查看同一个人访问时间是否冲突
+     */
+    boolean existContradictionVisit(String identity, Date beginTime, Date endTime);
 } 

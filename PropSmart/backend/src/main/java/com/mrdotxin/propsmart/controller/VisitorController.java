@@ -1,5 +1,6 @@
 package com.mrdotxin.propsmart.controller;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mrdotxin.propsmart.annotation.AuthCheck;
@@ -15,6 +16,7 @@ import com.mrdotxin.propsmart.model.dto.visitor.VisitorQueryRequest;
 import com.mrdotxin.propsmart.model.dto.visitor.VisitorUpdateRequest;
 import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.entity.Visitor;
+import com.mrdotxin.propsmart.model.enums.VisitorReviewStatusEnum;
 import com.mrdotxin.propsmart.websocket.NotificationService;
 import com.mrdotxin.propsmart.service.UserService;
 import com.mrdotxin.propsmart.service.VisitorService;
@@ -60,11 +62,11 @@ public class VisitorController {
 
         User loginUser = userService.getLoginUser(request);
         Visitor visitor = new Visitor();
+        BeanUtils.copyProperties(visitorAddRequest, visitor);
         if (!FormatUtils.isValidNameAndIdCard(visitor.getVisitorName(), visitor.getIdNumber())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "身份证和姓名验证失败!");
         }
 
-        BeanUtils.copyProperties(visitorAddRequest, visitor);
 
         long result = visitorService.addVisitor(visitor, loginUser.getId());
         
@@ -125,9 +127,12 @@ public class VisitorController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
 
-        Visitor visitor = new Visitor();
-        BeanUtils.copyProperties(visitorUpdateRequest, visitor);
+        Visitor visitor = visitorService.getById(visitorUpdateRequest.getId());
+        ThrowUtils.throwIf(ObjectUtil.isNull(visitor), ErrorCode.OPERATION_ERROR, "访问记录不存在!");
+        ThrowUtils.throwIf(!visitor.getReviewStatus().equals(VisitorReviewStatusEnum.PENDING.getValue()), ErrorCode.OPERATION_ERROR, "访问记录不存在!");
 
+        visitor.setReviewStatus(visitorUpdateRequest.getReviewStatus());
+        visitor.setReviewMessage(visitorUpdateRequest.getReviewMessage());
         boolean result = visitorService.reviewVisitor(visitor, loginUser.getId());
         
         // 获取更新后的访客申请并发送通知
