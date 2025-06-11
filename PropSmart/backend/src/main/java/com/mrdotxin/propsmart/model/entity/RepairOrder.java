@@ -11,7 +11,7 @@ import lombok.Data;
 /**
  * 报修申请
  */
-@TableName(value ="repairorder")
+@TableName(value ="repairOrder")
 @Data
 public class RepairOrder implements Serializable {
     /**

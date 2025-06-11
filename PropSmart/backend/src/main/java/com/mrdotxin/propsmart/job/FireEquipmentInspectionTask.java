@@ -67,19 +67,16 @@ public class FireEquipmentInspectionTask {
     /**
      * 每周一早上9点检查设备状态，生成巡检报告
      */
-    @Scheduled(cron = "0 0 9 ? * MON")
+    @Scheduled(cron = "${Fire-Equipment-Inspection-Report-Interval}")
     public void generateWeeklyReport() {
         log.info("开始生成消防设备周报...");
         
-        // 统计各种状态的设备数量
         long normalCount = fireEquipmentService.countByStatus("normal");
         long needsInspectionCount = fireEquipmentService.countByStatus("needs_inspection");
         long faultyCount = fireEquipmentService.countByStatus("faulty");
         
-        // 记录到日志
-        log.info("消防设备周报: 正常设备 {} 个, 需要巡检 {} 个, 故障设备 {} 个", 
+        log.info("消防设备周报: 正常设备 {} 个, 需要巡检 {} 个, 故障设备 {} 个",
                 normalCount, needsInspectionCount, faultyCount);
-        
-        // TODO: 可以在这里添加发送周报邮件或其他通知的逻辑
+
     }
 } 

@@ -82,7 +82,7 @@ public class PropertyController {
         property.setRoomNumber(propertyAddRequest.getRoomNumber());
         property.setArea(propertyAddRequest.getArea());
 
-        ThrowUtils.throwIf(buildingService.existsWithField("id", propertyAddRequest.getBuildingId()), ErrorCode.NOT_FOUND_ERROR);
+        ThrowUtils.throwIf(!buildingService.existsWithField("id", propertyAddRequest.getBuildingId()), ErrorCode.NOT_FOUND_ERROR);
         property.setBuildingId(propertyAddRequest.getBuildingId());
 
         if (ObjectUtil.isNotNull(property.getOwnerIdentity())) {

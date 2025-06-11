@@ -169,8 +169,7 @@ public class RepairOrderController {
         Page<RepairOrder> repairOrderPage = repairOrderService.page(new Page<>(queryRequest.getCurrent(), queryRequest.getPageSize()),
                 repairOrderService.getQueryWrapper(queryRequest));
 
-        Page<RepairOrder> voPage = new Page<>(repairOrderPage.getCurrent(), repairOrderPage.getSize(), repairOrderPage.getTotal());
-        return ResultUtils.success(voPage);
+        return ResultUtils.success(repairOrderPage);
     }
 
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)

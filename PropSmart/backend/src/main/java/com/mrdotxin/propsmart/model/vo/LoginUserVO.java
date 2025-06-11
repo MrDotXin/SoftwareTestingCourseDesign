@@ -36,7 +36,7 @@ public class LoginUserVO implements Serializable {
 
     private String userProfile;
 
-        /**
+    /**
      * 联系电话
      */
     private String userPhoneNumber;

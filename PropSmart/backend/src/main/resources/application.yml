@@ -74,5 +74,6 @@ jwt-secret: MZJLZYZZZFYPYC
 
 Bill-Generate-Interval: "0 0 2 1 * ?"
 Energy-Consumption-Generate-Interval: "0 1 * * * ?"
-Fire-Equipment-Inspection-Interval: "0 0 8 * * ?"
+Fire-Equipment-Inspection-Interval: "10 * * * * ?"
+Fire-Equipment-Inspection-Report-Interval: "0 0 9 ? * MON"
 

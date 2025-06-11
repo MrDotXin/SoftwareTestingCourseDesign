@@ -264,7 +264,7 @@ public class NotificationService {
                 .build();
 
         // 通知所有管理员
-        webSocketService.sendMessageToAllAdmins(message, false);
+        webSocketService.sendMessageToAllAdmins(message, true);
     }
 
         /**

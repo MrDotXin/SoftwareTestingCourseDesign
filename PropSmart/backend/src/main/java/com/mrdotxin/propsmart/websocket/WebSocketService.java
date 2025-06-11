@@ -46,7 +46,7 @@ public class WebSocketService {
      * @param message 消息内容
      */
     public void sendMessageToUser(Long userId, WebSocketMessage message, boolean persistent) {
-        websocketSendPublisher.sendMessage(userId + " " + (persistent ? 0 : 1) + " " + JSONUtil.toJsonStr(message));
+        websocketSendPublisher.sendMessage(userId + " " + (persistent ? 1 : 0) + " " + JSONUtil.toJsonStr(message));
     }
 
     /**

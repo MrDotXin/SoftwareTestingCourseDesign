@@ -1,11 +1,13 @@
 package com.mrdotxin.propsmart.amqp;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.mrdotxin.propsmart.config.RabbitMQConfig;
 import com.mrdotxin.propsmart.websocket.WebSocketConnection;
 import com.mrdotxin.propsmart.websocket.WebSocketService;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
 @Slf4j
@@ -63,14 +66,14 @@ public class WebsocketSendConsumer {
     private void ProcessMessage(String msg) throws IOException {
         String [] strings = msg.split(" ");
         Long userId = Long.parseLong(strings[0]);
-        boolean isPersistent = Boolean.parseBoolean(strings[1]);
-        String sendMsg = strings[2];
+        boolean isPersistent = "1".equals(strings[1]);
+        String sendMsg = StringUtils.join(Arrays.copyOfRange(strings, 2, strings.length), "");
 
         WebSocketConnection connection = WebSocketConnection.getById(userId);
         if (ObjectUtil.isNull(connection)) {
             log.error("用户{}断开连接", userId);
             if (isPersistent) {
-                redisTemplate.opsForList().rightPush("PropSmart:message" + userId, sendMsg);
+                redisTemplate.opsForSet().add("PropSmart:message:" + userId, sendMsg);
             }
         } else {
             WebSocketConnection.sendWithTimeout(connection.getSession(), sendMsg, 5000L);

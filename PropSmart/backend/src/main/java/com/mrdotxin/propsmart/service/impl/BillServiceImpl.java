@@ -301,9 +301,13 @@ public class BillServiceImpl extends ServiceImpl<BillMapper, Bill>
 
     @Override
     public Bill getBillByRange(Long propertyId, String billType, Date begin, Date end) {
+        if (!billType.equals(BillTypeEnum.WATER.getValue()) &&
+                !billType.equals(BillTypeEnum.ELECTRICITY.getValue())) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "账单类型错误");
+        }
         QueryWrapper<Bill> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("propertyId", propertyId);
-        queryWrapper.eq("billType", billType);
+        queryWrapper.eq("type", billType);
         queryWrapper.between("createTime", begin, end);
 
         return this.getOne(queryWrapper);
