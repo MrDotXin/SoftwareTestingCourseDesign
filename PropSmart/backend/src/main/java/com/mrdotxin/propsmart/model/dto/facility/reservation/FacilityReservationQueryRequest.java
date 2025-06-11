@@ -20,7 +20,7 @@ public class FacilityReservationQueryRequest extends PageRequest implements Seri
      * 设施ID
      */
     @Schema(description = "设施ID")
-    private Integer facilityId;
+    private Long facilityId;
     
     /**
      * 用户ID

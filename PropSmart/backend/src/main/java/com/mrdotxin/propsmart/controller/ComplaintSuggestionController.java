@@ -50,7 +50,7 @@ public class ComplaintSuggestionController {
      */
     @PostMapping("/add")
     @Operation(method = "创建投诉建议")
-    public BaseResponse<Long> addComplaint(@RequestBody ComplaintSuggestionAddRequest complaintSuggestionAddRequest,
+    public BaseResponse<Long> submitComplaint(@RequestBody ComplaintSuggestionAddRequest complaintSuggestionAddRequest,
                                           HttpServletRequest request) {
         if (complaintSuggestionAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);

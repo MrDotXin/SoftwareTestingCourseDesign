@@ -91,23 +91,23 @@ public class EnergyConsumptionServiceImpl extends ServiceImpl<EnergyConsumptionM
         String sortOrder = queryRequest.getSortOrder();
 
         QueryWrapper<EnergyConsumption> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(ObjectUtil.isNotNull(id), "id", id);
-        queryWrapper.eq(ObjectUtil.isNotNull(propertyId), "propertyId", propertyId);
+        queryWrapper.eq(ObjectUtil.isNotNull(id) && id > 0, "id", id);
+        queryWrapper.eq(ObjectUtil.isNotNull(propertyId) && propertyId > 0, "propertyId", propertyId);
         queryWrapper.eq(StrUtil.isNotBlank(energyType), "energyType", energyType);
 
         // 消耗值范围查询
-        if (ObjectUtil.isNotNull(minConsumption)) {
+        if (ObjectUtil.isNotNull(minConsumption) && minConsumption > 0) {
             queryWrapper.ge("consumption", minConsumption);
         }
-        if (ObjectUtil.isNotNull(maxConsumption)) {
+        if (ObjectUtil.isNotNull(maxConsumption) && maxConsumption > 0) {
             queryWrapper.le("consumption", maxConsumption);
         }
 
         // 价格范围查询
-        if (ObjectUtil.isNotNull(minPrice)) {
+        if (ObjectUtil.isNotNull(minPrice) && minPrice > 0) {
             queryWrapper.ge("price", minPrice);
         }
-        if (ObjectUtil.isNotNull(maxPrice)) {
+        if (ObjectUtil.isNotNull(maxPrice) && maxPrice > 0) {
             queryWrapper.le("price", maxPrice);
         }
 

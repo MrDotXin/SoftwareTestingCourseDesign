@@ -1,5 +1,7 @@
 package com.mrdotxin.propsmart;
 
+import cn.hutool.core.date.DateUtil;
+import com.mrdotxin.propsmart.mapper.mysql.FacilityReservationMapper;
 import com.mrdotxin.propsmart.model.entity.FacilityReservation;
 import com.mrdotxin.propsmart.model.enums.GeoCoordinationEnum;
 import com.mrdotxin.propsmart.model.geo.GeoPoint;
@@ -12,6 +14,7 @@ import org.osgeo.proj4j.*;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -73,5 +76,14 @@ class PropSmartApplicationTests {
         pathNodeVOS.forEach(pathNodeVO -> {
             System.out.printf("Seq: %d Node: %d AggCost: %.3f Cost: %.3f Edge: %d Point: %.6f %.6f\n", pathNodeVO.getSeq(), pathNodeVO.getNode(), pathNodeVO.getAggCost(), pathNodeVO.getCost(), pathNodeVO.getEdge(), pathNodeVO.getPoint().getX(), pathNodeVO.getPoint().getY());
         });
+    }
+    @Resource
+    private FacilityReservationMapper facilityReservationMapper;
+    @Test
+    void testReservation() {
+        Date d1 = DateUtil.parse("2023-01-01 09:00:00", "yyyy-MM-dd HH:mm:ss");
+        Date d2 = DateUtil.parse("2023-01-01 17:00:00", "yyyy-MM-dd HH:mm:ss");
+        Long maxConcurrentReservationId = facilityReservationMapper.getMaxConcurrentReservationId(1932466768058851329L, d1, d2);
+        System.out.println(maxConcurrentReservationId);
     }
 }

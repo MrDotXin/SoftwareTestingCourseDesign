@@ -50,6 +50,8 @@ public interface UserService extends IService<User> {
      */
     boolean isAdmin(HttpServletRequest request);
 
+
+
     /**
      * 是否为管理员
      */
@@ -78,6 +80,8 @@ public interface UserService extends IService<User> {
     List<Long> listUserIdByBuildingId(Long buildingId);
 
     List<Long> listAdminId();
+
+    List<Long> listUserIdAll();
 
     User getByIdCardNumber(String idCardNumber);
 

@@ -67,7 +67,7 @@ public class FacilityReservationController {
         User loginUser = userService.getLoginUser(request);
 
         // 验证设施是否存在
-        Integer facilityId = reservationAddRequest.getFacilityId();
+        Long facilityId = reservationAddRequest.getFacilityId();
         Facility facility = facilityService.getById(facilityId);
         ThrowUtils.throwIf(facility == null, ErrorCode.NOT_FOUND_ERROR, "设施不存在");
 
@@ -230,19 +230,18 @@ public class FacilityReservationController {
      */
     @GetMapping("/check-availability")
     @Operation(method = "检查设施可用性")
-    public BaseResponse<Boolean> checkAvailability(@RequestParam Integer facilityId,
-                                                 @RequestParam Long reservationTime,
-                                                 @RequestParam Integer duration) {
-        if (facilityId == null || facilityId <= 0 || reservationTime == null || duration == null || duration <= 0) {
+    public BaseResponse<Boolean> checkAvailability(@RequestParam Long facilityId,
+                                                 @RequestParam Date reservationTime,
+                                                 @RequestParam Date reservationEndTime) {
+        if (facilityId == null || facilityId <= 0 || reservationTime == null || reservationEndTime == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         
         // 验证设施是否存在
         Facility facility = facilityService.getById(facilityId);
         ThrowUtils.throwIf(facility == null, ErrorCode.NOT_FOUND_ERROR, "设施不存在");
-        
-        Date bookingTime = new Date(reservationTime);
-        boolean isAvailable = facilityReservationService.checkFacilityAvailability(facilityId, bookingTime, duration);
+
+        boolean isAvailable = facilityReservationService.checkFacilityAvailability(facilityId, reservationTime, reservationEndTime);
         
         return ResultUtils.success(isAvailable);
     }

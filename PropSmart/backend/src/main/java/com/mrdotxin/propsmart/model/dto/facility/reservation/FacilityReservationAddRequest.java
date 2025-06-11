@@ -17,7 +17,7 @@ public class FacilityReservationAddRequest implements Serializable {
      * 设施ID
      */
     @Schema(description = "设施ID")
-    private Integer facilityId;
+    private Long facilityId;
     
     /**
      * 预订时间

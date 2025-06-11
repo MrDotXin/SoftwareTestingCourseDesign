@@ -32,7 +32,7 @@ public interface FacilityReservationService extends IService<FacilityReservation
      * 检查设施是否可预订（容量检查）
      * @return true if available, false if not
      */
-    boolean checkFacilityAvailability(Integer facilityId, Date reservationTime, Integer duration);
+    boolean checkFacilityAvailability(Long facilityId, Date reservationTime, Date reservationEndTime);
 
     /**
      * 获取查询条件

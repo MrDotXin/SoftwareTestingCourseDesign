@@ -7,6 +7,7 @@ import com.mrdotxin.propsmart.constant.CommonConstant;
 import com.mrdotxin.propsmart.exception.BusinessException;
 import com.mrdotxin.propsmart.model.dto.complaint.ComplaintSuggestionQueryRequest;
 import com.mrdotxin.propsmart.model.entity.ComplaintSuggestion;
+import com.mrdotxin.propsmart.model.enums.ComplaintTypeEnum;
 import com.mrdotxin.propsmart.service.ComplaintSuggestionService;
 import com.mrdotxin.propsmart.mapper.mysql.ComplaintSuggestionMapper;
 import com.mrdotxin.propsmart.utils.SqlUtils;
@@ -36,7 +37,9 @@ public class ComplaintSuggestionServiceImpl extends ServiceImpl<ComplaintSuggest
 
         // 校验类型
         String type = complaintSuggestion.getType().toString();
-        if (StringUtils.isBlank(type) || (!type.equals("complaint") && !type.equals("suggestion"))) {
+        if (StringUtils.isBlank(type)
+                || (!type.equals(ComplaintTypeEnum.COMPLAINT.getValue())
+                && !type.equals(ComplaintTypeEnum.SUGGESTION.getValue()))) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "类型错误");
         }
 
@@ -103,8 +106,8 @@ public class ComplaintSuggestionServiceImpl extends ServiceImpl<ComplaintSuggest
         queryWrapper.like(StringUtils.isNotBlank(content),"content", content);
         queryWrapper.eq(StringUtils.isNotBlank(type),"type", type);
         queryWrapper.eq(StringUtils.isNotBlank(status),"status", status);
-        queryWrapper.eq(userId != null,"userId", userId);
-        queryWrapper.eq(reviewerId != null,"reviewerId", reviewerId);
+        queryWrapper.eq(userId != null && userId > 0,"userId", userId);
+        queryWrapper.eq(reviewerId != null && reviewerId > 0,"reviewerId", reviewerId);
 
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);

@@ -30,7 +30,7 @@ public class FacilityReservation implements Serializable {
      * 设施ID
      */
     @TableField(value = "facilityId")
-    private Integer facilityId;
+    private Long facilityId;
 
     /**
      * 预订时间

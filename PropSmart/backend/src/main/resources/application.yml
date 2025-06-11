@@ -73,6 +73,6 @@ knife4j:
 jwt-secret: MZJLZYZZZFYPYC
 
 Bill-Generate-Interval: "0 0 2 1 * ?"
-Energy-Consumption-Generate-Interval: "10 * * * * ?"
+Energy-Consumption-Generate-Interval: "0 1 * * * ?"
 Fire-Equipment-Inspection-Interval: "0 0 8 * * ?"
 

@@ -1,6 +1,8 @@
 package com.mrdotxin.propsmart.config.database.mysql;
 
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +57,14 @@ public class MySqlConfig {
             log.info("Postgresql JDBC URL: {}", hikariDataSource.getJdbcUrl());
             log.info("Driver Class: {}", hikariDataSource.getDriverClassName());
         }
+
+        MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
+        PaginationInnerInterceptor paginationInnerInterceptor = new PaginationInnerInterceptor();
+        paginationInnerInterceptor.setOverflow(true);
+        paginationInnerInterceptor.setMaxLimit(500L);
+        mybatisPlusInterceptor.addInnerInterceptor(paginationInnerInterceptor);
+        mybatisSqlSessionFactoryBean.setPlugins(mybatisPlusInterceptor);
+
         mybatisSqlSessionFactoryBean.setConfiguration(mybatisConfiguration);
         return mybatisSqlSessionFactoryBean.getObject();
     }

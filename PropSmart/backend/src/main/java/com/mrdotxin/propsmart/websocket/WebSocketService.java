@@ -55,10 +55,17 @@ public class WebSocketService {
      * @param message 消息内容
      */
     public void sendMessageToAll(WebSocketMessage message, boolean persistent) {
-        Set<Long> userIds = WebSocketConnection.getMap().keySet();
-        userIds.forEach(id -> {
-            this.sendMessageToUser(id, message, persistent);
-        });
+        if (!persistent) {
+            Set<Long> userIds = WebSocketConnection.getMap().keySet();
+            userIds.forEach(id -> {
+                this.sendMessageToUser(id, message, false);
+            });
+        } else {
+            List<Long> userIds = userService.listUserIdAll();
+            userIds.forEach(id -> {
+                this.sendMessageToUser(id, message, true);
+            });
+        }
     }
 
         /**

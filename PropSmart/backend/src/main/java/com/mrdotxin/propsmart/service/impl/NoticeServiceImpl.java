@@ -65,8 +65,8 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice>
         String sortOrder = queryRequest.getSortOrder();
 
         QueryWrapper<Notice> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(ObjectUtil.isNotNull(id), "id", id);
-        queryWrapper.eq(ObjectUtil.isNotNull(publisherId), "publisherId", publisherId);
+        queryWrapper.eq(ObjectUtil.isNotNull(id) && id > 0, "id", id);
+        queryWrapper.eq(ObjectUtil.isNotNull(publisherId) && publisherId > 0, "publisherId", publisherId);
         queryWrapper.like(StrUtil.isNotBlank(title), "title", title);
         queryWrapper.like(StrUtil.isNotBlank(contentKeyword), "content", contentKeyword);
 

@@ -18,6 +18,9 @@ public interface UserMapper extends BaseMapper<User> {
 
     @Select("select id from user where userRole = 'ROLE_ADMIN'")
     List<Long> selectAllAdminId();
+
+    @Select("select id from user")
+    List<Long> selectAllId();
 }
 
 

@@ -295,6 +295,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return this.baseMapper.selectUserByBuildingId(buildingId);
     }
 
+    public List<Long> listUserIdAll() {
+        return this.baseMapper.selectAllId();
+    }
+
     @Override
     public List<Long> listAdminId() {
         return this.baseMapper.selectAllAdminId();

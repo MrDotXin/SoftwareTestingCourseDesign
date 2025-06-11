@@ -62,7 +62,7 @@ public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservat
         }
 
         // 校验设施ID
-        Integer facilityId = facilityReservation.getFacilityId();
+        Long facilityId = facilityReservation.getFacilityId();
         if (facilityId == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "设施ID不能为空");
         }
@@ -86,7 +86,7 @@ public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservat
         }
 
         // 检查设施是否可预订
-        boolean isAvailable = checkFacilityAvailability(facilityId, reservationTime, 1);
+        boolean isAvailable = checkFacilityAvailability(facilityId, reservationTime, facilityReservation.getReservationEndTime());
         if (!isAvailable) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "该时段设施已被预订满");
         }
@@ -130,7 +130,7 @@ public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservat
         // 如果是通过申请，需要再次检查容量
         if (status.equals("success")) {
             boolean isAvailable = checkFacilityAvailability(oldRecord.getFacilityId(),
-                    oldRecord.getReservationTime(), 1);
+                    oldRecord.getReservationTime(), facilityReservation.getReservationEndTime());
             if (!isAvailable) {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "该时段设施已被预订满");
             }
@@ -144,9 +144,9 @@ public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservat
     }
 
     @Override
-    public boolean checkFacilityAvailability(Integer facilityId, Date reservationTime, Integer duration) {
+    public boolean checkFacilityAvailability(Long facilityId, Date reservationTime, Date reservationEndTime) {
         // 参数校验
-        if (facilityId == null || reservationTime == null || duration == null) {
+        if (facilityId == null || reservationTime == null || reservationEndTime == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
 
@@ -161,41 +161,7 @@ public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservat
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "设施容量配置错误");
         }
 
-        // 计算预订结束时间
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(reservationTime);
-        calendar.add(Calendar.HOUR, duration);
-        Date endTime = calendar.getTime();
-
-        // 构建子查询：统计每个时间点的同时预订人数
-        String subQuery = "(SELECT COUNT(*) " +
-                "FROM facilityReservation t2 " +
-                "WHERE t2.facilityId = t1.facilityId " +
-                "AND t2.status IN ('pending', 'success') " +
-                "AND t2.reservationTime < DATE_ADD(t1.reservationTime, INTERVAL t1.duration HOUR) " +
-                "AND DATE_ADD(t2.reservationTime, INTERVAL t2.duration HOUR) > t1.reservationTime)";
-
-        // 使用QueryWrapper构建查询
-        QueryWrapper<FacilityReservation> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("MAX(" + subQuery + ") AS max_people")
-                .eq("facilityId", facilityId)
-                .in("status", "pending", "success")
-                .and(wrapper -> wrapper
-                        .between("reservationTime", reservationTime, endTime)
-                        .or()
-                        .apply("DATE_ADD(reservationTime, INTERVAL duration HOUR) > {0} AND reservationTime < {1}", reservationTime, endTime));
-
-        // 执行查询获取最高人数
-        List<Object> results = this.getBaseMapper().selectObjs(queryWrapper);
-
-        // 处理查询结果，防止空指针异常
-        Integer maxConcurrentPeople = 0;
-        if (results != null && !results.isEmpty() && results.get(0) != null) {
-            maxConcurrentPeople = Integer.valueOf(results.get(0).toString());
-        }
-
-        // 判断是否超过容量
-        return maxConcurrentPeople < capacity;
+        return this.baseMapper.getMaxConcurrentReservationId(facilityId, reservationTime, reservationEndTime) <= capacity;
     }
 
     @Override
@@ -206,7 +172,7 @@ public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservat
 
         QueryWrapper<FacilityReservation> queryWrapper = new QueryWrapper<>();
 
-        Integer facilityId = facilityReservationQueryRequest.getFacilityId();
+        Long facilityId = facilityReservationQueryRequest.getFacilityId();
         Long userId = facilityReservationQueryRequest.getUserId();
         String status = facilityReservationQueryRequest.getStatus();
         Date reservationTime = facilityReservationQueryRequest.getReservationTime();
