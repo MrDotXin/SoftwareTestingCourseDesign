@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 /**
  * 文件上传业务类型枚举
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
+ * 
  */
 @Getter
 public enum FileUploadBizEnum {

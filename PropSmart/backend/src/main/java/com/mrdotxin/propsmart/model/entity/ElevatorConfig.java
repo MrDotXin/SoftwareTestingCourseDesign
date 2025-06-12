@@ -15,41 +15,32 @@ import lombok.Data;
 @Data
 @TableName("elevatorConfig")
 public class ElevatorConfig implements Serializable {
-    /**
-     * 配置ID
-     */
-    @TableId(type = IdType.AUTO)
-    private Long id;
     
     /**
      * 电梯ID
      */
+    @TableId(value = "elevatorId")
     private Long elevatorId;
 
     /**
      * 最大轿厢温度（默认35℃）
      */
-    private BigDecimal maxCabinTemperature;
+    private BigDecimal cabinTempAlertThr;
 
     /**
      * 最大电机温度（默认70℃）
      */
-    private BigDecimal maxMotorTemperature;
+    private BigDecimal motorTempAlertThr;
 
     /**
      * 最大运行速度（默认2.5m/s）
      */
-    private BigDecimal maxSpeed;
+    private BigDecimal speedAlertPercent;
 
     /**
      * 最大功耗（默认8kW）
      */
-    private BigDecimal maxPowerConsumption;
-
-    /**
-     * 维护间隔天数（默认90天）
-     */
-    private Integer maintenanceIntervalDays;
+    private BigDecimal powerConsumptionThr;
 
     /**
      * 创建时间

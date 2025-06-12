@@ -34,9 +34,8 @@ CREATE TABLE IF NOT EXISTS `building` (
                                           totalLevels     INT             NOT NULL DEFAULT 1 COMMENT '楼栋总层数',
                                           createTime      DATETIME        DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                           updateTime      DATETIME        DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-                                          PRIMARY KEY (id),
-                                          SPATIAL INDEX idx_building_location (location)
-) DEFAULT CHARSET=utf8mb4 COMMENT='楼栋信息';
+                                          PRIMARY KEY (id)
+) DEFAULT CHARSET=utf8mb4_unicode_ci COMMENT='楼栋信息';
 
 
 -- ---------------------------
@@ -53,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `property` (
                                           updateTime      DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                                           PRIMARY KEY (id),
                                           FOREIGN KEY (buildingId) REFERENCES `building`(id)
-) DEFAULT CHARSET=utf8mb4 COMMENT '房产信息';
+) DEFAULT CHARSET=utf8mb4_unicode_ci COMMENT '房产信息';
 
 
 -- ---------------------------
@@ -70,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `notice` (
                                         updateTime      DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                                         PRIMARY KEY (id),
                                         FOREIGN KEY (publisherId) REFERENCES `user`(id)
-) DEFAULT CHARSET=utf8mb4 COMMENT '小区公告';
+) DEFAULT CHARSET=utf8mb4_unicode_ci COMMENT '小区公告';
 
 
 -- ---------------------------
@@ -85,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `facility` (
                                           createTime      DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                           updateTime      DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                                           PRIMARY KEY (id)
-) DEFAULT CHARSET=utf8mb4 COMMENT '小区设施';
+) DEFAULT CHARSET=utf8mb4_unicode_ci COMMENT '小区设施';
 
 
 -- ---------------------------
@@ -103,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `bill` (
                                       paidTime        DATETIME            NULL COMMENT '缴费时间',
                                       PRIMARY KEY (id),
                                       FOREIGN KEY (propertyId) REFERENCES `property`(id)
-) DEFAULT CHARSET=utf8mb4 COMMENT '费用账单';
+) DEFAULT CHARSET=utf8mb4_unicode_ci COMMENT '费用账单';
 
 
 -- ---------------------------
@@ -117,7 +116,8 @@ CREATE TABLE IF NOT EXISTS `energyConsumption` (
                                                    price           DOUBLE NOT NULL COMMENT '价格',
                                                    measureTime     DATETIME NOT NULL COMMENT '测量时间',
                                                    createTime      DATETIME NOT NULL COMMENT '创建时间'
-) DEFAULT CHARSET=utf8mb4 COMMENT '账单流水';
+					           FOREIGN KEY (propertyId) REFERENCES `property`(id)
+) DEFAULT CHARSET=utf8mb4_unicode_ci COMMENT '账单流水';
 
 
 -- ---------------------------
@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS `repairOrder` (
                                              PRIMARY KEY (id),
                                              FOREIGN KEY (userId) REFERENCES `user`(id),
                                              FOREIGN KEY (propertyId) REFERENCES `property`(id)
-) DEFAULT CHARSET=utf8mb4 COMMENT '报修申请';
+) DEFAULT CHARSET=utf8mb4_unicode_ci COMMENT '报修申请';
 
 
 -- ---------------------------
@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS `complaintSuggestion` (
                                                      reviewTime      DATETIME            NULL COMMENT '回复时间',
                                                      PRIMARY KEY (id),
                                                      FOREIGN KEY (userId) REFERENCES `user`(id)
-) DEFAULT CHARSET=utf8mb4 COMMENT '投诉建议';
+) DEFAULT CHARSET=utf8mb4_unicode_ci COMMENT '投诉建议';
 
 
 -- ---------------------------
@@ -180,7 +180,7 @@ CREATE TABLE IF NOT EXISTS `visitor` (
                                          PRIMARY KEY (id),
                                          FOREIGN KEY (userId) REFERENCES `user`(id),
                                          FOREIGN KEY (reviewerId) REFERENCES `user`(id)
-) DEFAULT CHARSET=utf8mb4 COMMENT '访客管理';
+) DEFAULT CHARSET= COMMENT '访客管理';
 
 
 -- ---------------------------
@@ -201,7 +201,7 @@ CREATE TABLE IF NOT EXISTS `facilityReservation` (
                                                      FOREIGN KEY (userId) REFERENCES `user`(id),
                                                      FOREIGN KEY (facilityId) REFERENCES `facility`(id),
                                                      FOREIGN KEY (reviewerId) REFERENCES `user`(id)
-) DEFAULT CHARSET=utf8mb4 COMMENT '设施预订';
+) DEFAULT CHARSET=utf8mb4_unicode_ci COMMENT '设施预订';
 
 
 -- ---------------------------
@@ -237,7 +237,7 @@ CREATE TABLE IF NOT EXISTS `elevator` (
                                           updateTime          DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '状态更新时间',
                                           PRIMARY KEY (id),
                                           FOREIGN KEY (buildingId) REFERENCES `building`(id)
-) DEFAULT CHARSET=utf8mb4 COMMENT '电梯基本信息及实时运行参数表';
+) DEFAULT CHARSET=utf8mb4_unicode_ci COMMENT '电梯基本信息及实时运行参数表';
 
 
 -- ---------------------------
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS `elevator` (
 CREATE TABLE IF NOT EXISTS `elevatorAbnormality` (
                                                      id                  BIGINT AUTO_INCREMENT COMMENT '异常记录ID',
                                                      elevatorId          BIGINT          NOT NULL COMMENT '关联的电梯ID（关联elevator表）',
-                                                     abnormalityType     ENUM('门故障', '超载', '温度异常', '速度异常', '加速度异常', '停电', '传感器异常', '其他') NOT NULL COMMENT '异常类型',
+                                                     abnormalityType     VARCHAR(255) NOT NULL COMMENT '异常类型',
                                                      abnormalityLevel    ENUM('轻微', '中等', '严重') NOT NULL COMMENT '异常级别',
                                                      occurrenceTime      DATETIME        NOT NULL COMMENT '异常发生时间',
                                                      recoveryTime        DATETIME            NULL COMMENT '异常恢复时间',
@@ -259,7 +259,7 @@ CREATE TABLE IF NOT EXISTS `elevatorAbnormality` (
                                                      PRIMARY KEY (id),
                                                      FOREIGN KEY (elevatorId) REFERENCES `elevator`(id),
                                                      FOREIGN KEY (handlerId) REFERENCES `user`(id)
-) DEFAULT CHARSET=utf8mb4 COMMENT '电梯异常事件记录表';
+) DEFAULT CHARSET=utf8mb4_unicode_ci COMMENT '电梯异常事件记录表';
 
 
 -- ---------------------------
@@ -275,14 +275,14 @@ CREATE TABLE IF NOT EXISTS `elevatorConfig` (
     -- 速度异常阈值（按额定速度百分比计算）
                                                 speedAlertPercent   DECIMAL(5,2)    DEFAULT 10.0 COMMENT '速度异常百分比阈值（默认±10%）',
 
-    -- 加速度异常阈值
-                                                accelAlertThr       DECIMAL(5,3)    DEFAULT 1.500 COMMENT '加速度异常阈值（默认1.5m/s²）',
+    --功率异常阈值(kw)
+                                                powerConsumptionThr      DECIMAL(5,3)    DEFAULT 1.500 COMMENT '功率异常阈值（默认8kw）',
 
     -- 配置生效时间
-                                                effectiveTime       DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '配置生效时间',
+                                                createTime       DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '配置生效时间',
                                                 updateTime          DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '配置更新时间',
                                                 FOREIGN KEY (elevatorId) REFERENCES `elevator`(id)
-) DEFAULT CHARSET=utf8mb4 COMMENT '电梯运行参数配置表';
+) DEFAULT CHARSET=utf8mb4_unicode_ci COMMENT '电梯运行参数配置表';
 
 
 -- ---------------------------
@@ -295,7 +295,7 @@ CREATE TABLE IF NOT EXISTS `fireEquipment` (
                                                currentStatus       ENUM('normal', 'needs_inspection', 'faulty') DEFAULT 'normal' COMMENT '当前状态',
                                                lastInspectorId     BIGINT          NULL COMMENT '上次巡检人ID',
                                                lastInspectionTime  DATETIME        DEFAULT CURRENT_TIMESTAMP COMMENT '上次巡检时间',
-                                               nextInspectionDue   DATE            DEFAULT (CURRENT_DATE) COMMENT '下次巡检截止时间',
+                                               nextInspectionDue   DATETIME            DEFAULT (CURRENT_TIMESTAMP) COMMENT '下次巡检截止时间',
                                                inspectionRemarks   TEXT            NULL COMMENT '巡检备注',
                                                createTime          DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                                updateTime          DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -303,4 +303,4 @@ CREATE TABLE IF NOT EXISTS `fireEquipment` (
                                                FOREIGN KEY (buildingId) REFERENCES `building`(id),
                                                INDEX idx_status (currentStatus),
                                                INDEX idx_next_due (nextInspectionDue)
-) DEFAULT CHARSET=utf8mb4 COMMENT '消防设备综合管理表';
+) DEFAULT CHARSET=utf8mb4_unicode_ci COMMENT '消防设备综合管理表';

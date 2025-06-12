@@ -1,6 +1,7 @@
 package com.mrdotxin.propsmart.job;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mrdotxin.propsmart.mapper.mysql.BuildingMapper;
 import com.mrdotxin.propsmart.mapper.mysql.ElevatorAbnormalityMapper;
 import com.mrdotxin.propsmart.mapper.mysql.ElevatorConfigMapper;
@@ -62,12 +63,9 @@ public class ElevatorDataSimulatorJob {
     /**
      * 每5秒执行一次数据模拟
      */
-    @Scheduled(fixedRate = 500000)
+    @Scheduled(cron = "${Elevator-Status-Generate-Interval}")
     public void simulateElevatorData() {
         // 只有在模拟器启动状态下才执行
-        if (!simulatorRunning) {
-            return;
-        }
         
         log.info("电梯数据模拟器运行中...");
         
@@ -84,8 +82,7 @@ public class ElevatorDataSimulatorJob {
                 
                 // 获取该电梯的配置
                 ElevatorConfig config = elevatorConfigMapper.selectOne(
-                        new LambdaQueryWrapper<ElevatorConfig>()
-                                .eq(ElevatorConfig::getElevatorId, elevator.getId())
+                        new QueryWrapper<ElevatorConfig>().eq("elevatorId", elevator.getId())
                 );
                 
                 if (config == null) {
@@ -317,7 +314,7 @@ public class ElevatorDataSimulatorJob {
         String prevStatus = elevator.getCurrentStatus();
         
         // 检查电机温度异常
-        if (elevator.getMotorTemperature().compareTo(config.getMaxMotorTemperature()) > 0) {
+        if (elevator.getMotorTemperature().compareTo(config.getCabinTempAlertThr()) > 0) {
             // 严重异常
             createAbnormalityRecord(
                 elevator, 
@@ -330,7 +327,7 @@ public class ElevatorDataSimulatorJob {
         } 
         // 警告温度
         else if (elevator.getMotorTemperature().compareTo(
-                config.getMaxMotorTemperature().multiply(new BigDecimal("0.9"))) > 0) {
+                config.getMotorTempAlertThr().multiply(new BigDecimal("0.9"))) > 0) {
             // 中等异常
             createAbnormalityRecord(
                 elevator, 
@@ -345,7 +342,7 @@ public class ElevatorDataSimulatorJob {
         }
         
         // 检查轿厢温度异常
-        if (elevator.getCabinTemperature().compareTo(config.getMaxCabinTemperature()) > 0) {
+        if (elevator.getCabinTemperature().compareTo(config.getCabinTempAlertThr()) > 0) {
             // 中等异常
             createAbnormalityRecord(
                 elevator, 
@@ -360,7 +357,7 @@ public class ElevatorDataSimulatorJob {
         }
         
         // 检查运行速度异常
-        if (elevator.getRunningSpeed().compareTo(config.getMaxSpeed()) > 0) {
+        if (elevator.getRunningSpeed().compareTo(config.getSpeedAlertPercent()) > 0) {
             // 严重异常
             createAbnormalityRecord(
                 elevator, 
@@ -373,7 +370,7 @@ public class ElevatorDataSimulatorJob {
         }
         
         // 检查电梯功耗异常
-        if (elevator.getPowerConsumption().compareTo(config.getMaxPowerConsumption()) > 0) {
+        if (elevator.getPowerConsumption().compareTo(config.getPowerConsumptionThr()) > 0) {
             // 中等异常
             createAbnormalityRecord(
                 elevator, 
@@ -416,8 +413,8 @@ public class ElevatorDataSimulatorJob {
         }
         
         // 如果状态改变，更新电梯信息并发送通知
+        elevatorMapper.updateById(elevator);
         if (isAbnormal && !prevStatus.equals(elevator.getCurrentStatus())) {
-            elevatorMapper.updateById(elevator);
             elevatorNotificationService.handleStatusChangeNotification(elevator, prevStatus, elevator.getCurrentStatus());
             log.info("电梯 {} 状态从 {} 变为 {}", elevator.getId(), prevStatus, elevator.getCurrentStatus());
         }

@@ -130,7 +130,7 @@ public class FacilityReservationServiceImpl extends ServiceImpl<FacilityReservat
         // 如果是通过申请，需要再次检查容量
         if (status.equals("success")) {
             boolean isAvailable = checkFacilityAvailability(oldRecord.getFacilityId(),
-                    oldRecord.getReservationTime(), facilityReservation.getReservationEndTime());
+                    oldRecord.getReservationTime(), oldRecord.getReservationEndTime());
             if (!isAvailable) {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "该时段设施已被预订满");
             }

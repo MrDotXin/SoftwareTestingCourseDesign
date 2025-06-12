@@ -22,7 +22,7 @@ public class FireEquipmentUpdateRequest implements Serializable {
     private Long buildingId;
 
     @Schema(description = "设备所在具体楼层")
-    private String specificLevel;
+    private Integer specificLevel;
 
     @Schema(description = "当前状态")
     private String currentStatus;

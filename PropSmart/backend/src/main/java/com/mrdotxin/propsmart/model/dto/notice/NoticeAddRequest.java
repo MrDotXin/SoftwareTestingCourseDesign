@@ -3,12 +3,16 @@ package com.mrdotxin.propsmart.model.dto.notice;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Tag(name = "公告添加请求")
 public class NoticeAddRequest implements Serializable {
 

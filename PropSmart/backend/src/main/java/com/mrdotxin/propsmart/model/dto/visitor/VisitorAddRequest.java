@@ -2,7 +2,9 @@ package com.mrdotxin.propsmart.model.dto.visitor;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -11,6 +13,8 @@ import java.util.Date;
  * 创建访客申请请求
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class VisitorAddRequest implements Serializable {
 
     /**

@@ -18,7 +18,7 @@ public class FireEquipmentAddRequest implements Serializable {
     private Long buildingId;
 
     @Schema(description = "设备所在具体楼层", required = true)
-    private String specificLevel;
+    private Integer specificLevel;
 
     private static final long serialVersionUID = 1L;
 } 

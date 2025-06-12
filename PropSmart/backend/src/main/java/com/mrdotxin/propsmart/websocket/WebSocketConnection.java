@@ -21,8 +21,8 @@ import java.util.concurrent.*;
 @Getter
 @ServerEndpoint("/ws/{userId}")
 public class WebSocketConnection {
-    @Resource
-    private WebSocketService service;
+
+    private static WebSocketService service;
     /**
      * 用于存储每个用户的WebSocketService实例
      * 以userId为key，WebSocketService实例为value
@@ -43,6 +43,11 @@ public class WebSocketConnection {
      * 当前会话
      */
     private Session session;
+
+    @Resource
+    public void setWebSocketService(WebSocketService webService) {
+        service = webService;
+    }
 
     public static Boolean existsUser(Long userId) {
         return clients.containsKey(userId);

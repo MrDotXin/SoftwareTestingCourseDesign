@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * 文件上传请求
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
+ * 
  */
 @Data
 public class UploadFileRequest implements Serializable {

@@ -48,7 +48,7 @@ public class FacilityReservation implements Serializable {
      * 状态
      */
     @TableField(value = "status")
-    private Object status;
+    private String status;
 
     /**
      * 创建时间

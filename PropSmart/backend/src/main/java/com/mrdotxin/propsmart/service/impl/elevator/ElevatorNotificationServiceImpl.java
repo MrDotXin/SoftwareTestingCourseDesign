@@ -87,7 +87,7 @@ public class ElevatorNotificationServiceImpl implements ElevatorNotificationServ
                 .urgent(userUrgent)
                 .build();
         
-        webSocketService.sendMessageToBuildingUsers(elevator.getBuildingId(), userMessage, false);
+        webSocketService.sendMessageToBuildingUsers(elevator.getBuildingId(), userMessage, true);
         log.info("向楼栋{}的所有用户发送电梯状态更新: {}", elevator.getBuildingId(), userTitle);
         
         // 5. 如果是异常状态，通知管理员

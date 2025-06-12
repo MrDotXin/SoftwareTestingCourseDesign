@@ -33,7 +33,7 @@ public class WebSocketService {
         String key = "PropSmart:message:" + userId;
 
         // 原子化操作：读取并删除
-        List<String> messages = redisTemplate.opsForList().range(key, 0, -1);
+        Set<String> messages = redisTemplate.opsForSet().members(key);
         if (messages != null && !messages.isEmpty()) {
             messages.forEach(websocketSendPublisher::sendMessage);
             redisTemplate.delete(key); // 删除整个列表

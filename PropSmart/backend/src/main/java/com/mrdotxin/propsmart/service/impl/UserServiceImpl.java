@@ -2,6 +2,7 @@ package com.mrdotxin.propsmart.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mrdotxin.propsmart.common.ErrorCode;
@@ -269,7 +270,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public User bindUserRealInfo(UserRealInfoBindRequest userRealInfoBindRequest, User user) {
-        ThrowUtils.throwIf(ObjectUtil.isNotNull(user.getUserIdCardNumber()), ErrorCode.PARAMS_ERROR, "当前用户已存在绑定信息");
+        ThrowUtils.throwIf(StrUtil.isNotBlank(user.getUserIdCardNumber()), ErrorCode.PARAMS_ERROR, "当前用户已存在绑定信息");
 
         String identity = userRealInfoBindRequest.getUserIdCardNumber();
         String realName = userRealInfoBindRequest.getUserRealName();

@@ -13,7 +13,7 @@ import java.util.List;
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
 
-    @Select("select id from user where user.userIdCardNumber in ( select UNIQUE ownerIdentity FROM building WHERE building.id = #{buildingId})")
+    @Select("select id from user where user.userIdCardNumber in ( select ownerIdentity FROM property WHERE buildingId = #{buildingId})")
     List<Long> selectUserByBuildingId(Long buildingId);
 
     @Select("select id from user where userRole = 'ROLE_ADMIN'")

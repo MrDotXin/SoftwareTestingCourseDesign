@@ -1,6 +1,8 @@
 package com.mrdotxin.propsmart.controller;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mrdotxin.propsmart.annotation.AuthCheck;
 import com.mrdotxin.propsmart.common.BaseResponse;
@@ -298,13 +300,17 @@ public class UserController {
         ThrowUtils.throwIf(ObjectUtil.isNull(targetUser), ErrorCode.PARAMS_ERROR, "用户不存在");
 
         String userIdCardNumber = targetUser.getUserIdCardNumber();
-        ThrowUtils.throwIf(ObjectUtil.isNull(userIdCardNumber), ErrorCode.PARAMS_ERROR, "当前用户不存在绑定信息");
+        ThrowUtils.throwIf(StrUtil.isBlank(userIdCardNumber), ErrorCode.PARAMS_ERROR, "当前用户不存在绑定信息");
 
-        if (propertyService.existsWithField("ownerIdentity", userIdCardNumber)) {
-            targetUser.setIsOwner(false);
-        }
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", targetUser.getId())
+            .set("userPhoneNumber", null)
+            .set("userIdCardNumber", null)
+            .set("userRealName", null)
+            .set("isOwner", false);
 
-        boolean result = userService.updateById(targetUser);
+
+        boolean result = userService.update(updateWrapper);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
 
         return ResultUtils.success(true);

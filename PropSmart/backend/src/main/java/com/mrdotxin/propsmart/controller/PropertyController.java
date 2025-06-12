@@ -112,6 +112,7 @@ public class PropertyController {
         propertyService.validateProperty(property);
 
         Property oldProperty = propertyService.getById(property.getId());
+        ThrowUtils.throwIf(ObjectUtil.isNull(oldProperty), ErrorCode.OPERATION_ERROR, "当前ID无效, 房产不存在");
         if (ObjectUtil.isNotNull(oldProperty.getOwnerIdentity()) || ObjectUtil.isNotNull(property.getOwnerIdentity())) {
             if (!(ObjectUtil.isAllNotEmpty(oldProperty.getOwnerIdentity(), property.getOwnerIdentity()) &&
                     oldProperty.getOwnerIdentity().equals(property.getOwnerIdentity()))) {

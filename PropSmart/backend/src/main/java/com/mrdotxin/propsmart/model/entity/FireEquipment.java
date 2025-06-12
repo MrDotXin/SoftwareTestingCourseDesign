@@ -30,7 +30,7 @@ public class FireEquipment implements Serializable {
      * 设备所在具体楼层
      */
     @TableField(value = "specificLevel")
-    private String specificLevel;
+    private Integer specificLevel;
 
     /**
      * 当前状态

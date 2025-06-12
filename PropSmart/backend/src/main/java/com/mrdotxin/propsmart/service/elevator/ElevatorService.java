@@ -37,7 +37,7 @@ public interface ElevatorService extends IService<Elevator> {
      * @return 电梯详细信息列表
      */
     List<ElevatorDetailDTO> listElevatorDetails();
-    
+
     /**
      * 获取单个电梯的详细信息（管理员视图）
      * @param elevatorId 电梯ID

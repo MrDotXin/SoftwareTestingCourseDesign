@@ -3,8 +3,10 @@ package com.mrdotxin.propsmart.model.dto.bill;
 import com.mrdotxin.propsmart.common.PageRequest;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 
 /**
@@ -12,6 +14,8 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class BillQueryRequest extends PageRequest {
     
     /**

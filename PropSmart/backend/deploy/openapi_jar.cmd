@@ -2,7 +2,7 @@ SET "BASE_PATH=D:\workFromSit\SoftwareTestingCourseDesign\PropSmartV3\SoftwareTe
 SET "OPENAPI_CMD_PATH=E:\nodejs\node_modules\@openapitools\openapi-generator-cli\versions\openapi-generator-cli-7.13.0.jar"
 
 java -jar "%OPENAPI_CMD_PATH%" generate ^
-    -i http:\\47.98.177.153:8601\api\v3\api-docs ^
+    -i http://47.98.177.153:8601/api/v3/api-docs ^
     -g java ^
     -o "%BASE_PATH%\generated-code" ^
     --skip-validate-spec

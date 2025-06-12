@@ -1,5 +1,6 @@
 package com.mrdotxin.propsmart.websocket;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.mrdotxin.propsmart.model.dto.WebSocketMessage;
 import com.mrdotxin.propsmart.model.entity.*;
 import com.mrdotxin.propsmart.service.PropertyService;
@@ -87,9 +88,10 @@ public class NotificationService {
 
         Property property = propertyService.getById(bill.getPropertyId());
         User user = userService.getByIdCardNumber(property.getOwnerIdentity());
-        Long userId = user.getId();
-
-        webSocketService.sendMessageToUser(userId, message, true);
+        if (ObjectUtil.isNotNull(user)) {
+            Long userId = user.getId();
+            webSocketService.sendMessageToUser(userId, message, true);
+        }
     }
 
     /**
@@ -176,7 +178,7 @@ public class NotificationService {
                     .urgent(false)
                     .build();
             
-            webSocketService.sendMessageToUser(complaint.getUserId(), message, false);
+            webSocketService.sendMessageToUser(complaint.getUserId(), message, true);
         }
     }
 
@@ -228,7 +230,7 @@ public class NotificationService {
                     .urgent(false)
                     .build();
             
-            webSocketService.sendMessageToAllAdmins(message, false);
+            webSocketService.sendMessageToAllAdmins(message, true);
         } else {
             // 设施预订状态更新，通知相关用户
             WebSocketMessage message = WebSocketMessage.builder()
@@ -280,6 +282,6 @@ public class NotificationService {
                 .build();
 
         // 通知所有管理员
-        webSocketService.sendMessageToAll(message, false);
+        webSocketService.sendMessageToAll(message, true);
     }
 } 

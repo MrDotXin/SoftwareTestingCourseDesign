@@ -36,13 +36,13 @@ public class ComplaintSuggestion implements Serializable {
      * 类型
      */
     @TableField(value = "type")
-    private Object type;
+    private String type;
 
     /**
      * 状态
      */
     @TableField(value = "status")
-    private Object status;
+    private String status;
 
     /**
      * 创建时间

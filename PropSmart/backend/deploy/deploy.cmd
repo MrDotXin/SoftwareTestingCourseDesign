@@ -3,7 +3,7 @@ SET ECS_DEPLOY_PATH=\var\java\project\JCD\bin\deploy
 
 cd %BASE_PATH%\PropSmart\backend
 
-call mvn clean package -DSkipTests=true
+call mvn clean package
 
 cd %BASE_PATH%\PropSmart\backend\target
 
@@ -25,6 +25,7 @@ copy "*-remote.yml" %BASE_PATH%\bin\application.yml
 @echo off
 echo on connecting STP ...
 (
+    echo bin
     echo ls
     echo put -r "%BASE_PATH%\bin\" "%ECS_DEPLOY_PATH%\"
     echo exit

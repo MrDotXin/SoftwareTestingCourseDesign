@@ -2,7 +2,9 @@ package com.mrdotxin.propsmart.model.dto.complaint;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -10,6 +12,8 @@ import java.io.Serializable;
  * 创建投诉建议请求
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ComplaintSuggestionAddRequest implements Serializable {
     
     /**

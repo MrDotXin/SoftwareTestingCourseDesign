@@ -111,8 +111,11 @@ public class VisitorServiceImpl extends ServiceImpl<VisitorMapper, Visitor> impl
 
     @Override
     public String validatePassCode(String token, User loginUser) {
-        ThrowUtils.throwIf(JWTUtil.verify(token, jwtSecret.getBytes()), ErrorCode.PARAMS_ERROR, "当前不在允许访问的时间内, token无效");
-
+        try {
+            ThrowUtils.throwIf(!JWTUtil.verify(token, jwtSecret.getBytes()), ErrorCode.PARAMS_ERROR, "当前不在允许访问的时间内, token无效");
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "错误! 当前授权码格式有错误!");
+        }
         JWT jwt = JWTUtil.parseToken(token);
         return (String) jwt.getPayload("idCardNumber");
     }
@@ -122,9 +125,9 @@ public class VisitorServiceImpl extends ServiceImpl<VisitorMapper, Visitor> impl
         QueryWrapper<Visitor> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("idNumber", identity);
         queryWrapper.and(wrapper ->
-            wrapper.le("visitTime", endTime)        // 记录开始时间 ≤ 查询结束时间
+            wrapper.lt("visitTime", endTime)        // 记录开始时间 ≤ 查询结束时间
                    .and(nested ->                   // 并且
-                       nested.ge("visitEndTime", beginTime)  // 记录结束时间 ≥ 查询开始时间
+                       nested.gt("visitEndTime", beginTime)  // 记录结束时间 ≥ 查询开始时间
                    )
         );
 

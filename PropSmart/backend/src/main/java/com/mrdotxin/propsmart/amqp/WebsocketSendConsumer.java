@@ -51,15 +51,7 @@ public class WebsocketSendConsumer {
             ProcessMessage(msg);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
-            Map<String, Object> headers = message.getMessageProperties().getHeaders();
-            int retry = (int) headers.get("retry");
-            if (++retry > 3) {
-                // 超过三次就直接强制确认, 不发送
-                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
-            } else {
-                headers.put("retry", retry);
-                channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
-            }
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         }
     }
 
@@ -71,9 +63,8 @@ public class WebsocketSendConsumer {
 
         WebSocketConnection connection = WebSocketConnection.getById(userId);
         if (ObjectUtil.isNull(connection)) {
-            log.error("用户{}断开连接", userId);
             if (isPersistent) {
-                redisTemplate.opsForSet().add("PropSmart:message:" + userId, sendMsg);
+                redisTemplate.opsForSet().add("PropSmart:message:" + userId, msg);
             }
         } else {
             WebSocketConnection.sendWithTimeout(connection.getSession(), sendMsg, 5000L);

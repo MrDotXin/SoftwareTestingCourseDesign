@@ -1,21 +1,47 @@
 package com.mrdotxin.propsmart;
 
 import cn.hutool.core.date.DateUtil;
+import com.mrdotxin.propsmart.common.BaseResponse;
+import com.mrdotxin.propsmart.common.ErrorCode;
+import com.mrdotxin.propsmart.constant.UserConstant;
+import com.mrdotxin.propsmart.controller.*;
 import com.mrdotxin.propsmart.mapper.mysql.FacilityReservationMapper;
+import com.mrdotxin.propsmart.model.dto.bill.BillQueryRequest;
+import com.mrdotxin.propsmart.model.dto.complaint.ComplaintSuggestionAddRequest;
+import com.mrdotxin.propsmart.model.dto.notice.NoticeAddRequest;
+import com.mrdotxin.propsmart.model.dto.user.UserLoginRequest;
+import com.mrdotxin.propsmart.model.dto.user.UserRealInfoBindRequest;
+import com.mrdotxin.propsmart.model.dto.visitor.VisitorAddRequest;
 import com.mrdotxin.propsmart.model.entity.FacilityReservation;
+import com.mrdotxin.propsmart.model.entity.User;
 import com.mrdotxin.propsmart.model.enums.GeoCoordinationEnum;
 import com.mrdotxin.propsmart.model.geo.GeoPoint;
 import com.mrdotxin.propsmart.model.geo.vo.PathNodeVO;
+import com.mrdotxin.propsmart.model.vo.LoginUserVO;
 import com.mrdotxin.propsmart.service.FacilityReservationService;
 import com.mrdotxin.propsmart.service.RouteService;
+import com.mrdotxin.propsmart.service.UserService;
 import com.mrdotxin.propsmart.utils.GeoUtil;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.osgeo.proj4j.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PropSmartApplicationTests {
@@ -86,4 +112,194 @@ class PropSmartApplicationTests {
         Long maxConcurrentReservationId = facilityReservationMapper.getMaxConcurrentReservationId(1932466768058851329L, d1, d2);
         System.out.println(maxConcurrentReservationId);
     }
+// @Autowired
+//    private UserController userController;
+//    @Autowired
+//    private NoticeController noticeController;
+//    @Autowired
+//    private ComplaintSuggestionController complaintController;
+//    @Autowired
+//    private VisitorController visitorController;
+//    @Autowired
+//    private FacilityController facilityController;
+//    @Autowired
+//    private BillController billController;
+//
+//    @Resource
+//    private UserService userService;
+//
+//    User getAdminUser() {
+//        return userService.getById(1);
+//    }
+//
+//    User getNotOnwerUser() {
+//        return userService.getById(3);
+//    }
+//
+//    User getOnwerUser() {
+//        return userService.getById(2);
+//    }
+//
+//    // 修复的请求上下文创建方法
+//    HttpServletRequest createMockRequest(User user) {
+//        // 创建真实的 MockHttpServletRequest 而不是 mock 对象
+//        MockHttpServletRequest request = new MockHttpServletRequest();
+//        MockHttpSession session = new MockHttpSession();
+//
+//        // 如果提供了用户，将其设置为登录状态
+//        if (user != null) {
+//            session.setAttribute(UserConstant.USER_LOGIN_STATE, user);
+//        }
+//
+//        request.setSession(session);
+//
+//        // 设置请求上下文
+//        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+//
+//        return request;
+//    }
+//
+//    HttpServletRequest getNotLoginServletRequest() {
+//        return createMockRequest(null);
+//    }
+//
+//    HttpServletRequest getAdminLoginServletRequest() {
+//        return createMockRequest(getAdminUser());
+//    }
+//
+//    HttpServletRequest getOwnerLoginServletRequest() {
+//        return createMockRequest(getOnwerUser());
+//    }
+//
+//    HttpServletRequest getNotOwnerLoginServletRequest() {
+//        return createMockRequest(getNotOnwerUser());
+//    }
+//
+//    @AfterEach
+//    void tearDown() {
+//        // 清理请求上下文
+//        RequestContextHolder.resetRequestAttributes();
+//    }
+//
+//    // 用户登录测试
+//    @Test
+//    void testUserLoginSuccess() {
+//        // U-001 成功登录
+//        HttpServletRequest request = getNotLoginServletRequest();
+//
+//        BaseResponse<?> result = userController.userLogin(new UserLoginRequest("admin", "12345678"), request);
+//        assertEquals(ErrorCode.SUCCESS.getCode(), result.getCode());
+//        assertTrue(result.getData() instanceof LoginUserVO);
+//    }
+//
+//    @Test
+//    void testUserLoginPassword() {
+//        // U-002 密码错误
+//        HttpServletRequest request = getNotLoginServletRequest();
+//
+//        BaseResponse<?> result = userController.userLogin(new UserLoginRequest("admin", "12345678"), request);
+//        // 添加断言
+//        assertEquals(ErrorCode.SUCCESS.getCode(), result.getCode());
+//    }
+//
+//    @Test
+//    void testUserLoginWrongPassword() {
+//        // U-002 密码错误
+//        HttpServletRequest request = getNotLoginServletRequest();
+//        BaseResponse<?> result = userController.userLogin(new UserLoginRequest("admin", "123abcde"), request);
+//        // 添加断言
+//        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), result.getCode());
+//    }
+//
+//    @Test
+//    void testUserLoginInvalidUser() {
+//        // U-003 用户不存在
+//        HttpServletRequest request = getNotLoginServletRequest();
+//        BaseResponse<?> result = userController.userLogin(new UserLoginRequest("admssssin", "12345678"), request);
+//        // 添加断言
+//        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), result.getCode());
+//    }
+//
+//    @Test
+//    void testPropertyBindingInvalidID() {
+//        // U-005 身份证错误
+//        HttpServletRequest servletRequest = getNotOwnerLoginServletRequest();
+//        UserRealInfoBindRequest request = new UserRealInfoBindRequest(1L, "xxx", "123", "18160955905");
+//        BaseResponse<Boolean> result = userController.bindUserRealInfo(request, servletRequest);
+//        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), result.getCode());
+//        assertEquals("身份证信息错误", result.getMessage());
+//    }
+//
+//    // 房产绑定测试
+//    @Test
+//    void testPropertyBindingSuccess() {
+//        // U-004 成功绑定
+//        HttpServletRequest servletRequest = getNotOwnerLoginServletRequest();
+//        UserRealInfoBindRequest request = new UserRealInfoBindRequest(3L, "xxx", "130000195709209285", "17890492529");
+//        BaseResponse<Boolean> result = userController.bindUserRealInfo(request, servletRequest);
+//        // 添加断言
+//        assertEquals(ErrorCode.SUCCESS.getCode(), result.getCode());
+//    }
+//
+//    // 公告发布测试
+//    @Test
+//    void testPublishNoticeAdmin() {
+//        // N-001 管理员发布公告
+//        HttpServletRequest httpServletRequest = getAdminLoginServletRequest();
+//        NoticeAddRequest request = new NoticeAddRequest("小区公告", "小区公告测试",
+//                DateUtil.parse("2025-06-10T13:02:28"), DateUtil.parse("2025-06-13T13:02:28"));
+//        BaseResponse<Long> result = noticeController.addNotice(request, httpServletRequest);
+//        // 添加断言
+//        assertEquals(ErrorCode.SUCCESS.getCode(), result.getCode());
+//    }
+//
+//    @Test
+//    void testPublishNoticeNonAdmin() {
+//        // N-002 非管理员发布公告
+//        HttpServletRequest httpServletRequest = getNotOwnerLoginServletRequest();
+//        NoticeAddRequest request = new NoticeAddRequest("小区公告", "小区公告测试",
+//                DateUtil.parse("2025-06-10T13:02:28"), DateUtil.parse("2025-06-13T13:02:28"));
+//        BaseResponse<Long> result = noticeController.addNotice(request, httpServletRequest);
+//        // 添加断言
+//    }
+//
+//    // 投诉建议测试
+//    @Test
+//    void testSubmitComplaintValid() {
+//        // C-001 提交有效投诉
+//        HttpServletRequest httpServletRequest = getOwnerLoginServletRequest();
+//        ComplaintSuggestionAddRequest request = new ComplaintSuggestionAddRequest("测试内容", "complaint");
+//        BaseResponse<Long> result = complaintController.submitComplaint(request, httpServletRequest);
+//        // 添加断言
+//        assertEquals(ErrorCode.SUCCESS.getCode(), result.getCode());
+//    }
+//
+//    @Test
+//    void testSubmitInvalidComplaintType() {
+//        // C-002 无效投诉类型
+//        HttpServletRequest httpServletRequest = getOwnerLoginServletRequest();
+//        ComplaintSuggestionAddRequest request = new ComplaintSuggestionAddRequest("测试内容", "xxx");
+//        BaseResponse<Long> result = complaintController.submitComplaint(request, httpServletRequest);
+//        // 添加断言
+//        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), result.getCode());
+//    }
+//
+//    @Test
+//    void testSubmitVisitRequest() {
+//        // C-002 无效投诉类型
+//        HttpServletRequest httpServletRequest = getOwnerLoginServletRequest();
+//        VisitorAddRequest visitorAddRequest = new VisitorAddRequest("xxx", "45000020001119485X", "11", new Date(), DateUtil.parse("2025-06-13T13:02:28"));
+//        BaseResponse<Long> result = visitorController.submitVisitRequest(visitorAddRequest, httpServletRequest);
+//    }
+//
+//
+//    @Test
+//    void testMyBillRequest() {
+//        // C-002 无效投诉类型
+//        HttpServletRequest httpServletRequest = getOwnerLoginServletRequest();
+//        BillQueryRequest billQueryRequest = new BillQueryRequest();
+//        billQueryRequest.setCurrent(0);
+//        billQueryRequest.setPageSize(10);
+//        billController.listMyBillByPage(billQueryRequest, httpServletRequest);
+//    }
 }
